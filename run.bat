@@ -1,3 +1,3 @@
-java -classpath bin com.asofterspace.cdmScriptEditor.Main
+java -classpath "bin;emf/*" com.asofterspace.cdmScriptEditor.Main
 
 pause
