@@ -12,12 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
 import com.asofterspace.toolbox.configuration.ConfigFile;
+import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.web.JSON;
 
 public class GUI implements Runnable {
@@ -41,10 +43,12 @@ public class GUI implements Runnable {
 		createGUI();
 		
 		showGUI();
+		
+		openCdmFile();
 	}
 
 	private void createGUI() {
-		
+
 		// Create the window
 		mainWindow = new JFrame(Main.PROGRAM_TITLE);
 
@@ -66,12 +70,12 @@ public class GUI implements Runnable {
 	}
 	
 	private JPanel createTopPanel(JFrame parent) {
-		
+
 	    JPanel topPanel = new JPanel();
 	    topPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-	    
-		JLabel label = new JLabel(Main.PROGRAM_TITLE + " version " + Main.VERSION_NUMBER + " from " + Main.VERSION_DATE);
-		topPanel.add(label);
+
+		JLabel versionLabel = new JLabel(Main.PROGRAM_TITLE + " version " + Main.VERSION_NUMBER + " from " + Main.VERSION_DATE);
+		topPanel.add(versionLabel);
 
 		parent.add(topPanel, BorderLayout.PAGE_START);
 		
@@ -178,6 +182,25 @@ public class GUI implements Runnable {
 		
 		mainWindow.pack();
 		mainWindow.setVisible(true);
+	}
+	
+	private void openCdmFile() {
+
+		JFileChooser activeCdmPicker = new JFileChooser();
+		
+		int result = activeCdmPicker.showOpenDialog(mainWindow);
+		
+		switch (result) {
+
+			case JFileChooser.APPROVE_OPTION:
+				File cdmFile = new File(activeCdmPicker.getSelectedFile());
+				CdmCtrl.loadCdmFile(cdmFile);
+				break;
+
+			case JFileChooser.CANCEL_OPTION:
+				// cancel was pressed... do nothing for now
+				break;
+		}
 	}
 
 }
