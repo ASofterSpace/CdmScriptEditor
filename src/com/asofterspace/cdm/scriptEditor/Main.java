@@ -15,11 +15,10 @@ public class Main {
 	public static void main(String[] args) {
 
 		ConfigFile config = new ConfigFile("settings");
-
+		
 		// create a default config file, if necessary
 		if (config.getAllContents().isEmpty()) {
-
-			config.setAllContents(new JSON("{\"pages\": []}"));
+			config.setAllContents(new JSON("{\"lastDirectory\": \"\"}"));
 		}
 
 		SwingUtilities.invokeLater(new GUI(config));

@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,9 +91,9 @@ public class GUI implements Runnable {
 	    mainPanel.setLayout(new GridLayout(1, 2));
 
 	    JPanel mainPanelRight = new JPanel();
-	    String[] pageList = createPageTabs(mainPanelRight);
+		String[] cdmList = new String[0];
 	    
-		final JList<String> pageListComponent = new JList<String>(pageList);
+		final JList<String> pageListComponent = new JList<String>(cdmList);
 		
 		MouseListener pageListClickListener = new MouseListener() {
 			
@@ -136,29 +137,6 @@ public class GUI implements Runnable {
 	    return mainPanel;
 	}
 	
-	private String[] createPageTabs(JPanel parent) {
-
-	    List<JSON> jsonPages = configuration.getAllContents().getArray("pages");
-
-		pageList = new String[jsonPages.size()];
-		pageTabs = new ArrayList<PageTab>();
-	    
-		int i = 0;
-	    
-	    for (JSON jsonPage : jsonPages) {
-	    	
-	    	String pageTitle = jsonPage.getString("title");
-	    	
-	    	pageList[i++] = pageTitle;
-
-			PageTab tab = new PageTab(parent, pageTitle, jsonPage.getString("path"));
-			
-			pageTabs.add(tab);
-	    }
-	    
-	    return pageList;
-	}
-
 	private JPanel createBottomPanel(JFrame parent) {
 		
 	    JPanel bottomPanel = new JPanel();
@@ -187,7 +165,16 @@ public class GUI implements Runnable {
 	
 	private void openCdmFile() {
 
-		JFileChooser activeCdmPicker = new JFileChooser();
+		JFileChooser activeCdmPicker;
+		
+		String lastDirectory = configuration.getValue("lastDirectory");
+		
+		if ((lastDirectory != null) && !"".equals(lastDirectory)) {
+			activeCdmPicker = new JFileChooser(new File(lastDirectory));
+		} else {
+			activeCdmPicker = new JFileChooser();
+		}
+		
 		activeCdmPicker.setDialogTitle("Open a CDM working directory");
 		activeCdmPicker.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -196,6 +183,7 @@ public class GUI implements Runnable {
 		switch (result) {
 
 			case JFileChooser.APPROVE_OPTION:
+				configuration.set("lastDirectory", activeCdmPicker.getCurrentDirectory().getAbsolutePath());
 				Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
 				CdmCtrl.loadCdmDirectory(cdmDir);
 				break;
