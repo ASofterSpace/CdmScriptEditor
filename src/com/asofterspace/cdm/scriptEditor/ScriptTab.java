@@ -17,7 +17,7 @@ import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.web.JSON;
 
-public class PageTab {
+public class ScriptTab {
 
 	JPanel parent;
 
@@ -30,7 +30,7 @@ public class PageTab {
 	ConfigFile configuration;
 	
 
-	public PageTab(JPanel parentPanel, String page, String pathToPage) {
+	public ScriptTab(JPanel parentPanel, String page, String pathToPage) {
 
 		parent = parentPanel;
 		

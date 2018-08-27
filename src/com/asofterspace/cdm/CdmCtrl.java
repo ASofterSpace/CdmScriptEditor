@@ -4,6 +4,7 @@ import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
@@ -74,6 +75,16 @@ public class CdmCtrl {
 				System.out.println(eb); // debug
 			}
 		}
+	}
+	
+	public static List<String> getScripts() {
+		
+		List<String> results = new ArrayList<>();
+		
+		// TODO :: actually read out the script content from the CDM XML files
+		results.add("test script");
+		
+		return results;
 	}
 
 }

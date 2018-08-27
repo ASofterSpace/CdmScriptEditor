@@ -30,9 +30,11 @@ public class GUI implements Runnable {
 	
 	private String[] pageList;
 	
-	private List<PageTab> pageTabs;
+	private List<ScriptTab> scriptTabs;
 	
 	private ConfigFile configuration;
+	
+	private JList<String> scriptListComponent;
 	
 	
 	public GUI(ConfigFile config) {
@@ -93,16 +95,16 @@ public class GUI implements Runnable {
 	    JPanel mainPanelRight = new JPanel();
 		String[] cdmList = new String[0];
 	    
-		final JList<String> pageListComponent = new JList<String>(cdmList);
+		scriptListComponent = new JList<String>(cdmList);
 		
 		MouseListener pageListClickListener = new MouseListener() {
 			
 			@Override
 		    public void mouseClicked(MouseEvent e) {
 
-		         String selectedItem = (String) pageListComponent.getSelectedValue();
+		         String selectedItem = (String) scriptListComponent.getSelectedValue();
 
-		         for (PageTab tab : pageTabs) {
+		         for (ScriptTab tab : scriptTabs) {
 		        	 if (tab.isItem(selectedItem)) {
 		        		 tab.show();
 		        	 } else {
@@ -127,9 +129,9 @@ public class GUI implements Runnable {
 			public void mouseReleased(MouseEvent e) {
 			}
 		};
-		pageListComponent.addMouseListener(pageListClickListener);
+		scriptListComponent.addMouseListener(pageListClickListener);
 		
-		mainPanel.add(pageListComponent);
+		mainPanel.add(scriptListComponent);
 	    mainPanel.add(mainPanelRight);
 
 		parent.add(mainPanel, BorderLayout.CENTER);
@@ -186,6 +188,8 @@ public class GUI implements Runnable {
 				configuration.set("lastDirectory", activeCdmPicker.getCurrentDirectory().getAbsolutePath());
 				Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
 				CdmCtrl.loadCdmDirectory(cdmDir);
+				List<String> scripts = CdmCtrl.getScripts();
+				scriptListComponent.setListData(scripts.toArray(new String[0]));
 				break;
 
 			case JFileChooser.CANCEL_OPTION:
