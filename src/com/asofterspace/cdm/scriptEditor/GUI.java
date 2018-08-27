@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 
 import com.asofterspace.cdm.CdmCtrl;
 import com.asofterspace.toolbox.configuration.ConfigFile;
-import com.asofterspace.toolbox.io.File;
+import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.web.JSON;
 
 public class GUI implements Runnable {
@@ -188,14 +188,16 @@ public class GUI implements Runnable {
 	private void openCdmFile() {
 
 		JFileChooser activeCdmPicker = new JFileChooser();
-		
+		activeCdmPicker.setDialogTitle("Open a CDM working directory");
+		activeCdmPicker.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
 		int result = activeCdmPicker.showOpenDialog(mainWindow);
 		
 		switch (result) {
 
 			case JFileChooser.APPROVE_OPTION:
-				File cdmFile = new File(activeCdmPicker.getSelectedFile());
-				CdmCtrl.loadCdmFile(cdmFile);
+				Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
+				CdmCtrl.loadCdmDirectory(cdmDir);
 				break;
 
 			case JFileChooser.CANCEL_OPTION:

@@ -1,8 +1,10 @@
 package com.asofterspace.cdm;
 
+import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
@@ -11,6 +13,15 @@ import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 
 public class CdmCtrl {
+
+	public static void loadCdmDirectory(Directory cdmDir) {
+	
+		List<File> cdmFiles = cdmDir.getAllFiles(true);
+		
+		for (File cdmFile : cdmFiles) {
+			loadCdmFile(cdmFile);
+		}
+	}
 
 	public static void loadCdmFile(File cdmFile) {
 
