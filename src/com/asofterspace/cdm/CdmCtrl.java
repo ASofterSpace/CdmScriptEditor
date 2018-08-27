@@ -16,14 +16,20 @@ public class CdmCtrl {
 
 		loadCdmFileViaXML(cdmFile);
 	
-		loadCdmFileViaEMF(cdmFile);
+		// TODO - also get the EMF stuff to work ;)
+		// loadCdmFileViaEMF(cdmFile);
 	}
 	
 	private static void loadCdmFileViaXML(File cdmFile) {
 	
-		CdmFile cdm = new CdmFile(cdmFile);
+		try {
+			CdmFile cdm = new CdmFile(cdmFile);
 		
-		System.out.println(cdm);
+			System.out.println(cdm);
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 	
 	private static void loadCdmFileViaEMF(File cdmFile) {
