@@ -1,4 +1,4 @@
-package com.asofterspace.cdmScriptEditor;
+package com.asofterspace.cdm.scriptEditor;
 
 import javax.swing.SwingUtilities;
 

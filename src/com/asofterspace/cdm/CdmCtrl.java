@@ -1,4 +1,4 @@
-package com.asofterspace.cdmScriptEditor;
+package com.asofterspace.cdm;
 
 import com.asofterspace.toolbox.io.File;
 
@@ -14,6 +14,20 @@ public class CdmCtrl {
 
 	public static void loadCdmFile(File cdmFile) {
 
+		loadCdmFileViaXML(cdmFile);
+	
+		loadCdmFileViaEMF(cdmFile);
+	}
+	
+	private static void loadCdmFileViaXML(File cdmFile) {
+	
+		CdmFile cdm = new CdmFile(cdmFile);
+		
+		System.out.println(cdm);
+	}
+	
+	private static void loadCdmFileViaEMF(File cdmFile) {
+	
 		// TODO - load the CDM File using EMF: https://www.eclipse.org/modeling/emf/
 		// you can get EMF from here: http://www.eclipse.org/modeling/emf/downloads/
 		// TODO - add CDM namespaces... we need some .ecore files or somesuch?

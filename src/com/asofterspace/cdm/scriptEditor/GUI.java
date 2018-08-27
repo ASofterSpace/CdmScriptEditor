@@ -1,4 +1,4 @@
-package com.asofterspace.cdmScriptEditor;
+package com.asofterspace.cdm.scriptEditor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
+import com.asofterspace.cdm.CdmCtrl;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.web.JSON;
