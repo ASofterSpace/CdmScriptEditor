@@ -15,33 +15,44 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 public class CdmCtrl {
 
+	private static List<CdmFile> fileList = new ArrayList<>();
+	
+
 	public static void loadCdmDirectory(Directory cdmDir) {
 	
+		fileList = new ArrayList<>();
+		
 		List<File> cdmFiles = cdmDir.getAllFiles(true);
 		
 		for (File cdmFile : cdmFiles) {
-			loadCdmFile(cdmFile);
+			fileList.add(loadCdmFile(cdmFile));
 		}
 	}
 
-	public static void loadCdmFile(File cdmFile) {
+	public static CdmFile loadCdmFile(File cdmFile) {
 
-		loadCdmFileViaXML(cdmFile);
+		CdmFile result = loadCdmFileViaXML(cdmFile);
 	
 		// TODO - also get the EMF stuff to work ;)
 		// loadCdmFileViaEMF(cdmFile);
+		
+		return result;
 	}
 	
-	private static void loadCdmFileViaXML(File cdmFile) {
+	private static CdmFile loadCdmFileViaXML(File cdmFile) {
 	
 		try {
 			CdmFile cdm = new CdmFile(cdmFile);
 		
 			System.out.println(cdm);
+			
+			return cdm;
 
 		} catch (Exception e) {
 			System.out.println(e);
 		}
+		
+		return null;
 	}
 	
 	private static void loadCdmFileViaEMF(File cdmFile) {
@@ -77,13 +88,18 @@ public class CdmCtrl {
 		}
 	}
 	
-	public static List<String> getScripts() {
+	public static List<CdmScript> getScripts() {
+
+		List<CdmScript> results = new ArrayList<>();
+
+		for (CdmFile cdmFile : fileList) {
+			results.addAll(cdmFile.getScripts());
+		}
 		
-		List<String> results = new ArrayList<>();
-		
-		// TODO :: actually read out the script content from the CDM XML files
-		results.add("test script");
-		
+		// TODO :: remove test data
+		results.add(new CdmScript(new CdmFile(new File("ResourceTest1")), "ResourceTest1", "println(\"Hello world!\")"));
+		results.add(new CdmScript(new CdmFile(new File("ResourceTest2")), "ResourceTest2", "println(\"Hello world too!\")"));
+
 		return results;
 	}
 

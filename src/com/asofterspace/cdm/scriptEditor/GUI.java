@@ -20,15 +20,17 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 
 import com.asofterspace.cdm.CdmCtrl;
+import com.asofterspace.cdm.CdmScript;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.web.JSON;
+
 
 public class GUI implements Runnable {
 
 	private JFrame mainWindow;
 	
-	private String[] pageList;
+	private JPanel mainPanelRight;
 	
 	private List<ScriptTab> scriptTabs;
 	
@@ -92,25 +94,25 @@ public class GUI implements Runnable {
 	    mainPanel.setPreferredSize(new Dimension(800, 500));
 	    mainPanel.setLayout(new GridLayout(1, 2));
 
-	    JPanel mainPanelRight = new JPanel();
-		String[] cdmList = new String[0];
-	    
-		scriptListComponent = new JList<String>(cdmList);
+	    mainPanelRight = new JPanel();
+		String[] scriptList = new String[0];
+		scriptListComponent = new JList<String>(scriptList);
+		scriptTabs = new ArrayList<>();
 		
-		MouseListener pageListClickListener = new MouseListener() {
+		MouseListener scriptListClickListener = new MouseListener() {
 			
 			@Override
 		    public void mouseClicked(MouseEvent e) {
 
-		         String selectedItem = (String) scriptListComponent.getSelectedValue();
+				String selectedItem = (String) scriptListComponent.getSelectedValue();
 
-		         for (ScriptTab tab : scriptTabs) {
-		        	 if (tab.isItem(selectedItem)) {
-		        		 tab.show();
-		        	 } else {
-		        		 tab.hide();
-		        	 }
-		         }
+				for (ScriptTab tab : scriptTabs) {
+					if (tab.isItem(selectedItem)) {
+						tab.show();
+					} else {
+						tab.hide();
+					}
+				}
 		    }
 
 			@Override
@@ -129,7 +131,7 @@ public class GUI implements Runnable {
 			public void mouseReleased(MouseEvent e) {
 			}
 		};
-		scriptListComponent.addMouseListener(pageListClickListener);
+		scriptListComponent.addMouseListener(scriptListClickListener);
 		
 		mainPanel.add(scriptListComponent);
 	    mainPanel.add(mainPanelRight);
@@ -188,8 +190,19 @@ public class GUI implements Runnable {
 				configuration.set("lastDirectory", activeCdmPicker.getCurrentDirectory().getAbsolutePath());
 				Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
 				CdmCtrl.loadCdmDirectory(cdmDir);
-				List<String> scripts = CdmCtrl.getScripts();
-				scriptListComponent.setListData(scripts.toArray(new String[0]));
+				
+				List<CdmScript> scripts = CdmCtrl.getScripts();
+				scriptTabs = new ArrayList<>();
+				for (CdmScript script : scripts) {
+					scriptTabs.add(new ScriptTab(mainPanelRight, script));
+				}
+				
+				String[] strScripts = new String[scripts.size()];
+				for (int i = 0; i < scripts.size(); i++) {
+					strScripts[i] = scripts.get(i).getName();
+				}
+				scriptListComponent.setListData(strScripts);
+
 				break;
 
 			case JFileChooser.CANCEL_OPTION:
