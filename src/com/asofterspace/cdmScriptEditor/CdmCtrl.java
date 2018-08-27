@@ -16,7 +16,10 @@ public class CdmCtrl {
 		// you can get EMF from here: http://www.eclipse.org/modeling/emf/downloads/
 		
 		System.out.println(cdmFile);
-		XMIResource resource = new XMIResourceImpl(URI.createURI("file:///D:/prog/asofterspace/CdmScriptEditor/other/Resource_Procedure_1.cdm"));
+		java.net.URI cdmURI = cdmFile.getURI();
+		System.out.println(cdmURI);
+	
+		XMIResource resource = new XMIResourceImpl(URI.createURI(cdmURI.toString()));
 		try {
 			resource.load(null);
 			System.out.println(resource.getContents().get(0));

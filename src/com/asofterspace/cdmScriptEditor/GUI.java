@@ -193,7 +193,6 @@ public class GUI implements Runnable {
 		switch (result) {
 
 			case JFileChooser.APPROVE_OPTION:
-				// TODO :: also use getCurrentDirectory(), to actually go towards the correct directory before looking at the filename
 				File cdmFile = new File(activeCdmPicker.getSelectedFile());
 				CdmCtrl.loadCdmFile(cdmFile);
 				break;
