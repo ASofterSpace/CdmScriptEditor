@@ -5,8 +5,10 @@ import com.asofterspace.toolbox.io.File;
 import java.io.IOException;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
+import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
+import org.eclipse.emf.ecore.resource.Resource;
 
 public class CdmCtrl {
 
@@ -14,17 +16,29 @@ public class CdmCtrl {
 
 		// TODO - load the CDM File using EMF: https://www.eclipse.org/modeling/emf/
 		// you can get EMF from here: http://www.eclipse.org/modeling/emf/downloads/
+		// TODO - add CDM namespaces... we need some .ecore files or somesuch?
+		// do this similar to: EPackage.Registry.INSTANCE.put("schemas.xmlsoap.org/wsdl/", "file:/C:/workspace/Trans/bin/metamodels/WSDL.ecore");
 		
-		System.out.println(cdmFile);
+		System.out.println(cdmFile); // debug
 		java.net.URI cdmURI = cdmFile.getURI();
-		System.out.println(cdmURI);
+		System.out.println(cdmURI); // debug
 	
-		XMIResource resource = new XMIResourceImpl(URI.createURI(cdmURI.toString()));
+		// try to read an XML CDM...
+		XMIResource xResource = new XMIResourceImpl(URI.createURI(cdmURI.toString()));
 		try {
-			resource.load(null);
-			System.out.println(resource.getContents().get(0));
-		} catch (IOException e) {
-			System.out.println(e);
+			xResource.load(null);
+			System.out.println(xResource.getContents().get(0)); // debug
+		} catch (IOException ex) {
+			// ... there was an exception! Must be binary then...
+			System.out.println(ex); // debug
+			Resource bResource = new BinaryResourceImpl(URI.createURI(cdmURI.toString()));
+			try {
+				bResource.load(null);
+				System.out.println(bResource.getContents().get(0)); // debug
+			} catch (IOException eb) {
+				// ... oh wow; not binary either. Is this a CDM encoded in Morse code?
+				System.out.println(eb); // debug
+			}
 		}
 	}
 
