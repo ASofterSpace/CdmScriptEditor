@@ -18,6 +18,9 @@ public class CdmCtrl {
 		// you can get EMF from here: http://www.eclipse.org/modeling/emf/downloads/
 		// TODO - add CDM namespaces... we need some .ecore files or somesuch?
 		// do this similar to: EPackage.Registry.INSTANCE.put("schemas.xmlsoap.org/wsdl/", "file:/C:/workspace/Trans/bin/metamodels/WSDL.ecore");
+		// or similar to: Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
+		// also see: http://www.vogella.com/tutorials/EclipseEMF/article.html (so apparently we need .ecore and genmodel files, but genmodel can be created from ecore)
+		// >> as all of this is rather cumbersome, maybe go for plain XML for now after all...
 		
 		System.out.println(cdmFile); // debug
 		java.net.URI cdmURI = cdmFile.getURI();
