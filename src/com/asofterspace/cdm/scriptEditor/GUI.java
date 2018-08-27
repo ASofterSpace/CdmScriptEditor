@@ -1,8 +1,10 @@
 package com.asofterspace.cdm.scriptEditor;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,7 +52,7 @@ public class GUI implements Runnable {
 		
 		showGUI();
 		
-		openCdmFile();
+		openCdmDirectory();
 	}
 
 	private void createGUI() {
@@ -92,9 +94,12 @@ public class GUI implements Runnable {
 		
 	    JPanel mainPanel = new JPanel();
 	    mainPanel.setPreferredSize(new Dimension(800, 500));
-	    mainPanel.setLayout(new GridLayout(1, 2));
+		GridLayout mainPanelLayout = new GridLayout(1, 2);
+		mainPanelLayout.setHgap(10);
+		mainPanel.setLayout(mainPanelLayout);
 
 	    mainPanelRight = new JPanel();
+		mainPanelRight.setLayout(new CardLayout());
 		String[] scriptList = new String[0];
 		scriptListComponent = new JList<String>(scriptList);
 		scriptTabs = new ArrayList<>();
@@ -134,6 +139,7 @@ public class GUI implements Runnable {
 		scriptListComponent.addMouseListener(scriptListClickListener);
 		
 		mainPanel.add(scriptListComponent);
+		
 	    mainPanel.add(mainPanelRight);
 
 		parent.add(mainPanel, BorderLayout.CENTER);
@@ -146,6 +152,16 @@ public class GUI implements Runnable {
 	    JPanel bottomPanel = new JPanel();
 	    bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 	    
+	    JButton openCdmButton = new JButton("Open CDM Directory");
+	    openCdmButton.addActionListener(new ActionListener()
+	    {
+	      public void actionPerformed(ActionEvent e)
+	      {
+	        openCdmDirectory();
+	      }
+	    });
+	    bottomPanel.add(openCdmButton);
+		
 	    JButton closeButton = new JButton("Close");
 	    closeButton.addActionListener(new ActionListener()
 	    {
@@ -167,7 +183,7 @@ public class GUI implements Runnable {
 		mainWindow.setVisible(true);
 	}
 	
-	private void openCdmFile() {
+	private void openCdmDirectory() {
 
 		JFileChooser activeCdmPicker;
 		

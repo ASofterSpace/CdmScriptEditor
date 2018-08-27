@@ -22,5 +22,10 @@ public class CdmScript {
 	
 		return name;
 	}
+	
+	public String getSourceCode() {
+	
+		return content;
+	}
 
 }
