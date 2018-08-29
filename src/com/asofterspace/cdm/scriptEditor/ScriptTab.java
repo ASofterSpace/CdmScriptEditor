@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.asofterspace.cdm.CdmScript;
@@ -68,7 +69,8 @@ public class ScriptTab {
 		
 		JTextArea sourceCodeEditor = new JTextArea();
 		sourceCodeEditor.setText(script.getSourceCode());
-		tab.add(sourceCodeEditor, c2);
+		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
+		tab.add(sourceCodeScroller, c2);
 
 		// add a visual editor containing the source code... maybe Xtext-based?
 		// see: https://www.slideshare.net/meysholdt/lightweight-xtext-editorsasswtwidgets

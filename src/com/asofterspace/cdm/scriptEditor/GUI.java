@@ -3,13 +3,15 @@ package com.asofterspace.cdm.scriptEditor;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.FlowLayout;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,8 @@ public class GUI implements Runnable {
 
 	private void createGUI() {
 
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		
 		// Create the window
 		mainWindow = new JFrame(Main.PROGRAM_TITLE);
 
@@ -68,13 +72,23 @@ public class GUI implements Runnable {
 		// Stage everything to be shown
 		mainWindow.pack();
 		
-		// Center the window
-        mainWindow.setLocationRelativeTo(null);
-        
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Actually display the whole jazz
         mainWindow.setVisible(true);
+		
+		// Maximize the window
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		Rectangle bounds = env.getMaximumWindowBounds();
+		mainWindow.setMaximizedBounds(bounds);
+		mainWindow.setSize((int) bounds.getWidth(), (int) bounds.getHeight());
+		mainWindow.setPreferredSize(new Dimension((int) bounds.getWidth(), (int) bounds.getHeight()));
+		// This should actually maximize the window, but for some reason does not work (reliably),
+		// so instead we do it manually in the lines above...
+		// mainWindow.setExtendedState(mainWindow.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		
+		// Center the window
+        mainWindow.setLocationRelativeTo(null);
 	}
 	
 	private JPanel createTopPanel(JFrame parent) {

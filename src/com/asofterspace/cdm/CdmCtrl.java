@@ -95,10 +95,6 @@ public class CdmCtrl {
 		for (CdmFile cdmFile : fileList) {
 			results.addAll(cdmFile.getScripts());
 		}
-		
-		// TODO :: remove test data
-		results.add(new CdmScript(new CdmFile(new File("ResourceTest1")), "ResourceTest1", "println(\"Hello world!\")"));
-		results.add(new CdmScript(new CdmFile(new File("ResourceTest2")), "ResourceTest2", "println(\"Hello world too!\")"));
 
 		return results;
 	}

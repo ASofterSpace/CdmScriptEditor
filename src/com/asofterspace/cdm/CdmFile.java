@@ -6,6 +6,10 @@ import com.asofterspace.toolbox.io.XmlFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 
 public class CdmFile extends XmlFile {
 
@@ -22,7 +26,31 @@ public class CdmFile extends XmlFile {
 	 */
 	public List<CdmScript> getScripts() {
 	
-		return new ArrayList<CdmScript>();
+		List<CdmScript> results = new ArrayList<>();
+	
+		Node rootNode = getRoot();
+		
+		NodeList elements = rootNode.getChildNodes();
+		
+		int len = elements.getLength();
+		
+		for (int i = 0; i < len; i++) {
+			try {
+				Node elem = elements.item(i);
+				if ("script".equals(elem.getNodeName())) {
+					NamedNodeMap scriptAttributes = elem.getAttributes();
+					String scriptContent = scriptAttributes.getNamedItem("scriptContent").getNodeValue();
+					String scriptName = scriptAttributes.getNamedItem("name").getNodeValue();
+					CdmScript script = new CdmScript(this, scriptName, scriptContent);
+					results.add(script);
+				}
+			} catch (NullPointerException e) {
+				// ignore script nodes that do not contain name or scriptContent attributes
+				System.err.println("ERROR: A script in " + getFilename() + " does not have a properly assigned name or scriptContent attribute and will be ignored!");
+			}
+		}
+	
+		return results;
 	}
 
 }
