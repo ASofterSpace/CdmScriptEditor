@@ -52,7 +52,7 @@ public class ScriptTab {
 		GridBagConstraints c1 = new GridBagConstraints();
 		c1.fill = GridBagConstraints.BOTH;
 		c1.weightx = 1.0;
-		c1.weighty = 0.1;
+		c1.weighty = 0.0;
 		c1.gridx = 0;
 		c1.gridy = 0;
 		
@@ -90,7 +90,7 @@ public class ScriptTab {
 		GridBagConstraints c3 = new GridBagConstraints();
 		c3.fill = GridBagConstraints.BOTH;
 		c3.weightx = 1.0;
-		c3.weighty = 0.1;
+		c3.weighty = 0.0;
 		c3.gridx = 0;
 		c3.gridy = 2;
 		

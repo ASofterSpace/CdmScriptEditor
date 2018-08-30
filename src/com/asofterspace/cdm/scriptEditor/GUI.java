@@ -166,7 +166,7 @@ public class GUI implements Runnable {
 	    JPanel bottomPanel = new JPanel();
 	    bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 	    
-	    JButton openCdmButton = new JButton("Open CDM Directory");
+	    JButton openCdmButton = new JButton("Open Different CDM Directory");
 	    openCdmButton.addActionListener(new ActionListener()
 	    {
 	      public void actionPerformed(ActionEvent e)

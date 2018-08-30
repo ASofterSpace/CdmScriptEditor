@@ -7,11 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/* // TAKE OUT EMF DEPENDENCIES
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.resource.impl.BinaryResourceImpl;
 import org.eclipse.emf.ecore.resource.Resource;
+*/ // TAKE OUT EMF DEPENDENCIES
 
 public class CdmCtrl {
 
@@ -25,7 +27,9 @@ public class CdmCtrl {
 		List<File> cdmFiles = cdmDir.getAllFiles(true);
 		
 		for (File cdmFile : cdmFiles) {
-			fileList.add(loadCdmFile(cdmFile));
+			if (cdmFile.getFilename().endsWith(".cdm")) {
+				fileList.add(loadCdmFile(cdmFile));
+			}
 		}
 	}
 
@@ -57,6 +61,7 @@ public class CdmCtrl {
 	
 	private static void loadCdmFileViaEMF(File cdmFile) {
 	
+/* // TAKE OUT EMF DEPENDENCIES
 		// TODO - load the CDM File using EMF: https://www.eclipse.org/modeling/emf/
 		// you can get EMF from here: http://www.eclipse.org/modeling/emf/downloads/
 		// TODO - add CDM namespaces... we need some .ecore files or somesuch?
@@ -86,6 +91,7 @@ public class CdmCtrl {
 				System.out.println(eb); // debug
 			}
 		}
+*/ // TAKE OUT EMF DEPENDENCIES
 	}
 	
 	public static List<CdmScript> getScripts() {
