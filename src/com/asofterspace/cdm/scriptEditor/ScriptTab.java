@@ -1,13 +1,12 @@
 package com.asofterspace.cdm.scriptEditor;
 
-import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,9 +15,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 
 import com.asofterspace.cdm.CdmScript;
+import com.asofterspace.toolbox.codeeditor.GroovyCode;
+import com.asofterspace.toolbox.codeeditor.GroovyCodeDark;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
@@ -67,26 +68,14 @@ public class ScriptTab {
 		c2.gridx = 0;
 		c2.gridy = 1;
 		
-		JTextArea sourceCodeEditor = new JTextArea();
+		// TODO :: actually make this into a non-wrapping text pane!
+		// see https://stackoverflow.com/questions/23149512/how-to-disable-wordwrap-in-java-jtextpane
+		JTextPane sourceCodeEditor = new JTextPane();
+		GroovyCode groovyCode = new GroovyCodeDark(sourceCodeEditor);
 		sourceCodeEditor.setText(script.getSourceCode());
 		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
 		tab.add(sourceCodeScroller, c2);
 
-		// add a visual editor containing the source code... maybe Xtext-based?
-		// see: https://www.slideshare.net/meysholdt/lightweight-xtext-editorsasswtwidgets
-		// see: https://www.eclipse.org/forums/index.php/t/1083153/
-
-		/*
-		sooo... something like this? xD (seems to have *something* to do with xtext, but no idea what...)
-		Composite top = new Composite(parent, SWT.NONE);
-		ArithmeticsActivator activator = ArithmeticsActivator.getInstance();
-		Injector injector = activator.getInjector(ORG_ECLIPSE_XTEXT_EXAMPLE_ARITHMETICS_ARITHMETICS);
-		MailResourceProvider provider = injector.getInstance(MailResourceProvider.class);
-		EmbeddedEditorFactory factory = injector.getInstance(EmbeddedEditorFactory.class);
-		EmbeddedEditor editor = factory.newEditor(provider).withParent(top);
-		EmbeddedEditorModelAccess model = editor.createPartialEditor("", "module HelloWorld", "", false);
-		*/
-		
 		GridBagConstraints c3 = new GridBagConstraints();
 		c3.fill = GridBagConstraints.BOTH;
 		c3.weightx = 1.0;
