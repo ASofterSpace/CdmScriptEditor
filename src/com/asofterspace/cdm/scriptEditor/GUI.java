@@ -46,9 +46,11 @@ public class GUI implements Runnable {
 	private JPanel mainPanelRight;
 	private JRadioButtonMenuItem lightScheme;
 	private JRadioButtonMenuItem darkScheme;
+	private int currentFontSize = 15;
 	
 	private final static String CONFIG_KEY_LAST_DIRECTORY = "lastDirectory";
 	private final static String CONFIG_KEY_EDITOR_SCHEME = "editorScheme";
+	private final static String CONFIG_KEY_EDITOR_FONT_SIZE = "editorFontSize";
 	private final static String CONFIG_VAL_SCHEME_LIGHT = "groovyLight";
 	private final static String CONFIG_VAL_SCHEME_DARK = "groovyDark";
 	
@@ -209,7 +211,9 @@ public class GUI implements Runnable {
 		fontLarger.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				currentFontSize++;
+				GroovyCode.setFontSize(currentFontSize);
+				configuration.set(CONFIG_KEY_EDITOR_FONT_SIZE, currentFontSize);
 			}
 		});
 		editor.add(fontLarger);
@@ -217,7 +221,9 @@ public class GUI implements Runnable {
 		fontSmaller.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				currentFontSize--;
+				GroovyCode.setFontSize(currentFontSize);
+				configuration.set(CONFIG_KEY_EDITOR_FONT_SIZE, currentFontSize);
 			}
 		});
 		editor.add(fontSmaller);
@@ -336,6 +342,14 @@ public class GUI implements Runnable {
 					break;
 			}
 		}
+		
+		Integer configFontSize = configuration.getInteger(CONFIG_KEY_EDITOR_FONT_SIZE);
+
+		if ((configFontSize != null) && (configFontSize > 0)) {
+			currentFontSize = configFontSize;
+		}
+		
+		GroovyCode.setFontSize(currentFontSize);
 	}
 		
 	private void showGUI() {
