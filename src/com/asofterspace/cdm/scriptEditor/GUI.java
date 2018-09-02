@@ -33,6 +33,7 @@ import javax.swing.KeyStroke;
 
 import com.asofterspace.cdm.CdmCtrl;
 import com.asofterspace.cdm.CdmScript;
+import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.web.JSON;
@@ -43,6 +44,13 @@ public class GUI implements Runnable {
 	private JFrame mainWindow;
 	
 	private JPanel mainPanelRight;
+	private JRadioButtonMenuItem lightScheme;
+	private JRadioButtonMenuItem darkScheme;
+	
+	private final static String CONFIG_KEY_LAST_DIRECTORY = "lastDirectory";
+	private final static String CONFIG_KEY_EDITOR_SCHEME = "editorScheme";
+	private final static String CONFIG_VAL_SCHEME_LIGHT = "groovyLight";
+	private final static String CONFIG_VAL_SCHEME_DARK = "groovyDark";
 	
 	private List<ScriptTab> scriptTabs;
 	
@@ -59,6 +67,8 @@ public class GUI implements Runnable {
 	public void run() {
 		
 		createGUI();
+		
+		configureGUI();
 		
 		showGUI();
 		
@@ -170,21 +180,27 @@ public class GUI implements Runnable {
 		JMenu editor = new JMenu("Editor");
 		menu.add(editor);
 		JMenu style = new JMenu("Style");
-		JRadioButtonMenuItem lightScheme = new JRadioButtonMenuItem("Light Scheme");
-		lightScheme.setSelected(false);
+		lightScheme = new JRadioButtonMenuItem("Light Scheme");
+		darkScheme = new JRadioButtonMenuItem("Dark Scheme");
+		lightScheme.setSelected(true);
 		lightScheme.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				GroovyCode.setLightScheme();
+				lightScheme.setSelected(true);
+				darkScheme.setSelected(false);
+				configuration.set(CONFIG_KEY_EDITOR_SCHEME, CONFIG_VAL_SCHEME_LIGHT);
 			}
 		});
 		style.add(lightScheme);
-		JRadioButtonMenuItem darkScheme = new JRadioButtonMenuItem("Dark Scheme");
-		darkScheme.setSelected(true);
+		darkScheme.setSelected(false);
 		darkScheme.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				GroovyCode.setDarkScheme();
+				lightScheme.setSelected(false);
+				darkScheme.setSelected(true);
+				configuration.set(CONFIG_KEY_EDITOR_SCHEME, CONFIG_VAL_SCHEME_DARK);
 			}
 		});
 		style.add(darkScheme);
@@ -256,16 +272,7 @@ public class GUI implements Runnable {
 			
 			@Override
 		    public void mouseClicked(MouseEvent e) {
-
-				String selectedItem = (String) scriptListComponent.getSelectedValue();
-
-				for (ScriptTab tab : scriptTabs) {
-					if (tab.isItem(selectedItem)) {
-						tab.show();
-					} else {
-						tab.hide();
-					}
-				}
+				showSelectedTab();
 		    }
 
 			@Override
@@ -278,10 +285,12 @@ public class GUI implements Runnable {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
+				showSelectedTab();
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				showSelectedTab();
 			}
 		};
 		scriptListComponent.addMouseListener(scriptListClickListener);
@@ -295,6 +304,40 @@ public class GUI implements Runnable {
 	    return mainPanel;
 	}
 	
+	private void showSelectedTab() {
+
+		String selectedItem = (String) scriptListComponent.getSelectedValue();
+
+		for (ScriptTab tab : scriptTabs) {
+			if (tab.isItem(selectedItem)) {
+				tab.show();
+			} else {
+				tab.hide();
+			}
+		}
+	}
+
+	private void configureGUI() {
+	
+		String editorScheme = configuration.getValue(CONFIG_KEY_EDITOR_SCHEME);
+
+		if (editorScheme != null) {
+			switch (editorScheme) {
+				case CONFIG_VAL_SCHEME_LIGHT:
+					GroovyCode.setLightScheme();
+					lightScheme.setSelected(true);
+					darkScheme.setSelected(false);
+					break;
+			
+				case CONFIG_VAL_SCHEME_DARK:
+					GroovyCode.setDarkScheme();
+					lightScheme.setSelected(false);
+					darkScheme.setSelected(true);
+					break;
+			}
+		}
+	}
+		
 	private void showGUI() {
 		
 		mainWindow.pack();
@@ -305,7 +348,7 @@ public class GUI implements Runnable {
 
 		JFileChooser activeCdmPicker;
 		
-		String lastDirectory = configuration.getValue("lastDirectory");
+		String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
 		
 		if ((lastDirectory != null) && !"".equals(lastDirectory)) {
 			activeCdmPicker = new JFileChooser(new File(lastDirectory));
@@ -321,7 +364,7 @@ public class GUI implements Runnable {
 		switch (result) {
 
 			case JFileChooser.APPROVE_OPTION:
-				configuration.set("lastDirectory", activeCdmPicker.getCurrentDirectory().getAbsolutePath());
+				configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
 				Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
 				CdmCtrl.loadCdmDirectory(cdmDir);
 				

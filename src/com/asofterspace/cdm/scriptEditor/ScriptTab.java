@@ -19,7 +19,6 @@ import javax.swing.JTextPane;
 
 import com.asofterspace.cdm.CdmScript;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
-import com.asofterspace.toolbox.codeeditor.GroovyCodeDark;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
@@ -67,11 +66,13 @@ public class ScriptTab {
 		c2.weighty = 1.0;
 		c2.gridx = 0;
 		c2.gridy = 1;
-		
-		// TODO :: actually make this into a non-wrapping text pane!
-		// see https://stackoverflow.com/questions/23149512/how-to-disable-wordwrap-in-java-jtextpane
-		JTextPane sourceCodeEditor = new JTextPane();
-		GroovyCode groovyCode = new GroovyCodeDark(sourceCodeEditor);
+
+		JTextPane sourceCodeEditor = new JTextPane() {
+			public boolean getScrollableTracksViewportWidth() {
+				return getUI().getPreferredSize(this).width <= getParent().getSize().width;
+			}
+		};
+		GroovyCode groovyCode = new GroovyCode(sourceCodeEditor);
 		sourceCodeEditor.setText(script.getSourceCode());
 		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
 		tab.add(sourceCodeScroller, c2);
