@@ -83,6 +83,7 @@ public class ScriptTab {
 		c3.gridx = 0;
 		c3.gridy = 2;
 		
+		/*
 		JPanel buttonRow = new JPanel();
 		GridLayout buttonRowLayout = new GridLayout(1, 2);
 		buttonRowLayout.setHgap(10);
@@ -108,6 +109,7 @@ public class ScriptTab {
 			}
 	    });
 	    buttonRow.add(compileButton);
+		*/
 
 		tab.setVisible(false);
 

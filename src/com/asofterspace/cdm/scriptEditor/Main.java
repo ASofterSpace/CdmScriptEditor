@@ -9,8 +9,8 @@ import com.asofterspace.toolbox.web.JSON;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "CDM Script Editor";
-	public final static String VERSION_NUMBER = "0.0.0.1(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "26. August 2018";
+	public final static String VERSION_NUMBER = "0.0.0.2(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "26. August 2018 - 2. September 2018";
 	
 	public static void main(String[] args) {
 

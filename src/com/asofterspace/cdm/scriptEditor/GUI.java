@@ -5,12 +5,13 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
@@ -22,6 +23,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
 
 import com.asofterspace.cdm.CdmCtrl;
 import com.asofterspace.cdm.CdmScript;
@@ -59,15 +67,14 @@ public class GUI implements Runnable {
 
 	private void createGUI() {
 
-		JFrame.setDefaultLookAndFeelDecorated(true);
+		JFrame.setDefaultLookAndFeelDecorated(false);
 		
 		// Create the window
 		mainWindow = new JFrame(Main.PROGRAM_TITLE);
 
 		// Add content to the window
-		createTopPanel(mainWindow);
+		createMenu(mainWindow);
 		createMainPanel(mainWindow);
-		createBottomPanel(mainWindow);
 		
 		// Stage everything to be shown
 		mainWindow.pack();
@@ -91,27 +98,154 @@ public class GUI implements Runnable {
         mainWindow.setLocationRelativeTo(null);
 	}
 	
-	private JPanel createTopPanel(JFrame parent) {
-
-	    JPanel topPanel = new JPanel();
-	    topPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-
-		JLabel versionLabel = new JLabel(Main.PROGRAM_TITLE + " version " + Main.VERSION_NUMBER + " from " + Main.VERSION_DATE);
-		topPanel.add(versionLabel);
-
-		parent.add(topPanel, BorderLayout.PAGE_START);
+	private JMenuBar createMenu(JFrame parent) {
+	
+		JMenuBar menu = new JMenuBar();
 		
-		return topPanel;
+		JMenu file = new JMenu("File");
+		menu.add(file);
+		JMenuItem openCdm = new JMenuItem("Open CDM Folder");
+		openCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+		openCdm.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openCdmDirectory();
+			}
+		});
+		file.add(openCdm);
+		JMenuItem saveCdm = new JMenuItem("Save CDM");
+		saveCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+		saveCdm.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		file.add(saveCdm);
+		JMenuItem saveCdmAs = new JMenuItem("Save CDM As...");
+		saveCdmAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK | ActionEvent.CTRL_MASK));
+		saveCdmAs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		file.add(saveCdmAs);
+		file.addSeparator();
+		JMenuItem addScriptFile = new JMenuItem("Add New Script File");
+		addScriptFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		file.add(addScriptFile);
+		JMenuItem showCurScriptFileInfo = new JMenuItem("Show Current Script File Info");
+		showCurScriptFileInfo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		file.add(showCurScriptFileInfo);
+		JMenuItem deleteCurScriptFile = new JMenuItem("Delete Current Script File");
+		deleteCurScriptFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		file.add(deleteCurScriptFile);
+		file.addSeparator();
+		JMenuItem close = new JMenuItem("Close");
+		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
+		close.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		file.add(close);
+
+		JMenu editor = new JMenu("Editor");
+		menu.add(editor);
+		JMenu style = new JMenu("Style");
+		JRadioButtonMenuItem lightScheme = new JRadioButtonMenuItem("Light Scheme");
+		lightScheme.setSelected(false);
+		lightScheme.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		style.add(lightScheme);
+		JRadioButtonMenuItem darkScheme = new JRadioButtonMenuItem("Dark Scheme");
+		darkScheme.setSelected(true);
+		darkScheme.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		style.add(darkScheme);
+		editor.add(style);
+		JMenuItem fontLarger = new JMenuItem("Font Larger");
+		fontLarger.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		editor.add(fontLarger);
+		JMenuItem fontSmaller = new JMenuItem("Font Smaller");
+		fontSmaller.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		editor.add(fontSmaller);
+		
+		JMenu huh = new JMenu("?");
+		JMenuItem about = new JMenuItem("About");
+		about.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String aboutMessage = "This is the " + Main.PROGRAM_TITLE + ".\n" +
+					"Version: " + Main.VERSION_NUMBER + " (" + Main.VERSION_DATE + ")\n" +
+					"Brought to you by: A Softer Space";
+				JOptionPane.showMessageDialog(new JFrame(), aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		huh.add(about);
+		menu.add(huh);
+		
+		parent.setJMenuBar(menu);
+		
+		return menu;
 	}
 	
 	private JPanel createMainPanel(JFrame parent) {
-		
+
 	    JPanel mainPanel = new JPanel();
 	    mainPanel.setPreferredSize(new Dimension(800, 500));
-		GridLayout mainPanelLayout = new GridLayout(1, 2);
-		mainPanelLayout.setHgap(10);
+		GridBagLayout mainPanelLayout = new GridBagLayout();
 		mainPanel.setLayout(mainPanelLayout);
 
+		GridBagConstraints cLeft = new GridBagConstraints();
+		cLeft.fill = GridBagConstraints.BOTH;
+		cLeft.weightx = 0.2;
+		cLeft.weighty = 1.0;
+		cLeft.gridx = 0;
+		cLeft.gridy = 0;
+		
+		GridBagConstraints cRight = new GridBagConstraints();
+		cRight.fill = GridBagConstraints.BOTH;
+		cRight.weightx = 1.0;
+		cRight.weighty = 1.0;
+		cRight.gridx = 1;
+		cRight.gridy = 0;
+		
 	    mainPanelRight = new JPanel();
 		mainPanelRight.setLayout(new CardLayout());
 		String[] scriptList = new String[0];
@@ -152,43 +286,13 @@ public class GUI implements Runnable {
 		};
 		scriptListComponent.addMouseListener(scriptListClickListener);
 		
-		mainPanel.add(scriptListComponent);
+		mainPanel.add(scriptListComponent, cLeft);
 		
-	    mainPanel.add(mainPanelRight);
+	    mainPanel.add(mainPanelRight, cRight);
 
 		parent.add(mainPanel, BorderLayout.CENTER);
 		
 	    return mainPanel;
-	}
-	
-	private JPanel createBottomPanel(JFrame parent) {
-		
-	    JPanel bottomPanel = new JPanel();
-	    bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-	    
-	    JButton openCdmButton = new JButton("Open Different CDM Directory");
-	    openCdmButton.addActionListener(new ActionListener()
-	    {
-	      public void actionPerformed(ActionEvent e)
-	      {
-	        openCdmDirectory();
-	      }
-	    });
-	    bottomPanel.add(openCdmButton);
-		
-	    JButton closeButton = new JButton("Close");
-	    closeButton.addActionListener(new ActionListener()
-	    {
-	      public void actionPerformed(ActionEvent e)
-	      {
-	        System.exit(0);
-	      }
-	    });
-	    bottomPanel.add(closeButton);
-
-		parent.add(bottomPanel, BorderLayout.PAGE_END);
-		
-	    return bottomPanel;
 	}
 	
 	private void showGUI() {
