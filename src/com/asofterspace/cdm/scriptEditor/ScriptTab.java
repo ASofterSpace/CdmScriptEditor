@@ -144,6 +144,7 @@ public class ScriptTab {
 	
 	public void save() {
 	
+		script.setSourceCode(sourceCodeEditor.getText());
 		script.save();
 	}
 	
