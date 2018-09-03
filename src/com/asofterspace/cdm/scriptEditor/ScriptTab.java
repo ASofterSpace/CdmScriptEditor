@@ -30,29 +30,27 @@ public class ScriptTab {
 	private JPanel parent;
 
 	private JPanel visualPanel;
-	
+
 	private CdmScript script;
-	
+
 	private Callback callback;
-	
+
 	private JTextPane sourceCodeEditor;
-	
+
 
 	public ScriptTab(JPanel parentPanel, CdmScript script, Callback callback) {
 
 		this.parent = parentPanel;
-		
+
 		this.script = script;
-		
+
 		this.callback = callback;
-		
+
 		visualPanel = createVisualPanel();
-		
-		parent.add(visualPanel);
 	}
-	
+
 	private JPanel createVisualPanel() {
-		
+
 		JPanel tab = new JPanel();
 		tab.setLayout(new GridBagLayout());
 
@@ -62,11 +60,11 @@ public class ScriptTab {
 		c1.weighty = 0.0;
 		c1.gridx = 0;
 		c1.gridy = 0;
-		
+
 		JLabel titleLabel = new JLabel(script.getName());
 		titleLabel.setPreferredSize(new Dimension(0, titleLabel.getPreferredSize().height));
 		tab.add(titleLabel, c1);
-		
+
 		GridBagConstraints c2 = new GridBagConstraints();
 		c2.fill = GridBagConstraints.BOTH;
 		c2.weightx = 1.0;
@@ -91,7 +89,7 @@ public class ScriptTab {
 		c3.weighty = 0.0;
 		c3.gridx = 0;
 		c3.gridy = 2;
-		
+
 		/*
 		JPanel buttonRow = new JPanel();
 		GridLayout buttonRowLayout = new GridLayout(1, 2);
@@ -120,7 +118,11 @@ public class ScriptTab {
 	    buttonRow.add(compileButton);
 		*/
 
+		parent.add(tab);
+
 		tab.setVisible(false);
+
+		sourceCodeEditor.setCaretPosition(0);
 
 	    return tab;
 	}
@@ -130,11 +132,11 @@ public class ScriptTab {
 		if (item == null) {
 			return false;
 		}
-		
+
 		if (script == null) {
 			return false;
 		}
-		
+
 		return item.equals(script.getName());
 	}
 
@@ -147,16 +149,16 @@ public class ScriptTab {
 
 		visualPanel.setVisible(false);
 	}
-	
+
 	public void save() {
-	
+
 		script.setSourceCode(sourceCodeEditor.getText());
 		script.save();
 	}
-	
+
 	public void remove() {
 
 		parent.remove(visualPanel);
 	}
-	
+
 }

@@ -1,5 +1,15 @@
 package com.asofterspace.cdm.scriptEditor;
 
+import com.asofterspace.cdm.CdmCtrl;
+import com.asofterspace.cdm.CdmScript;
+import com.asofterspace.cdm.exceptions.AttemptingEmfException;
+import com.asofterspace.cdm.exceptions.CdmLoadingException;
+import com.asofterspace.toolbox.codeeditor.GroovyCode;
+import com.asofterspace.toolbox.configuration.ConfigFile;
+import com.asofterspace.toolbox.io.Directory;
+import com.asofterspace.toolbox.utils.Callback;
+import com.asofterspace.toolbox.web.JSON;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -31,73 +41,70 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
-import com.asofterspace.cdm.CdmCtrl;
-import com.asofterspace.cdm.CdmScript;
-import com.asofterspace.toolbox.codeeditor.GroovyCode;
-import com.asofterspace.toolbox.configuration.ConfigFile;
-import com.asofterspace.toolbox.io.Directory;
-import com.asofterspace.toolbox.utils.Callback;
-import com.asofterspace.toolbox.web.JSON;
-
 
 public class GUI implements Runnable {
 
 	private JFrame mainWindow;
-	
+
 	private JPanel mainPanelRight;
 	private JRadioButtonMenuItem lightScheme;
 	private JRadioButtonMenuItem darkScheme;
 	private int currentFontSize = 15;
-	
+
+	private ScriptTab currentlyShownTab;
+
 	private final static String CONFIG_KEY_LAST_DIRECTORY = "lastDirectory";
 	private final static String CONFIG_KEY_EDITOR_SCHEME = "editorScheme";
 	private final static String CONFIG_KEY_EDITOR_FONT_SIZE = "editorFontSize";
 	private final static String CONFIG_VAL_SCHEME_LIGHT = "groovyLight";
 	private final static String CONFIG_VAL_SCHEME_DARK = "groovyDark";
-	
+
+	// on the left hand side, we add this string to indicate that the script has changed
+	private final static String CHANGE_INDICATOR = " *";
+
 	private List<ScriptTab> scriptTabs;
-	
+
 	private ConfigFile configuration;
-	
+
 	private JList<String> scriptListComponent;
 	private String[] strScripts;
-	
-	
+
+
 	public GUI(ConfigFile config) {
 		configuration = config;
 	}
-	
+
 	@Override
 	public void run() {
-		
+
 		createGUI();
-		
+
 		configureGUI();
-		
+
 		showGUI();
-		
+
 		openCdmDirectory();
 	}
 
 	private void createGUI() {
 
 		JFrame.setDefaultLookAndFeelDecorated(false);
-		
+
 		// Create the window
 		mainWindow = new JFrame(Main.PROGRAM_TITLE);
 
 		// Add content to the window
 		createMenu(mainWindow);
 		createMainPanel(mainWindow);
-		
+
 		// Stage everything to be shown
 		mainWindow.pack();
-		
+
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Actually display the whole jazz
         mainWindow.setVisible(true);
-		
+
 		// Maximize the window
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		Rectangle bounds = env.getMaximumWindowBounds();
@@ -107,15 +114,15 @@ public class GUI implements Runnable {
 		// This should actually maximize the window, but for some reason does not work (reliably),
 		// so instead we do it manually in the lines above...
 		// mainWindow.setExtendedState(mainWindow.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		
+
 		// Center the window
         mainWindow.setLocationRelativeTo(null);
 	}
-	
+
 	private JMenuBar createMenu(JFrame parent) {
-	
+
 		JMenuBar menu = new JMenuBar();
-		
+
 		JMenu file = new JMenu("File");
 		menu.add(file);
 		JMenuItem openCdm = new JMenuItem("Open CDM Folder");
@@ -136,8 +143,8 @@ public class GUI implements Runnable {
 					scriptTab.save();
 				}
 				for (int i = 0; i < strScripts.length; i++) {
-					if (strScripts[i].endsWith(" *")) {
-						strScripts[i] = strScripts[i].substring(0, strScripts[i].length() - 2);
+					if (strScripts[i].endsWith(CHANGE_INDICATOR)) {
+						strScripts[i] = strScripts[i].substring(0, strScripts[i].length() - CHANGE_INDICATOR.length());
 					}
 					scriptListComponent.setListData(strScripts);
 				}
@@ -167,21 +174,21 @@ public class GUI implements Runnable {
 		renameCurScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			
+
 				// figure out which script tab is currently open (show error if none is open)
 				// TODO
 
 				// open a dialog in which the new name is to be entered (pre-filled with the current name)
 				// TODO
-				
+
 				String newFilename = "test";
-				
+
 				// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to change the script name
 				// TODO
-				
+
 				// apply changed marker on the left hand side
 				// TODO
-				
+
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
@@ -190,13 +197,13 @@ public class GUI implements Runnable {
 		showCurScriptFileInfo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			
+
 				// figure out which script tab is currently open (show error if none is open)
 				// TODO
 
 				// show some information about the currently opened script
 				// TODO
-				
+
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
@@ -205,20 +212,20 @@ public class GUI implements Runnable {
 		deleteCurScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			
+
 				// figure out which script tab is currently open (show error if none is open)
 				// TODO
 
 				// open a dialog to confirm that the script should be deleted
 				// TODO
-				
+
 				// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to delete the script
 				// (actually, also that file has to tell its parent file, as most likely the whole file has to be deleted)
 				// TODO
-				
+
 				// remove script from the left hand side
 				// TODO
-				
+
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
@@ -282,7 +289,7 @@ public class GUI implements Runnable {
 			}
 		});
 		editor.add(fontSmaller);
-		
+
 		JMenu huh = new JMenu("?");
 		JMenuItem about = new JMenuItem("About");
 		about.addActionListener(new ActionListener() {
@@ -296,12 +303,12 @@ public class GUI implements Runnable {
 		});
 		huh.add(about);
 		menu.add(huh);
-		
+
 		parent.setJMenuBar(menu);
-		
+
 		return menu;
 	}
-	
+
 	private JPanel createMainPanel(JFrame parent) {
 
 	    JPanel mainPanel = new JPanel();
@@ -315,22 +322,22 @@ public class GUI implements Runnable {
 		cLeft.weighty = 1.0;
 		cLeft.gridx = 0;
 		cLeft.gridy = 0;
-		
+
 		GridBagConstraints cRight = new GridBagConstraints();
 		cRight.fill = GridBagConstraints.BOTH;
 		cRight.weightx = 1.0;
 		cRight.weighty = 1.0;
 		cRight.gridx = 1;
 		cRight.gridy = 0;
-		
+
 	    mainPanelRight = new JPanel();
 		mainPanelRight.setLayout(new CardLayout());
 		String[] scriptList = new String[0];
 		scriptListComponent = new JList<String>(scriptList);
 		scriptTabs = new ArrayList<>();
-		
+
 		MouseListener scriptListClickListener = new MouseListener() {
-			
+
 			@Override
 		    public void mouseClicked(MouseEvent e) {
 				showSelectedTab();
@@ -355,23 +362,32 @@ public class GUI implements Runnable {
 			}
 		};
 		scriptListComponent.addMouseListener(scriptListClickListener);
-		
+
 		mainPanel.add(scriptListComponent, cLeft);
-		
+
 	    mainPanel.add(mainPanelRight, cRight);
 
 		parent.add(mainPanel, BorderLayout.CENTER);
-		
+
 	    return mainPanel;
 	}
-	
+
 	private void showSelectedTab() {
 
 		String selectedItem = (String) scriptListComponent.getSelectedValue();
 
+		if (selectedItem == null) {
+			return;
+		}
+
+		if (selectedItem.endsWith(CHANGE_INDICATOR)) {
+			selectedItem = selectedItem.substring(0, selectedItem.length() - CHANGE_INDICATOR.length());
+		}
+
 		for (ScriptTab tab : scriptTabs) {
 			if (tab.isItem(selectedItem)) {
 				tab.show();
+				currentlyShownTab = tab;
 			} else {
 				tab.hide();
 			}
@@ -379,7 +395,7 @@ public class GUI implements Runnable {
 	}
 
 	private void configureGUI() {
-	
+
 		String editorScheme = configuration.getValue(CONFIG_KEY_EDITOR_SCHEME);
 
 		if (editorScheme != null) {
@@ -389,7 +405,7 @@ public class GUI implements Runnable {
 					lightScheme.setSelected(true);
 					darkScheme.setSelected(false);
 					break;
-			
+
 				case CONFIG_VAL_SCHEME_DARK:
 					GroovyCode.setDarkScheme();
 					lightScheme.setSelected(false);
@@ -397,72 +413,81 @@ public class GUI implements Runnable {
 					break;
 			}
 		}
-		
+
 		Integer configFontSize = configuration.getInteger(CONFIG_KEY_EDITOR_FONT_SIZE);
 
 		if ((configFontSize != null) && (configFontSize > 0)) {
 			currentFontSize = configFontSize;
 		}
-		
+
 		GroovyCode.setFontSize(currentFontSize);
 	}
-		
+
 	private void showGUI() {
-		
+
 		mainWindow.pack();
 		mainWindow.setVisible(true);
 	}
-	
+
 	private void openCdmDirectory() {
 
 		JFileChooser activeCdmPicker;
-		
+
 		String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
-		
+
 		if ((lastDirectory != null) && !"".equals(lastDirectory)) {
 			activeCdmPicker = new JFileChooser(new File(lastDirectory));
 		} else {
 			activeCdmPicker = new JFileChooser();
 		}
-		
+
 		activeCdmPicker.setDialogTitle("Open a CDM working directory");
 		activeCdmPicker.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
 		int result = activeCdmPicker.showOpenDialog(mainWindow);
-		
+
 		switch (result) {
 
 			case JFileChooser.APPROVE_OPTION:
-			
+
 				// remove old script tabs
 				for (ScriptTab scriptTab : scriptTabs) {
 					scriptTab.remove();
 				}
-			
-				// load the CDM files
-				configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
-				Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
-				CdmCtrl.loadCdmDirectory(cdmDir);
-				
-				// update the script list on the left and load the new script tabs
-				List<CdmScript> scripts = CdmCtrl.getScripts();
-				strScripts = new String[scripts.size()];
+				strScripts = new String[0];
 				scriptTabs = new ArrayList<>();
-				for (int i = 0; i < scripts.size(); i++) {
-					CdmScript script = scripts.get(i);
-					strScripts[i] = script.getName();
-					final int scriptNumber = i;
-					scriptTabs.add(new ScriptTab(mainPanelRight, script, new Callback() {
-						public void call() {
-							if (!strScripts[scriptNumber].endsWith(" *")) {
-								strScripts[scriptNumber] += " *";
-								scriptListComponent.setListData(strScripts);
-							}
-						}
-					}));
-				}
 				scriptListComponent.setListData(strScripts);
+				currentlyShownTab = null;
+
+				try {
+					// load the CDM files
+					configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
+					Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
+					CdmCtrl.loadCdmDirectory(cdmDir);
+
+					// update the script list on the left and load the new script tabs
+					List<CdmScript> scripts = CdmCtrl.getScripts();
+					strScripts = new String[scripts.size()];
+					scriptTabs = new ArrayList<>();
+					for (int i = 0; i < scripts.size(); i++) {
+						CdmScript script = scripts.get(i);
+						strScripts[i] = script.getName();
+						final int scriptNumber = i;
+						scriptTabs.add(new ScriptTab(mainPanelRight, script, new Callback() {
+							public void call() {
+								if (!strScripts[scriptNumber].endsWith(CHANGE_INDICATOR)) {
+									strScripts[scriptNumber] += CHANGE_INDICATOR;
+									scriptListComponent.setListData(strScripts);
+								}
+							}
+						}));
+					}
+					scriptListComponent.setListData(strScripts);
 				
+				} catch (AttemptingEmfException | CdmLoadingException e) {
+					JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+				}
+
 				break;
 
 			case JFileChooser.CANCEL_OPTION:

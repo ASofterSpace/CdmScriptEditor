@@ -17,21 +17,21 @@ public class CdmFile extends XmlFile {
 	 * You can construct a CdmFile instance by basing it on an existing file object.
 	 */
 	public CdmFile(File regularFile) {
-	
+
 		super(regularFile);
 	}
-	
+
 	/**
 	 * Get all the scripts defined in this CDM file
 	 */
 	public List<CdmScript> getScripts() {
-	
+
 		List<CdmScript> results = new ArrayList<>();
-	
+
 		NodeList elements = getRoot().getChildNodes();
-		
+
 		int len = elements.getLength();
-		
+
 		for (int i = 0; i < len; i++) {
 			try {
 				Node elem = elements.item(i);
@@ -47,16 +47,16 @@ public class CdmFile extends XmlFile {
 				System.err.println("ERROR: A script in " + getFilename() + " does not have a properly assigned name or scriptContent attribute and will be ignored!");
 			}
 		}
-	
+
 		return results;
 	}
-	
+
 	public void setScriptSourceCode(String scriptName, String scriptContent) {
-		
+
 		NodeList elements = getRoot().getChildNodes();
-		
+
 		int len = elements.getLength();
-		
+
 		for (int i = 0; i < len; i++) {
 			try {
 				Node elem = elements.item(i);
