@@ -204,12 +204,20 @@ public class GUI implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 
 				// figure out which script tab is currently open (show error if none is open)
-				// TODO
+				if (currentlyShownTab == null) {
+					JOptionPane.showMessageDialog(new JFrame(), "No script has been selected, so no information can be shown - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 
 				// show some information about the currently opened script
-				// TODO
-
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				// TODO :: make it possible to copy the information to clipboard!
+				CdmScript script = currentlyShownTab.getScript();
+				JOptionPane.showMessageDialog(new JFrame(),
+					"Name: " + script.getName() + "\n" +
+					"Namespace: " + script.getNamespace() + "\n" +
+					"ID: " + script.getId() + "\n" +
+					"Path: " + script.getParent().getFilename(),
+					"Script Information", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		file.add(showCurScriptFileInfo);

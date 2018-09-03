@@ -39,7 +39,9 @@ public class CdmFile extends XmlFile {
 					NamedNodeMap scriptAttributes = elem.getAttributes();
 					String scriptContent = scriptAttributes.getNamedItem("scriptContent").getNodeValue();
 					String scriptName = scriptAttributes.getNamedItem("name").getNodeValue();
-					CdmScript script = new CdmScript(this, scriptName, scriptContent);
+					String scriptNamespace = scriptAttributes.getNamedItem("namespace").getNodeValue();
+					String scriptId = scriptAttributes.getNamedItem("xmi:id").getNodeValue();
+					CdmScript script = new CdmScript(this, scriptName, scriptNamespace, scriptId, scriptContent);
 					results.add(script);
 				}
 			} catch (NullPointerException e) {

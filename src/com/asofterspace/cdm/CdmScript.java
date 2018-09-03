@@ -6,25 +6,43 @@ public class CdmScript {
 	
 	private String name;
 	
+	private String namespace;
+	
+	private String id;
+	
 	private String content;
 	
 
-	public CdmScript(CdmFile parent, String name, String content) {
+	public CdmScript(CdmFile parent, String name, String namespace, String id, String content) {
 	
 		this.parent = parent;
 		
 		this.name = name;
 		
+		this.namespace = namespace;
+		
+		this.id = id;
+		
 		this.content = content;
 	}
 	
-	public String getName() {
+	public CdmFile getParent() {
+		return parent;
+	}
 	
+	public String getName() {
 		return name;
 	}
 	
-	public String getSourceCode() {
+	public String getNamespace() {
+		return namespace;
+	}
 	
+	public String getId() {
+		return id;
+	}
+	
+	public String getSourceCode() {
 		return content;
 	}
 	

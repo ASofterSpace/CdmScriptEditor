@@ -126,6 +126,10 @@ public class ScriptTab {
 
 	    return tab;
 	}
+	
+	public CdmScript getScript() {
+		return script;
+	}
 
 	public boolean isItem(String item) {
 
