@@ -167,6 +167,21 @@ public class GUI implements Runnable {
 		renameCurScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+			
+				// figure out which script tab is currently open (show error if none is open)
+				// TODO
+
+				// open a dialog in which the new name is to be entered (pre-filled with the current name)
+				// TODO
+				
+				String newFilename = "test";
+				
+				// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to change the script name
+				// TODO
+				
+				// apply changed marker on the left hand side
+				// TODO
+				
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
@@ -175,6 +190,13 @@ public class GUI implements Runnable {
 		showCurScriptFileInfo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+			
+				// figure out which script tab is currently open (show error if none is open)
+				// TODO
+
+				// show some information about the currently opened script
+				// TODO
+				
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
@@ -183,6 +205,20 @@ public class GUI implements Runnable {
 		deleteCurScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+			
+				// figure out which script tab is currently open (show error if none is open)
+				// TODO
+
+				// open a dialog to confirm that the script should be deleted
+				// TODO
+				
+				// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to delete the script
+				// (actually, also that file has to tell its parent file, as most likely the whole file has to be deleted)
+				// TODO
+				
+				// remove script from the left hand side
+				// TODO
+				
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
