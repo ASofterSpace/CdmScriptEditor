@@ -28,9 +28,7 @@ public class CdmFile extends XmlFile {
 	
 		List<CdmScript> results = new ArrayList<>();
 	
-		Node rootNode = getRoot();
-		
-		NodeList elements = rootNode.getChildNodes();
+		NodeList elements = getRoot().getChildNodes();
 		
 		int len = elements.getLength();
 		
@@ -51,6 +49,30 @@ public class CdmFile extends XmlFile {
 		}
 	
 		return results;
+	}
+	
+	public void setScriptSourceCode(String scriptName, String scriptContent) {
+		
+		NodeList elements = getRoot().getChildNodes();
+		
+		int len = elements.getLength();
+		
+		for (int i = 0; i < len; i++) {
+			try {
+				Node elem = elements.item(i);
+				if ("script".equals(elem.getNodeName())) {
+					NamedNodeMap scriptAttributes = elem.getAttributes();
+					String scriptNameFound = scriptAttributes.getNamedItem("name").getNodeValue();
+					if (scriptNameFound.equals(scriptName)) {
+						Node scriptContentNode = scriptAttributes.getNamedItem("scriptContent");
+						scriptContentNode.setNodeValue(scriptContent);
+					}
+				}
+			} catch (NullPointerException e) {
+				// ignore script nodes that do not contain name or scriptContent attributes
+				System.err.println("ERROR: A script in " + getFilename() + " does not have a properly assigned name or scriptContent attribute and will be ignored!");
+			}
+		}
 	}
 
 }

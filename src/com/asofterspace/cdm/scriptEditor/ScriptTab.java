@@ -26,11 +26,13 @@ import com.asofterspace.toolbox.web.JSON;
 
 public class ScriptTab {
 
-	JPanel parent;
+	private JPanel parent;
 
-	JPanel visualPanel;
+	private JPanel visualPanel;
 	
-	CdmScript script;
+	private CdmScript script;
+	
+	private JTextPane sourceCodeEditor;
 	
 
 	public ScriptTab(JPanel parentPanel, CdmScript script) {
@@ -67,7 +69,7 @@ public class ScriptTab {
 		c2.gridx = 0;
 		c2.gridy = 1;
 
-		JTextPane sourceCodeEditor = new JTextPane() {
+		sourceCodeEditor = new JTextPane() {
 			public boolean getScrollableTracksViewportWidth() {
 				return getUI().getPreferredSize(this).width <= getParent().getSize().width;
 			}
@@ -138,6 +140,11 @@ public class ScriptTab {
 	public void hide() {
 
 		visualPanel.setVisible(false);
+	}
+	
+	public void save() {
+	
+		script.save();
 	}
 	
 	public void remove() {

@@ -130,7 +130,10 @@ public class GUI implements Runnable {
 		saveCdm.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				for (ScriptTab scriptTab : scriptTabs) {
+					scriptTab.save();
+				}
+				JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		file.add(saveCdm);
@@ -152,6 +155,14 @@ public class GUI implements Runnable {
 			}
 		});
 		file.add(addScriptFile);
+		JMenuItem renameCurScriptFile = new JMenuItem("Rename Current Script File");
+		renameCurScriptFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		file.add(renameCurScriptFile);
 		JMenuItem showCurScriptFileInfo = new JMenuItem("Show Current Script File Info");
 		showCurScriptFileInfo.addActionListener(new ActionListener() {
 			@Override

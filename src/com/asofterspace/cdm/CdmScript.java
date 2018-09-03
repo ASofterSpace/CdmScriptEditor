@@ -27,5 +27,15 @@ public class CdmScript {
 	
 		return content;
 	}
+	
+	public void setSourceCode(String content) {
+	
+		parent.setScriptSourceCode(name, content);
+	}
+	
+	public void save() {
+	
+		parent.save();
+	}
 
 }
