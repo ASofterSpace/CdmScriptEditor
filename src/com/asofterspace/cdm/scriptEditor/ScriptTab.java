@@ -140,4 +140,9 @@ public class ScriptTab {
 		visualPanel.setVisible(false);
 	}
 	
+	public void remove() {
+
+		parent.remove(visualPanel);
+	}
+	
 }

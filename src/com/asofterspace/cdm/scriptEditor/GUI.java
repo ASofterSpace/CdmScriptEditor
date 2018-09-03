@@ -378,16 +378,25 @@ public class GUI implements Runnable {
 		switch (result) {
 
 			case JFileChooser.APPROVE_OPTION:
+			
+				// remove old script tabs
+				for (ScriptTab scriptTab : scriptTabs) {
+					scriptTab.remove();
+				}
+			
+				// load the CDM files
 				configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
 				Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
 				CdmCtrl.loadCdmDirectory(cdmDir);
 				
+				// load new script tabs
 				List<CdmScript> scripts = CdmCtrl.getScripts();
 				scriptTabs = new ArrayList<>();
 				for (CdmScript script : scripts) {
 					scriptTabs.add(new ScriptTab(mainPanelRight, script));
 				}
 				
+				// update the script list on the left
 				String[] strScripts = new String[scripts.size()];
 				for (int i = 0; i < scripts.size(); i++) {
 					strScripts[i] = scripts.get(i).getName();
