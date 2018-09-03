@@ -71,7 +71,12 @@ public class GUI implements Runnable {
 
 
 	public GUI(ConfigFile config) {
+		
 		configuration = config;
+		
+		strScripts = new String[0];
+		
+		scriptTabs = new ArrayList<>();
 	}
 
 	@Override
