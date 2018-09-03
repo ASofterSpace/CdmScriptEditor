@@ -22,6 +22,7 @@ import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
+import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.web.JSON;
 
 public class ScriptTab {
@@ -32,14 +33,18 @@ public class ScriptTab {
 	
 	private CdmScript script;
 	
+	private Callback callback;
+	
 	private JTextPane sourceCodeEditor;
 	
 
-	public ScriptTab(JPanel parentPanel, CdmScript script) {
+	public ScriptTab(JPanel parentPanel, CdmScript script, Callback callback) {
 
 		this.parent = parentPanel;
 		
 		this.script = script;
+		
+		this.callback = callback;
 		
 		visualPanel = createVisualPanel();
 		
@@ -76,6 +81,7 @@ public class ScriptTab {
 		};
 		GroovyCode groovyCode = new GroovyCode(sourceCodeEditor);
 		sourceCodeEditor.setText(script.getSourceCode());
+		groovyCode.setOnChange(callback);
 		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
 		tab.add(sourceCodeScroller, c2);
 

@@ -36,6 +36,7 @@ import com.asofterspace.cdm.CdmScript;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
+import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.web.JSON;
 
 
@@ -59,6 +60,7 @@ public class GUI implements Runnable {
 	private ConfigFile configuration;
 	
 	private JList<String> scriptListComponent;
+	private String[] strScripts;
 	
 	
 	public GUI(ConfigFile config) {
@@ -132,6 +134,12 @@ public class GUI implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 				for (ScriptTab scriptTab : scriptTabs) {
 					scriptTab.save();
+				}
+				for (int i = 0; i < strScripts.length; i++) {
+					if (strScripts[i].endsWith(" *")) {
+						strScripts[i] = strScripts[i].substring(0, strScripts[i].length() - 2);
+					}
+					scriptListComponent.setListData(strScripts);
 				}
 				JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
 			}
@@ -400,20 +408,25 @@ public class GUI implements Runnable {
 				Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
 				CdmCtrl.loadCdmDirectory(cdmDir);
 				
-				// load new script tabs
+				// update the script list on the left and load the new script tabs
 				List<CdmScript> scripts = CdmCtrl.getScripts();
+				strScripts = new String[scripts.size()];
 				scriptTabs = new ArrayList<>();
-				for (CdmScript script : scripts) {
-					scriptTabs.add(new ScriptTab(mainPanelRight, script));
-				}
-				
-				// update the script list on the left
-				String[] strScripts = new String[scripts.size()];
 				for (int i = 0; i < scripts.size(); i++) {
-					strScripts[i] = scripts.get(i).getName();
+					CdmScript script = scripts.get(i);
+					strScripts[i] = script.getName();
+					final int scriptNumber = i;
+					scriptTabs.add(new ScriptTab(mainPanelRight, script, new Callback() {
+						public void call() {
+							if (!strScripts[scriptNumber].endsWith(" *")) {
+								strScripts[scriptNumber] += " *";
+								scriptListComponent.setListData(strScripts);
+							}
+						}
+					}));
 				}
 				scriptListComponent.setListData(strScripts);
-
+				
 				break;
 
 			case JFileChooser.CANCEL_OPTION:
