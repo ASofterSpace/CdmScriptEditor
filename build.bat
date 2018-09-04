@@ -23,6 +23,7 @@ copy "..\Toolbox-Java\src\com\asofterspace\toolbox\web\*.*" "src\com\asofterspac
 rd /s /q bin
 
 md bin
+md emf
 
 cd src
 

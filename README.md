@@ -12,18 +12,30 @@ A small standalone program that allows quick and easy editing of scripts within 
 
 Download our Toolbox-Java (which is a separate project here on github) into an adjacent directory on your hard drive.
 
-Start the build by calling:
+Start the build by calling under Windows:
 
 ```
 build.bat
 ```
 
+Or under Linux:
+
+```
+build.sh
+```
+
 ## Run
 
-To start up the CdmScriptEditor after it has been built, you can call:
+To start up the CdmScriptEditor after it has been built, you can call under Windows:
 
 ```
 run.bat
+```
+
+Or under Linux:
+
+```
+run.sh
 ```
 
 ## License
