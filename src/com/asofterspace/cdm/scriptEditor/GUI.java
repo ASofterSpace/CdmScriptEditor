@@ -319,11 +319,12 @@ public class GUI implements Runnable {
 						break;
 				}
 				JOptionPane.showMessageDialog(new JFrame(),
-					"Name: " + script.getName() + "\n" +
-					"Namespace: " + script.getNamespace() + "\n" +
-					"ID: " + script.getId() + "\n" +
-					"Path: " + script.getParent().getFilename() + "\n" +
-					"Format: " + format,
+					"Script Name: " + script.getName() + "\n" +
+					"Script Namespace: " + script.getNamespace() + "\n" +
+					"Script ID: " + script.getId() + "\n" +
+					"CI File Format: " + format + "\n" +
+					"CI Path: " + script.getParent().getFilename() + "\n" +
+					"CDM Version: " + script.getParent().getCdmVersion(),
 					"Script Information", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});

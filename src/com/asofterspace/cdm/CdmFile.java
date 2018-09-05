@@ -13,6 +13,10 @@ import org.w3c.dom.NodeList;
 
 public class CdmFile extends XmlFile {
 
+	// this prefix is in the MIDDLE of the version string, a PREFIX to the actual version;
+	// but preceded by whatever nonsense the CDM-writing-application wrote into it!
+	private final static String CDM_VERSION_PREFIX = "/ConfigurationTracking/";
+
 	/**
 	 * You can construct a CdmFile instance by basing it on an existing file object.
 	 */
@@ -51,6 +55,29 @@ public class CdmFile extends XmlFile {
 		}
 
 		return results;
+	}
+	
+	/**
+	 * Get the CDM version that this CDM file belongs to, or null if none can be identified.
+	 */
+	public String getCdmVersion() {
+
+		try {
+			Node root = getRoot();
+			
+			NamedNodeMap scriptAttributes = root.getAttributes();
+			String cdmVersion = scriptAttributes.getNamedItem("xmlns:configurationcontrol").getNodeValue();
+
+			if (cdmVersion.contains(CDM_VERSION_PREFIX)) {
+				cdmVersion = cdmVersion.substring(cdmVersion.indexOf(CDM_VERSION_PREFIX) + CDM_VERSION_PREFIX.length());
+			}
+			
+			return cdmVersion;
+			
+		} catch (NullPointerException e) {
+		
+			return null;
+		}
 	}
 
 	public void setScriptSourceCode(String scriptName, String scriptContent) {
