@@ -90,8 +90,6 @@ public class GUI implements Runnable {
 		configureGUI();
 
 		showGUI();
-
-		openCdmDirectory();
 	}
 
 	private void createGUI() {
@@ -133,7 +131,18 @@ public class GUI implements Runnable {
 
 		JMenu file = new JMenu("File");
 		menu.add(file);
-		JMenuItem openCdm = new JMenuItem("Open CDM Folder");
+		JMenuItem newCdm = new JMenuItem("Create Empty CDM");
+		newCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+		newCdm.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO :: sort out the creation of a completely new CDM from scratch; ideally, let the user select between CDM 1.13 and 1.14
+				// (or let them supply an own version, THAT will confuse people royally! ^-^)
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		file.add(newCdm);
+		JMenuItem openCdm = new JMenuItem("Open CDM");
 		openCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 		openCdm.addActionListener(new ActionListener() {
 			@Override
@@ -165,6 +174,7 @@ public class GUI implements Runnable {
 		saveCdmAs.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// TODO :: sort out the saving-as of CDMs!
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
@@ -174,6 +184,8 @@ public class GUI implements Runnable {
 		addScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// TODO :: sort out the adding of script files!
+				// (btw., if no CDM has been loaded at all, instead of "just" adding a script file, actually create a new CDM first - like a click on New before this!)
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
