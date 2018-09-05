@@ -51,6 +51,13 @@ public class CdmScript {
 		parent.setScriptSourceCode(name, content);
 	}
 	
+	public void setName(String newName) {
+
+		parent.setScriptName(name, newName);
+		
+		name = newName;
+	}
+
 	public void save() {
 	
 		parent.save();

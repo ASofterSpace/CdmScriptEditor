@@ -23,6 +23,7 @@ import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 
@@ -182,20 +184,114 @@ public class GUI implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 
 				// figure out which script tab is currently open (show error if none is open)
-				// TODO
+				if (currentlyShownTab == null) {
+					JOptionPane.showMessageDialog(new JFrame(), "Please select the script that you want to rename first!", "No Script Selected", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 
 				// open a dialog in which the new name is to be entered (pre-filled with the current name)
-				// TODO
 
-				String newFilename = "test";
+				// Create the window
+				JFrame renameDialog = new JFrame("New Script Name");
+				GridLayout renameDialogLayout = new GridLayout(3, 1);
+				renameDialogLayout.setVgap(8);
+				renameDialog.setLayout(renameDialogLayout);
 
-				// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to change the script name
-				// TODO
+				// Populate the window
+				JLabel explanationLabel = new JLabel();
+				explanationLabel.setText("Please enter the new name of the script file:");
+				renameDialog.add(explanationLabel);
+				
+				JTextField newScriptName = new JTextField();
+				newScriptName.setText(currentlyShownTab.getScript().getName());
+				renameDialog.add(newScriptName);
+				
+				JPanel buttonRow = new JPanel();
+				GridLayout buttonRowLayout = new GridLayout(1, 2);
+				buttonRowLayout.setHgap(8);
+				buttonRow.setLayout(buttonRowLayout);
+				renameDialog.add(buttonRow);
 
-				// apply changed marker on the left hand side
-				// TODO
+				JButton okButton = new JButton("OK");
+				okButton.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						String newScriptStr = newScriptName.getText().trim();
+						
+						if ("".equals(newScriptStr)) {
+							JOptionPane.showMessageDialog(new JFrame(), "Please enter a new name for the script.", "Enter Name", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+						
+						if (currentlyShownTab == null) {
+							JOptionPane.showMessageDialog(new JFrame(), "The script cannot be renamed as currently no script has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
+							// TODO :: is there some kind of removal that is even better than just setting the visibility to false?
+							renameDialog.setVisible(false);
+							return;
+						}
+						
+						// if the name does not change - do nothing... ;)
+						String oldScriptStr = currentlyShownTab.getScript().getName();
+						if (oldScriptStr.equals(newScriptStr)) {
+							// TODO :: is there some kind of removal that is even better than just setting the visibility to false?
+							renameDialog.setVisible(false);
+							return;
+						}
 
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+						// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to change the script name
+						// (oh and the script tab should change its name, and and and...)
+						for (ScriptTab tab : scriptTabs) {
+							if (tab.isItem(oldScriptStr)) {
+								tab.setName(newScriptStr);
+								tab.show();
+								currentlyShownTab = tab;
+							} else {
+								tab.hide();
+							}
+						}
+
+						// apply changed marker on the left hand side
+						String oldScriptStrStar = oldScriptStr + CHANGE_INDICATOR;
+						for (int i = 0; i < strScripts.length; i++) {
+							if (oldScriptStr.equals(strScripts[i]) || oldScriptStrStar.equals(strScripts[i])) {
+								strScripts[i] = newScriptStr + CHANGE_INDICATOR;
+								break;
+							}
+						}
+						scriptListComponent.setListData(strScripts);
+
+						// TODO :: is there some kind of removal that is even better than just setting the visibility to false?
+						renameDialog.setVisible(false);
+					}
+				});
+				buttonRow.add(okButton);
+
+				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						// TODO :: is there some kind of removal that is even better than just setting the visibility to false?
+						renameDialog.setVisible(false);
+					}
+				});
+				buttonRow.add(cancelButton);
+
+				// Stage everything to be shown
+				renameDialog.pack();
+
+				// Actually display the whole jazz
+				renameDialog.setVisible(true);
+
+				// Set the preferred size of the dialog
+				int width = 300;
+				int height = 160;
+				renameDialog.setSize(width, height);
+				renameDialog.setPreferredSize(new Dimension(width, height));
+				
+				// Center the dialog
+				renameDialog.setLocationRelativeTo(null);
 			}
 		});
 		file.add(renameCurScriptFile);

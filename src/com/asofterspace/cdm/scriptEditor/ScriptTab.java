@@ -35,6 +35,8 @@ public class ScriptTab {
 
 	private Callback callback;
 
+	// graphical components
+	private JLabel titleLabel;
 	private JTextPane sourceCodeEditor;
 
 
@@ -61,7 +63,7 @@ public class ScriptTab {
 		c1.gridx = 0;
 		c1.gridy = 0;
 
-		JLabel titleLabel = new JLabel(script.getName());
+		titleLabel = new JLabel(script.getName());
 		titleLabel.setPreferredSize(new Dimension(0, titleLabel.getPreferredSize().height));
 		tab.add(titleLabel, c1);
 
@@ -82,41 +84,6 @@ public class ScriptTab {
 		groovyCode.setOnChange(callback);
 		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
 		tab.add(sourceCodeScroller, c2);
-
-		GridBagConstraints c3 = new GridBagConstraints();
-		c3.fill = GridBagConstraints.BOTH;
-		c3.weightx = 1.0;
-		c3.weighty = 0.0;
-		c3.gridx = 0;
-		c3.gridy = 2;
-
-		/*
-		JPanel buttonRow = new JPanel();
-		GridLayout buttonRowLayout = new GridLayout(1, 2);
-		buttonRowLayout.setHgap(10);
-		buttonRow.setLayout(buttonRowLayout);
-		tab.add(buttonRow, c3);
-
-	    JButton previewButton = new JButton("Open File");
-	    previewButton.addActionListener(new ActionListener()
-	    {
-			public void actionPerformed(ActionEvent e)
-			{
-				// TODO
-			}
-	    });
-	    buttonRow.add(previewButton);
-
-	    JButton compileButton = new JButton("Edit Script");
-	    compileButton.addActionListener(new ActionListener()
-	    {
-			public void actionPerformed(ActionEvent e)
-			{
-				// TODO
-			}
-	    });
-	    buttonRow.add(compileButton);
-		*/
 
 		parent.add(tab);
 
@@ -142,6 +109,13 @@ public class ScriptTab {
 		}
 
 		return item.equals(script.getName());
+	}
+	
+	public void setName(String newName) {
+
+		titleLabel.setText(newName);
+		
+		script.setName(newName);
 	}
 
 	public void show() {
