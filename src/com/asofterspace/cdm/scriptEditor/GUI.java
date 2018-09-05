@@ -450,6 +450,27 @@ public class GUI implements Runnable {
 		});
 		editor.add(fontSmaller);
 
+		JMenu scriptBlocks = new JMenu("Script Blocks");
+		JMenuItem insertScriptBlock = new JMenuItem("Insert Script Block:");
+		scriptBlocks.add(insertScriptBlock);
+		// TODO :: read script blocks from the configuration (maybe come pre-equipped with a few good ones, like getting a (local) service)
+		scriptBlocks.addSeparator();
+		JMenuItem defineNewScriptBlock = new JMenuItem("Define New Script Block");
+		defineNewScriptBlock.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// open a dialog window with a source code editor in which the script block can be defined
+				// TODO
+				
+				// upon OK, store the script block in the configuration and add it to the menu
+				// TODO
+				
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		scriptBlocks.add(defineNewScriptBlock);
+		menu.add(scriptBlocks);
+
 		JMenu huh = new JMenu("?");
 		JMenuItem about = new JMenuItem("About");
 		about.addActionListener(new ActionListener() {
