@@ -460,6 +460,7 @@ public class GUI implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// open a dialog window with a source code editor in which the script block can be defined
+				// (and a second editor in which the necessary imports can be listed!)
 				// TODO
 				
 				// upon OK, store the script block in the configuration and add it to the menu
