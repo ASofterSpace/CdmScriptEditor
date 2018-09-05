@@ -7,6 +7,7 @@ import com.asofterspace.cdm.exceptions.CdmLoadingException;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
+import com.asofterspace.toolbox.io.XmlMode;
 import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.web.JSON;
 
@@ -212,11 +213,21 @@ public class GUI implements Runnable {
 				// show some information about the currently opened script
 				// TODO :: make it possible to copy the information to clipboard!
 				CdmScript script = currentlyShownTab.getScript();
+				String format = "(unknown)";
+				switch (script.getParent().getMode()) {
+					case XML_LOADED:
+						format = "XML";
+						break;
+					case EMF_LOADED:
+						format = "EMF binary";
+						break;
+				}
 				JOptionPane.showMessageDialog(new JFrame(),
 					"Name: " + script.getName() + "\n" +
 					"Namespace: " + script.getNamespace() + "\n" +
 					"ID: " + script.getId() + "\n" +
-					"Path: " + script.getParent().getFilename(),
+					"Path: " + script.getParent().getFilename() + "\n" +
+					"Format: " + format,
 					"Script Information", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
@@ -496,6 +507,12 @@ public class GUI implements Runnable {
 						}));
 					}
 					scriptListComponent.setListData(strScripts);
+					
+					// show the first tab explicitly - this is fun, and the tabbed layout otherwise shows it anyway, so may as well...
+					if (scriptTabs.size() > 0) {
+						currentlyShownTab = scriptTabs.get(0);
+						currentlyShownTab.show();
+					}
 				
 				} catch (AttemptingEmfException | CdmLoadingException e) {
 					JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
