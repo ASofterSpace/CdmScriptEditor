@@ -136,8 +136,23 @@ public class GUI implements Runnable {
 		newCdm.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO :: sort out the creation of a completely new CDM from scratch; ideally, let the user select between CDM 1.13 and 1.14
-				// (or let them supply an own version, THAT will confuse people royally! ^-^)
+			
+				// show dialog in which the user can select the path to the new CDM, the CDM format (XML / EMF) and the CDM version
+				// (offer several presets or also a free-text-field, in each case going for http://asofterspace.com/ConfigurationTracking/version)
+				// TODO
+				
+				// next to the path edit field, there is a small button with three dots, clicking upon which opens a directory picker dialog
+				// TODO
+				
+				// upon clicking OK, check that the selected directory truly is empty
+				
+				// now create just the ResourceMcm.cdm file in XML format with one root node (mcmRoot) and the Manifest file
+				// TODO
+				
+				// immediately open the newly created CDM, just as if the open dialog had been called
+				// TODO
+			
+				// TODO :: sort out the creation of a completely new CDM from scratch
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
@@ -174,6 +189,18 @@ public class GUI implements Runnable {
 		saveCdmAs.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// open a save dialog in which a directory can be picked
+				// TODO
+				
+				// complain if the directory is not empty
+				// TODO
+				
+				// for all currently opened CDM files, save them relative to the new directory as they were in the previous one
+				// TODO
+				
+				// also copy over the Manifest file
+				// TODO
+			
 				// TODO :: sort out the saving-as of CDMs!
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
