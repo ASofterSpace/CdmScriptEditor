@@ -224,7 +224,7 @@ public class GUI implements Runnable {
 
 				// figure out which script tab is currently open (show error if none is open)
 				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(new JFrame(), "Please select the script that you want to rename first!", "No Script Selected", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(new JFrame(), "No script has been selected, so no script can be renamed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
@@ -374,19 +374,80 @@ public class GUI implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 
 				// figure out which script tab is currently open (show error if none is open)
-				// TODO
+				if (currentlyShownTab == null) {
+					JOptionPane.showMessageDialog(new JFrame(), "No script has been selected, so no script can be deleted - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 
 				// open a dialog to confirm that the script should be deleted
-				// TODO
 
-				// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to delete the script
-				// (actually, also that file has to tell its parent file, as most likely the whole file has to be deleted)
-				// TODO
+				// Create the window
+				String deleteScript = currentlyShownTab.getScript().getName();
+				JFrame deleteDialog = new JFrame("Delete " + deleteScript);
+				GridLayout deleteDialogLayout = new GridLayout(3, 1);
+				deleteDialogLayout.setVgap(8);
+				deleteDialog.setLayout(deleteDialogLayout);
 
-				// remove script from the left hand side
-				// TODO
+				// Populate the window
+				JLabel explanationLabel = new JLabel();
+				explanationLabel.setText("Do you really want to delete the script:");
+				deleteDialog.add(explanationLabel);
+				
+				JLabel scriptNameLabel = new JLabel();
+				scriptNameLabel.setText(deleteScript);
+				deleteDialog.add(scriptNameLabel);
+				
+				JPanel buttonRow = new JPanel();
+				GridLayout buttonRowLayout = new GridLayout(1, 2);
+				buttonRowLayout.setHgap(8);
+				buttonRow.setLayout(buttonRowLayout);
+				deleteDialog.add(buttonRow);
 
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				JButton deleteButton = new JButton("Delete");
+				deleteButton.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to delete the script
+						// (actually, also that file has to tell its parent file, as most likely the whole file has to be deleted)
+						// TODO
+
+						// remove script from the left hand side
+						// TODO
+
+						JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+
+						// TODO :: is there some kind of removal that is even better than just setting the visibility to false?
+						deleteDialog.setVisible(false);
+					}
+				});
+				buttonRow.add(deleteButton);
+
+				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						// TODO :: is there some kind of removal that is even better than just setting the visibility to false?
+						deleteDialog.setVisible(false);
+					}
+				});
+				buttonRow.add(cancelButton);
+
+				// Stage everything to be shown
+				deleteDialog.pack();
+
+				// Actually display the whole jazz
+				deleteDialog.setVisible(true);
+
+				// Set the preferred size of the dialog
+				int width = 300;
+				int height = 120;
+				deleteDialog.setSize(width, height);
+				deleteDialog.setPreferredSize(new Dimension(width, height));
+				
+				// Center the dialog
+				deleteDialog.setLocationRelativeTo(null);
 			}
 		});
 		file.add(deleteCurScriptFile);
