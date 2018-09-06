@@ -148,6 +148,8 @@ public class CdmScript2Activity {
 		}
 		
 		script2ActivityNameNode.setNodeValue(newName);
+		
+		name = newName;
 	}
 	
 	public void delete() {

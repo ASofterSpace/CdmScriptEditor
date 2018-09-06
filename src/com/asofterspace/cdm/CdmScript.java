@@ -103,6 +103,8 @@ public class CdmScript {
 		}
 		
 		scriptContentNode.setNodeValue(scriptContent);
+		
+		content = scriptContent;
 	}
 	
 	public void setName(String newName) {
@@ -116,6 +118,8 @@ public class CdmScript {
 		}
 		
 		scriptNameNode.setNodeValue(newName);
+		
+		name = newName;
 	}
 	
 	/**

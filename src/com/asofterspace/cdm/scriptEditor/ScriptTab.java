@@ -226,6 +226,17 @@ public class ScriptTab {
 		);
 	}
 	
+	/**
+	 * Call this to invalidate the info area such that it is repopulated before being shown to the user the next time
+	 */
+	public void invalidateInfo() {
+	
+		// if the info is not currently shown, do nothing, as the info data will be reloaded when it is shown again anyway
+		if (infoShown) {
+			reloadInfoData();
+		}
+	}
+	
 	public void showInfo() {
 	
 		if (scriptInfo == null) {

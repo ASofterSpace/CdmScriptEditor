@@ -71,6 +71,7 @@ public class GUI implements Runnable {
 	private JMenuItem saveCdm;
 	private JMenuItem saveCdmAs;
 	private JMenuItem addScriptFile;
+	private JMenuItem manageActMapsOfScriptFile;
 	private JMenuItem renameCurScriptFile;
 	private JMenuItem showCurScriptFileInfo;
 	private JMenuItem deleteCurScriptFile;
@@ -196,20 +197,7 @@ public class GUI implements Runnable {
 		saveCdmAs.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// open a save dialog in which a directory can be picked
-				// TODO
-				
-				// complain if the directory is not empty
-				// TODO
-				
-				// for all currently opened CDM files, save them relative to the new directory as they were in the previous one
-				// TODO
-				
-				// also copy over the Manifest file
-				// TODO
-			
-				// TODO :: sort out the saving-as of CDMs!
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				saveCdmAs();
 			}
 		});
 		file.add(saveCdmAs);
@@ -219,14 +207,62 @@ public class GUI implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 			
+				// open a dialog in which the name of the new script can be entered
+				// TODO
+				
+				// also let the user immediately associate an activity with this script?
+				// TODO
+				
+				// if the user wants to associate an activity, also add a script2activity mapper, and if a new CI has to be created for it, adjust the manifest file
+				// TODO
+				
+				// once the user confirms, add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
+				// TODO
+				
+				// add the new script CI to the Manifest file
+				// TODO
+				
+				// add a script tab for the new CDM script as currentlyShownTab
+				// TODO
+				
+				// add the new script to the GUI
+				scriptTabs.add(currentlyShownTab);
+				
+				// this also automagically switch to the newly added tab, as it is the currentlyShownTab
+				regenerateScriptList();
+			
 				reEnableDisableMenuItems();
 			
 				// TODO :: sort out the adding of script files!
-				// (btw., if no CDM has been loaded at all, instead of "just" adding a script file, actually create a new CDM first - like a click on New before this!)
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
 		file.add(addScriptFile);
+		manageActMapsOfScriptFile = new JMenuItem("Manage Activity Mappings of Current Script File");
+		manageActMapsOfScriptFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			
+				// figure out which script tab is currently open (show error if none is open)
+				if (currentlyShownTab == null) {
+					JOptionPane.showMessageDialog(new JFrame(), "No script has been selected, so no activity mappings can be managed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				// open a dialog in which all the current mappings are shown, similar to show info
+				// TODO
+				
+				// enable the adding of new mappings in the dialog
+				// TODO
+				
+				// enable the deletion of mappings in the dialog, with checkbox about deleting the activity too
+				// TODO
+
+				// TODO :: sort out the managing of script file mappings!
+				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		file.add(manageActMapsOfScriptFile);
 		renameCurScriptFile = new JMenuItem("Rename Current Script File");
 		renameCurScriptFile.addActionListener(new ActionListener() {
 			@Override
@@ -627,25 +663,6 @@ public class GUI implements Runnable {
 		mainWindow.setVisible(true);
 	}
 	
-	private void saveCdm() {
-	
-		// TODO :: add validation step here, in which we validate that all scripts are assigned to activities, and if they are not,
-		// then we ask the user explicitly whether we should really save the scripts in the current state or not
-	
-		// apply all changes, such that the current source code editor contents are actually stored in the CDM file objects
-		for (ScriptTab scriptTab : scriptTabs) {
-			scriptTab.applyChanges();
-		}
-		
-		// save all opened CDM files
-		CdmCtrl.save();
-		
-		// remove all change indicators on the left-hand side
-		regenerateScriptList();
-		
-		JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
-	}
-
 	private void openCdmDirectory() {
 
 		JFileChooser activeCdmPicker;
@@ -699,6 +716,94 @@ public class GUI implements Runnable {
 				
 				reEnableDisableMenuItems();
 				
+				break;
+
+			case JFileChooser.CANCEL_OPTION:
+				// cancel was pressed... do nothing for now
+				break;
+		}
+	}
+	
+	private void prepareToSave() {
+	
+		if (!CdmCtrl.hasCdmBeenLoaded()) {
+			JOptionPane.showMessageDialog(new JFrame(), "The CDM cannot be saved as no CDM has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		// TODO :: add validation step here, in which we validate that all scripts are assigned to activities, and if they are not,
+		// then we ask the user explicitly whether we should really save the scripts in the current state or not
+	
+		// apply all changes, such that the current source code editor contents are actually stored in the CDM file objects
+		for (ScriptTab scriptTab : scriptTabs) {
+			scriptTab.applyChanges();
+		}
+		
+		// remove all change indicators on the left-hand side
+		regenerateScriptList();
+	}
+	
+	private void saveCdm() {
+	
+		prepareToSave();
+		
+		// save all opened CDM files
+		CdmCtrl.save();
+		
+		JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	private void saveCdmAs() {
+	
+		prepareToSave();
+		
+		// open a save dialog in which a directory can be picked
+		JFileChooser saveCdmPicker;
+
+		String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
+
+		if ((lastDirectory != null) && !"".equals(lastDirectory)) {
+			saveCdmPicker = new JFileChooser(new File(lastDirectory));
+		} else {
+			saveCdmPicker = new JFileChooser();
+		}
+
+		saveCdmPicker.setDialogTitle("Select the new CDM working directory");
+		saveCdmPicker.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		int result = saveCdmPicker.showOpenDialog(mainWindow);
+
+		switch (result) {
+
+			case JFileChooser.APPROVE_OPTION:
+		
+				configuration.set(CONFIG_KEY_LAST_DIRECTORY, saveCdmPicker.getCurrentDirectory().getAbsolutePath());
+				Directory cdmDir = new Directory(saveCdmPicker.getSelectedFile());
+				
+				// if the new directory does not yet exist, then we have to create it...
+				if (!cdmDir.exists()) {
+					cdmDir.create();
+				}
+				
+				// complain if the directory is not empty
+				Boolean isEmpty = cdmDir.isEmpty();
+				if ((isEmpty == null) || !isEmpty) {
+					JOptionPane.showMessageDialog(new JFrame(), "The specified directory is not empty - please save into an empty directory!", "Directory Not Empty", JOptionPane.ERROR_MESSAGE);
+					break;
+				}
+				
+				// for all currently opened CDM files, save them relative to the new directory as they were in the previous one
+				CdmCtrl.saveTo(cdmDir);
+				
+				// also copy over the Manifest file
+				// TODO
+
+				for (ScriptTab scriptTab : scriptTabs) {
+					scriptTab.invalidateInfo();
+				}
+				
+				JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
+
 				break;
 
 			case JFileChooser.CANCEL_OPTION:
@@ -858,14 +963,15 @@ public class GUI implements Runnable {
 		saveCdm.setEnabled(cdmLoaded);
 		saveCdmAs.setEnabled(cdmLoaded);
 		addScriptFile.setEnabled(cdmLoaded);
+		manageActMapsOfScriptFile.setEnabled(scriptIsSelected);
 		renameCurScriptFile.setEnabled(scriptIsSelected);
 		showCurScriptFileInfo.setEnabled(scriptIsSelected);
 		deleteCurScriptFile.setEnabled(scriptIsSelected);
 		
 		// set everything to false that is not yet working
 		newCdm.setEnabled(false);
-		saveCdmAs.setEnabled(false);
 		addScriptFile.setEnabled(false);
+		manageActMapsOfScriptFile.setEnabled(false);
 	}
 	
 }

@@ -24,6 +24,8 @@ public class CdmCtrl {
 
 	// has a CDM been loaded, like, at all?
 	private static boolean cdmLoaded = false;
+	
+	private static Directory lastLoadedDirectory;
 
 
 	public static void loadCdmDirectory(Directory cdmDir) throws AttemptingEmfException, CdmLoadingException {
@@ -43,6 +45,8 @@ public class CdmCtrl {
 		if (fileList.size() <= 0) {
 			throw new CdmLoadingException("The directory " + cdmDir + " does not seem to contain any .cdm files at all.");
 		}
+		
+		lastLoadedDirectory = cdmDir;
 		
 		cdmLoaded = true;
 	}
@@ -170,4 +174,15 @@ public class CdmCtrl {
 		}
 	}
 
+	/**
+	 * Save all currently opened files to the new location
+	 */
+	public static void saveTo(Directory newLocation) {
+
+		for (CdmFile cdmFile : fileList) {
+			cdmFile.saveTo(lastLoadedDirectory.traverseFileTo(cdmFile, newLocation));
+		}
+		
+		lastLoadedDirectory = newLocation;
+	}
 }
