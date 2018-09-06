@@ -122,7 +122,7 @@ public class CdmScript {
 	 * Get all script2Activity mappings associated with this particular script - there could be several
 	 * mappings mapping to this script!
 	 */
-	private List<CdmScript2Activity> getAssociatedScript2Activities() {
+	public List<CdmScript2Activity> getAssociatedScript2Activities() {
 	
 		List<CdmScript2Activity> results = new ArrayList<>();
 		

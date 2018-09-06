@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -19,6 +20,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 
 import com.asofterspace.cdm.CdmScript;
+import com.asofterspace.cdm.CdmScript2Activity;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
@@ -195,12 +197,31 @@ public class ScriptTab {
 				break;
 		}
 		
+		StringBuilder activityMappings = new StringBuilder();
+		
+		List<CdmScript2Activity> mappings = script.getAssociatedScript2Activities();
+		
+		int i = 1;
+		
+		for (CdmScript2Activity mapping : mappings) {
+			activityMappings.append(i + ": " + mapping.getName() + "\n");
+			i++;
+		}
+	
+		String activityMappingsStr = activityMappings.toString();
+		
+		if ("".equals(activityMappingsStr)) {
+			activityMappingsStr = "(none)\n";
+		}
+	
 		scriptInfoText.setText(
 			"Script Name: " + script.getName() + "\n" +
 			"Script Namespace: " + script.getNamespace() + "\n" +
-			"Script ID: " + script.getId() + "\n" +
+			"Script ID: " + script.getId() + "\n\n" +
 			"CI File Format: " + format + "\n" +
-			"CI Path: " + script.getParent().getFilename() + "\n" +
+			"CI Path: " + script.getParent().getFilename() + "\n\n" +
+			"Associated Activity Mappings:\n" +
+			activityMappingsStr + "\n" +
 			"CDM Version: " + script.getParent().getCdmVersion()
 		);
 	}
