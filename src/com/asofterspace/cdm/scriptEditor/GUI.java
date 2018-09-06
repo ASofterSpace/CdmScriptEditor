@@ -65,11 +65,20 @@ public class GUI implements Runnable {
 
 	// on the left hand side, we add this string to indicate that the script has changed
 	private final static String CHANGE_INDICATOR = " *";
+	
+	private JMenuItem newCdm;
+	private JMenuItem openCdm;
+	private JMenuItem saveCdm;
+	private JMenuItem saveCdmAs;
+	private JMenuItem addScriptFile;
+	private JMenuItem renameCurScriptFile;
+	private JMenuItem showCurScriptFileInfo;
+	private JMenuItem deleteCurScriptFile;
+	private JMenuItem close;
 
 	private List<ScriptTab> scriptTabs;
 
 	private ConfigFile configuration;
-
 	private JList<String> scriptListComponent;
 	private String[] strScripts;
 
@@ -91,6 +100,8 @@ public class GUI implements Runnable {
 		configureGUI();
 
 		showGUI();
+		
+		reEnableDisableMenuItems();
 	}
 
 	private void createGUI() {
@@ -103,6 +114,8 @@ public class GUI implements Runnable {
 		// Add content to the window
 		createMenu(mainWindow);
 		createMainPanel(mainWindow);
+		
+		// TODO :: create an extra panel that lets a user either create a new empty CDM, or open a CDM directory - instead of having to wobble through the menu in search of it all ^^
 
 		// Stage everything to be shown
 		mainWindow.pack();
@@ -132,7 +145,7 @@ public class GUI implements Runnable {
 
 		JMenu file = new JMenu("File");
 		menu.add(file);
-		JMenuItem newCdm = new JMenuItem("Create Empty CDM");
+		newCdm = new JMenuItem("Create Empty CDM");
 		newCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
 		newCdm.addActionListener(new ActionListener() {
 			@Override
@@ -150,15 +163,17 @@ public class GUI implements Runnable {
 				// now create just the ResourceMcm.cdm file in XML format with one root node (mcmRoot) and the Manifest file
 				// TODO
 				
-				// immediately open the newly created CDM, just as if the open dialog had been called
+				// immediately open the newly created CDM using the CdmCtrl, just as if the open dialog had been called
 				// TODO
+			
+				reEnableDisableMenuItems();
 			
 				// TODO :: sort out the creation of a completely new CDM from scratch
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
 		file.add(newCdm);
-		JMenuItem openCdm = new JMenuItem("Open CDM");
+		openCdm = new JMenuItem("Open CDM");
 		openCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 		openCdm.addActionListener(new ActionListener() {
 			@Override
@@ -167,7 +182,7 @@ public class GUI implements Runnable {
 			}
 		});
 		file.add(openCdm);
-		JMenuItem saveCdm = new JMenuItem("Save CDM");
+		saveCdm = new JMenuItem("Save CDM");
 		saveCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 		saveCdm.addActionListener(new ActionListener() {
 			@Override
@@ -176,7 +191,7 @@ public class GUI implements Runnable {
 			}
 		});
 		file.add(saveCdm);
-		JMenuItem saveCdmAs = new JMenuItem("Save CDM As...");
+		saveCdmAs = new JMenuItem("Save CDM As...");
 		saveCdmAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK | ActionEvent.CTRL_MASK));
 		saveCdmAs.addActionListener(new ActionListener() {
 			@Override
@@ -199,17 +214,20 @@ public class GUI implements Runnable {
 		});
 		file.add(saveCdmAs);
 		file.addSeparator();
-		JMenuItem addScriptFile = new JMenuItem("Add New Script File");
+		addScriptFile = new JMenuItem("Add New Script File");
 		addScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+			
+				reEnableDisableMenuItems();
+			
 				// TODO :: sort out the adding of script files!
 				// (btw., if no CDM has been loaded at all, instead of "just" adding a script file, actually create a new CDM first - like a click on New before this!)
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
 		file.add(addScriptFile);
-		JMenuItem renameCurScriptFile = new JMenuItem("Rename Current Script File");
+		renameCurScriptFile = new JMenuItem("Rename Current Script File");
 		renameCurScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -283,7 +301,7 @@ public class GUI implements Runnable {
 			}
 		});
 		file.add(renameCurScriptFile);
-		JMenuItem showCurScriptFileInfo = new JMenuItem("Show Current Script File Info");
+		showCurScriptFileInfo = new JMenuItem("Show Current Script File Info");
 		showCurScriptFileInfo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -317,7 +335,7 @@ public class GUI implements Runnable {
 			}
 		});
 		file.add(showCurScriptFileInfo);
-		JMenuItem deleteCurScriptFile = new JMenuItem("Delete Current Script File");
+		deleteCurScriptFile = new JMenuItem("Delete Current Script File");
 		deleteCurScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -393,7 +411,7 @@ public class GUI implements Runnable {
 		});
 		file.add(deleteCurScriptFile);
 		file.addSeparator();
-		JMenuItem close = new JMenuItem("Close");
+		close = new JMenuItem("Close");
 		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
 		close.addActionListener(new ActionListener() {
 			@Override
@@ -457,6 +475,7 @@ public class GUI implements Runnable {
 
 		JMenu scriptBlocks = new JMenu("Script Blocks");
 		JMenuItem insertScriptBlock = new JMenuItem("Insert Script Block:");
+		insertScriptBlock.setEnabled(false);
 		scriptBlocks.add(insertScriptBlock);
 		// TODO :: read script blocks from the configuration (maybe come pre-equipped with a few good ones, like getting a (local) service)
 		scriptBlocks.addSeparator();
@@ -475,6 +494,7 @@ public class GUI implements Runnable {
 			}
 		});
 		scriptBlocks.add(defineNewScriptBlock);
+		defineNewScriptBlock.setEnabled(false);
 		menu.add(scriptBlocks);
 
 		JMenu huh = new JMenu("?");
@@ -680,12 +700,15 @@ public class GUI implements Runnable {
 						final int scriptNumber = i;
 						scriptTabs.add(new ScriptTab(mainPanelRight, script, this));
 					}
-					regenerateScriptList();
 					
 				} catch (AttemptingEmfException | CdmLoadingException e) {
 					JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 				}
 
+				regenerateScriptList();
+				
+				reEnableDisableMenuItems();
+				
 				break;
 
 			case JFileChooser.CANCEL_OPTION:
@@ -769,6 +792,8 @@ public class GUI implements Runnable {
 		
 		// remove script from the left hand side
 		regenerateScriptList();
+		
+		reEnableDisableMenuItems();
 
 		return true;
 	}
@@ -801,6 +826,12 @@ public class GUI implements Runnable {
 				currentlyShownTab = scriptTabs.get(0);
 			}
 		}
+		
+		// if there still is no last shown tab (e.g. we just deleted the very last one)...
+		if (currentlyShownTab == null) {
+			// ... then we do not need to show or highlight any ;)
+			return;
+		}
 
 		// show the last shown tab
 		showTab(currentlyShownTab.getName());
@@ -819,6 +850,33 @@ public class GUI implements Runnable {
 			}
 			i++;
 		}
+	}
+
+	/**
+	 * Enable and disable menu items related to the current state of the application,
+	 * e.g. if no CDM is loaded at all, do not enable the user to add scripts to the
+	 * current CDM, etc.
+	 */
+	private void reEnableDisableMenuItems() {
+
+		boolean cdmLoaded = CdmCtrl.hasCdmBeenLoaded();
+
+		boolean scriptsExist = scriptTabs.size() > 0;
+
+		boolean scriptIsSelected = currentlyShownTab != null;
+
+		// enabled and disable menu items according to the state of the application
+		saveCdm.setEnabled(cdmLoaded);
+		saveCdmAs.setEnabled(cdmLoaded);
+		addScriptFile.setEnabled(cdmLoaded);
+		renameCurScriptFile.setEnabled(scriptIsSelected);
+		showCurScriptFileInfo.setEnabled(scriptIsSelected);
+		deleteCurScriptFile.setEnabled(scriptIsSelected);
+		
+		// set everything to false that is not yet working
+		newCdm.setEnabled(false);
+		saveCdmAs.setEnabled(false);
+		addScriptFile.setEnabled(false);
 	}
 	
 }

@@ -22,9 +22,14 @@ public class CdmCtrl {
 
 	private static List<CdmFile> fileList = new ArrayList<>();
 
+	// has a CDM been loaded, like, at all?
+	private static boolean cdmLoaded = false;
+
 
 	public static void loadCdmDirectory(Directory cdmDir) throws AttemptingEmfException, CdmLoadingException {
 
+		cdmLoaded = false;
+		
 		fileList = new ArrayList<>();
 
 		List<File> cdmFiles = cdmDir.getAllFiles(true);
@@ -34,6 +39,12 @@ public class CdmCtrl {
 				fileList.add(loadCdmFile(cdmFile));
 			}
 		}
+		
+		if (fileList.size() <= 0) {
+			throw new CdmLoadingException("The directory " + cdmDir + " does not seem to contain any .cdm files at all.");
+		}
+		
+		cdmLoaded = true;
 	}
 
 	public static CdmFile loadCdmFile(File cdmFile) throws AttemptingEmfException, CdmLoadingException {
@@ -113,11 +124,20 @@ public class CdmCtrl {
 
 		List<CdmScript> results = new ArrayList<>();
 
+		if (!cdmLoaded) {
+			return results;
+		}
+		
 		for (CdmFile cdmFile : fileList) {
 			results.addAll(cdmFile.getScripts());
 		}
 
 		return results;
+	}
+	
+	public static boolean hasCdmBeenLoaded() {
+	
+		return cdmLoaded;
 	}
 
 }
