@@ -263,10 +263,8 @@ public class GUI implements Runnable {
 				renameDialog.add(buttonRow);
 
 				JButton okButton = new JButton("OK");
-				okButton.addActionListener(new ActionListener()
-				{
-					public void actionPerformed(ActionEvent e)
-					{
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
 						if (renameCurrentScript(newScriptName.getText().trim())) {
 							renameDialog.dispose();
 						}
@@ -275,10 +273,8 @@ public class GUI implements Runnable {
 				buttonRow.add(okButton);
 
 				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener()
-				{
-					public void actionPerformed(ActionEvent e)
-					{
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
 						renameDialog.dispose();
 					}
 				});
@@ -313,25 +309,7 @@ public class GUI implements Runnable {
 				}
 
 				// show some information about the currently opened script
-				// TODO :: make it possible to copy the information to clipboard!
-				CdmScript script = currentlyShownTab.getScript();
-				String format = "(unknown)";
-				switch (script.getParent().getMode()) {
-					case XML_LOADED:
-						format = "XML";
-						break;
-					case EMF_LOADED:
-						format = "EMF binary";
-						break;
-				}
-				JOptionPane.showMessageDialog(new JFrame(),
-					"Script Name: " + script.getName() + "\n" +
-					"Script Namespace: " + script.getNamespace() + "\n" +
-					"Script ID: " + script.getId() + "\n" +
-					"CI File Format: " + format + "\n" +
-					"CI Path: " + script.getParent().getFilename() + "\n" +
-					"CDM Version: " + script.getParent().getCdmVersion(),
-					"Script Information", JOptionPane.INFORMATION_MESSAGE);
+				currentlyShownTab.toggleInfo();
 			}
 		});
 		file.add(showCurScriptFileInfo);
@@ -372,10 +350,8 @@ public class GUI implements Runnable {
 				deleteDialog.add(buttonRow);
 
 				JButton deleteButton = new JButton("Delete");
-				deleteButton.addActionListener(new ActionListener()
-				{
-					public void actionPerformed(ActionEvent e)
-					{
+				deleteButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
 						if (deleteCurrentScript()) {
 							deleteDialog.dispose();
 						}
@@ -384,10 +360,8 @@ public class GUI implements Runnable {
 				buttonRow.add(deleteButton);
 
 				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener()
-				{
-					public void actionPerformed(ActionEvent e)
-					{
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
 						deleteDialog.dispose();
 					}
 				});
@@ -529,12 +503,19 @@ public class GUI implements Runnable {
 		cLeft.weighty = 1.0;
 		cLeft.gridx = 0;
 		cLeft.gridy = 0;
+		
+		GridBagConstraints cGap = new GridBagConstraints();
+		cGap.fill = GridBagConstraints.BOTH;
+		cGap.weightx = 0.0;
+		cGap.weighty = 0.0;
+		cGap.gridx = 1;
+		cGap.gridy = 0;
 
 		GridBagConstraints cRight = new GridBagConstraints();
 		cRight.fill = GridBagConstraints.BOTH;
 		cRight.weightx = 1.0;
 		cRight.weighty = 1.0;
-		cRight.gridx = 1;
+		cRight.gridx = 2;
 		cRight.gridy = 0;
 
 	    mainPanelRight = new JPanel();
@@ -543,6 +524,9 @@ public class GUI implements Runnable {
 		scriptListComponent = new JList<String>(scriptList);
 		scriptTabs = new ArrayList<>();
 
+	    JPanel gapPanel = new JPanel();
+	    gapPanel.setPreferredSize(new Dimension(8, 8));
+		
 		MouseListener scriptListClickListener = new MouseListener() {
 
 			@Override
@@ -572,6 +556,8 @@ public class GUI implements Runnable {
 
 		mainPanel.add(scriptListComponent, cLeft);
 
+		mainPanel.add(gapPanel, cGap);
+		
 	    mainPanel.add(mainPanelRight, cRight);
 
 		parent.add(mainPanel, BorderLayout.CENTER);

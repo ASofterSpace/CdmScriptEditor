@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 
 import com.asofterspace.cdm.CdmScript;
@@ -35,17 +36,19 @@ public class ScriptTab {
 
 	private Callback callback;
 	
-	private boolean changed;
+	private boolean changed = false;
+	
+	private boolean infoShown = false;
 
 	// graphical components
 	private JLabel titleLabel;
 	private JTextPane sourceCodeEditor;
+	private JPanel scriptInfo;
+	private JTextArea scriptInfoText;
 
 
 	public ScriptTab(JPanel parentPanel, CdmScript script, GUI gui) {
 
-		changed = false;
-		
 		this.parent = parentPanel;
 
 		this.script = script;
@@ -103,6 +106,134 @@ public class ScriptTab {
 		sourceCodeEditor.setCaretPosition(0);
 
 	    return tab;
+	}
+	
+	private void createInfoArea() {
+	
+		GridBagConstraints c3 = new GridBagConstraints();
+		c3.fill = GridBagConstraints.BOTH;
+		c3.weightx = 1.0;
+		c3.weighty = 1.0;
+		c3.gridx = 0;
+		c3.gridy = 2;
+		
+		scriptInfo = new JPanel();
+		scriptInfo.setLayout(new GridBagLayout());
+		
+		JPanel scriptInfoHeadline = new JPanel();
+		scriptInfoHeadline.setLayout(new GridBagLayout());
+		
+		GridBagConstraints ch1 = new GridBagConstraints();
+		ch1.fill = GridBagConstraints.BOTH;
+		ch1.weightx = 0.0;
+		ch1.weighty = 0.0;
+		ch1.gridx = 0;
+		ch1.gridy = 0;
+		
+		GridBagConstraints ch2 = new GridBagConstraints();
+		ch2.fill = GridBagConstraints.BOTH;
+		ch2.weightx = 1.0;
+		ch2.weighty = 0.0;
+		ch2.gridx = 1;
+		ch2.gridy = 0;
+		
+		GridBagConstraints ch3 = new GridBagConstraints();
+		ch3.fill = GridBagConstraints.BOTH;
+		ch3.weightx = 0.0;
+		ch3.weighty = 0.0;
+		ch3.gridx = 2;
+		ch3.gridy = 0;
+		
+		JLabel scriptInfoHeadLabel = new JLabel("Info:");
+		scriptInfoHeadline.add(scriptInfoHeadLabel, ch1);
+		JPanel scriptInfoHeadGapPanel = new JPanel();
+		scriptInfoHeadline.add(scriptInfoHeadGapPanel, ch2);
+		JButton scriptInfoHide = new JButton("Hide");
+		scriptInfoHide.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				hideInfo();
+			}
+		});
+		scriptInfoHeadline.add(scriptInfoHide, ch3);
+		
+		GridBagConstraints c4 = new GridBagConstraints();
+		c4.fill = GridBagConstraints.BOTH;
+		c4.weightx = 1.0;
+		c4.weighty = 0.0;
+		c4.gridx = 0;
+		c4.gridy = 0;
+		
+		scriptInfo.add(scriptInfoHeadline, c4);
+
+		scriptInfoText = new JTextArea();
+		scriptInfoText.setEditable(false);
+		
+		GridBagConstraints c5 = new GridBagConstraints();
+		c5.fill = GridBagConstraints.BOTH;
+		c5.weightx = 1.0;
+		c5.weighty = 1.0;
+		c5.gridx = 0;
+		c5.gridy = 1;
+		
+		JScrollPane infoScroller = new JScrollPane(scriptInfoText);
+		scriptInfo.add(infoScroller, c5);
+		
+		visualPanel.add(scriptInfo, c3);
+		
+		visualPanel.revalidate();
+	}
+	
+	private void reloadInfoData() {
+	
+		String format = "(unknown)";
+		switch (script.getParent().getMode()) {
+			case XML_LOADED:
+				format = "XML";
+				break;
+			case EMF_LOADED:
+				format = "EMF binary";
+				break;
+		}
+		
+		scriptInfoText.setText(
+			"Script Name: " + script.getName() + "\n" +
+			"Script Namespace: " + script.getNamespace() + "\n" +
+			"Script ID: " + script.getId() + "\n" +
+			"CI File Format: " + format + "\n" +
+			"CI Path: " + script.getParent().getFilename() + "\n" +
+			"CDM Version: " + script.getParent().getCdmVersion()
+		);
+	}
+	
+	public void showInfo() {
+	
+		if (scriptInfo == null) {
+			createInfoArea();
+		}
+		
+		reloadInfoData();
+		
+		scriptInfo.setVisible(true);
+	
+		infoShown = true;
+	}
+	
+	public void hideInfo() {
+	
+		if (scriptInfo != null) {
+			scriptInfo.setVisible(false);
+		}
+	
+		infoShown = false;
+	}
+	
+	public void toggleInfo() {
+
+		if (infoShown) {
+			hideInfo();
+		} else {
+			showInfo();
+		}
 	}
 	
 	public CdmScript getScript() {
