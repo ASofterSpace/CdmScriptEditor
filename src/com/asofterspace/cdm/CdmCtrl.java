@@ -129,7 +129,26 @@ public class CdmCtrl {
 		}
 		
 		for (CdmFile cdmFile : fileList) {
-			results.addAll(cdmFile.getScripts());
+			if ("configurationcontrol:ScriptCI".equals(cdmFile.getCiType())) {
+				results.addAll(cdmFile.getScripts());
+			}
+		}
+
+		return results;
+	}
+	
+	public static List<CdmFile> getScriptToActivityMappers() {
+	
+		List<CdmFile> results = new ArrayList<>();
+
+		if (!cdmLoaded) {
+			return results;
+		}
+		
+		for (CdmFile cdmFile : fileList) {
+			if ("configurationcontrol:Script2ActivityMapperCI".equals(cdmFile.getCiType())) {
+				results.add(cdmFile);
+			}
 		}
 
 		return results;
@@ -138,6 +157,17 @@ public class CdmCtrl {
 	public static boolean hasCdmBeenLoaded() {
 	
 		return cdmLoaded;
+	}
+	
+	/**
+	 * Save all currently opened files - the ones that have been deleted (so far just set an internal flag)
+	 * will delete their contents from the disk
+	 */
+	public static void save() {
+	
+		for (CdmFile cdmFile : fileList) {
+			cdmFile.save();
+		}
 	}
 
 }

@@ -11,11 +11,19 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
+/**
+ * This class abstracts one particular CDM file (or, as one might call it, one particular configuration item.)
+ * It could be a ScriptCI, a Script2ActivityMapperCI, an McmCI, ...
+ */
 public class CdmFile extends XmlFile {
 
 	// this prefix is in the MIDDLE of the version string, a PREFIX to the actual version;
 	// but preceded by whatever nonsense the CDM-writing-application wrote into it!
 	private final static String CDM_VERSION_PREFIX = "/ConfigurationTracking/";
+	
+	private String ciType;
+	
+	private boolean deleted = false;
 
 	/**
 	 * You can construct a CdmFile instance by basing it on an existing file object.
@@ -23,14 +31,25 @@ public class CdmFile extends XmlFile {
 	public CdmFile(File regularFile) {
 
 		super(regularFile);
+		
+		ciType = getRoot().getNodeName();
+	}
+	
+	public String getCiType() {
+		return ciType;
 	}
 
 	/**
 	 * Get all the scripts defined in this CDM file
+	 * (this does not check if this even is a ScriptCI - you should check it first, to not search through others forever ^^)
 	 */
 	public List<CdmScript> getScripts() {
 
 		List<CdmScript> results = new ArrayList<>();
+		
+		if (deleted) {
+			return results;
+		}
 
 		NodeList elements = getRoot().getChildNodes();
 
@@ -40,17 +59,42 @@ public class CdmFile extends XmlFile {
 			try {
 				Node elem = elements.item(i);
 				if ("script".equals(elem.getNodeName())) {
-					NamedNodeMap scriptAttributes = elem.getAttributes();
-					String scriptContent = scriptAttributes.getNamedItem("scriptContent").getNodeValue();
-					String scriptName = scriptAttributes.getNamedItem("name").getNodeValue();
-					String scriptNamespace = scriptAttributes.getNamedItem("namespace").getNodeValue();
-					String scriptId = scriptAttributes.getNamedItem("xmi:id").getNodeValue();
-					CdmScript script = new CdmScript(this, scriptName, scriptNamespace, scriptId, scriptContent);
-					results.add(script);
+					results.add(new CdmScript(this, elem));
 				}
 			} catch (NullPointerException e) {
 				// ignore script nodes that do not contain name or scriptContent attributes
-				System.err.println("ERROR: A script in " + getFilename() + " does not have a properly assigned name or scriptContent attribute and will be ignored!");
+				System.err.println("ERROR: A script in " + getFilename() + " does not have a properly assigned attribute and will be ignored!");
+			}
+		}
+
+		return results;
+	}
+	
+	/**
+	 * Get all the script to activity mapper entries defined in this CDM file
+	 * (this does not check if this even is a Script2ActivityMapperCI - you should check it first, to not search through others forever ^^)
+	 */
+	public List<CdmScript2Activity> getScript2Activities() {
+
+		List<CdmScript2Activity> results = new ArrayList<>();
+		
+		if (deleted) {
+			return results;
+		}
+
+		NodeList elements = getRoot().getChildNodes();
+
+		int len = elements.getLength();
+
+		for (int i = 0; i < len; i++) {
+			try {
+				Node elem = elements.item(i);
+				if ("scriptActivityImpl".equals(elem.getNodeName())) {
+					results.add(new CdmScript2Activity(this, elem));
+				}
+			} catch (NullPointerException e) {
+				// ignore script nodes that do not contain name or scriptContent attributes
+				System.err.println("ERROR: A scriptActivityImpl in " + getFilename() + " does not have a properly assigned attribute and will be ignored!");
 			}
 		}
 
@@ -79,52 +123,21 @@ public class CdmFile extends XmlFile {
 			return null;
 		}
 	}
-
-	public void setScriptSourceCode(String scriptName, String scriptContent) {
-
-		NodeList elements = getRoot().getChildNodes();
-
-		int len = elements.getLength();
-
-		for (int i = 0; i < len; i++) {
-			try {
-				Node elem = elements.item(i);
-				if ("script".equals(elem.getNodeName())) {
-					NamedNodeMap scriptAttributes = elem.getAttributes();
-					String scriptNameFound = scriptAttributes.getNamedItem("name").getNodeValue();
-					if (scriptNameFound.equals(scriptName)) {
-						Node scriptContentNode = scriptAttributes.getNamedItem("scriptContent");
-						scriptContentNode.setNodeValue(scriptContent);
-					}
-				}
-			} catch (NullPointerException e) {
-				// ignore script nodes that do not contain name or scriptContent attributes
-				System.err.println("ERROR: A script in " + getFilename() + " does not have a properly assigned name or scriptContent attribute and will be ignored!");
-			}
-		}
-	}
-
-	public void setScriptName(String scriptName, String newScriptName) {
 	
-		NodeList elements = getRoot().getChildNodes();
+	public void delete() {
+	
+		// remember for later that we have been deleted
+		deleted = true;
+	}
+	
+	public void save() {
 
-		int len = elements.getLength();
-
-		for (int i = 0; i < len; i++) {
-			try {
-				Node elem = elements.item(i);
-				if ("script".equals(elem.getNodeName())) {
-					NamedNodeMap scriptAttributes = elem.getAttributes();
-					String scriptNameFound = scriptAttributes.getNamedItem("name").getNodeValue();
-					if (scriptNameFound.equals(scriptName)) {
-						Node scriptNameNode = scriptAttributes.getNamedItem("name");
-						scriptNameNode.setNodeValue(newScriptName);
-					}
-				}
-			} catch (NullPointerException e) {
-				// ignore script nodes that do not contain name or scriptContent attributes
-				System.err.println("ERROR: A script in " + getFilename() + " does not have a properly assigned name attribute and will be ignored!");
-			}
+		if (deleted) {
+			// if deleted, then actually delete the file from disk
+			super.delete();
+		} else {
+			// actually save the file for real :)
+			super.save();
 		}
 	}
 

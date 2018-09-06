@@ -150,10 +150,9 @@ public class ScriptTab {
 		visualPanel.setVisible(false);
 	}
 
-	public void save() {
+	public void applyChanges() {
 
 		script.setSourceCode(sourceCodeEditor.getText());
-		script.save();
 		
 		changed = false;
 	}
@@ -164,9 +163,11 @@ public class ScriptTab {
 	}
 	
 	public void delete() {
-	
-		// TODO :: actually delete the script from the parent file
-	
+
+		// even after calling delete, we do not set the script to null, as we want to be able
+		// to call save() later - and THEN actually delete the file on disk!
+		script.delete();
+
 		remove();
 	}
 

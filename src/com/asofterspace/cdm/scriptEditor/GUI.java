@@ -646,9 +646,13 @@ public class GUI implements Runnable {
 		// TODO :: add validation step here, in which we validate that all scripts are assigned to activities, and if they are not,
 		// then we ask the user explicitly whether we should really save the scripts in the current state or not
 	
+		// apply all changes, such that the current source code editor contents are actually stored in the CDM file objects
 		for (ScriptTab scriptTab : scriptTabs) {
-			scriptTab.save();
+			scriptTab.applyChanges();
 		}
+		
+		// save all opened CDM files
+		CdmCtrl.save();
 		
 		// remove all change indicators on the left-hand side
 		regenerateScriptList();
@@ -775,7 +779,6 @@ public class GUI implements Runnable {
 		// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to delete the script
 		// (actually, most likely the whole file has to be deleted, together with potentially the activity mapper
 		// entry that attaches the script to an activity, and possibly even the entire activity... hooray!)
-		// TODO :: make this call work (internally, it actually does not do anything yet...)
 		currentlyShownTab.delete();
 
 		// remove the currently shown tab from the list of existing tabs
