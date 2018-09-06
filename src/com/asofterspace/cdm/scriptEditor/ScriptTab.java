@@ -34,19 +34,30 @@ public class ScriptTab {
 	private CdmScript script;
 
 	private Callback callback;
+	
+	private boolean changed;
 
 	// graphical components
 	private JLabel titleLabel;
 	private JTextPane sourceCodeEditor;
 
 
-	public ScriptTab(JPanel parentPanel, CdmScript script, Callback callback) {
+	public ScriptTab(JPanel parentPanel, CdmScript script, GUI gui) {
 
+		changed = false;
+		
 		this.parent = parentPanel;
 
 		this.script = script;
 
-		this.callback = callback;
+		this.callback = new Callback() {
+			public void call() {
+				if (!changed) {
+					changed = true;
+					gui.regenerateScriptList();
+				}
+			}
+		};
 
 		visualPanel = createVisualPanel();
 	}
@@ -111,9 +122,20 @@ public class ScriptTab {
 		return item.equals(script.getName());
 	}
 	
+	public boolean hasBeenChanged() {
+		return changed;
+	}
+	
+	public String getName() {
+	
+		return script.getName();
+	}
+	
 	public void setName(String newName) {
 
 		titleLabel.setText(newName);
+		
+		changed = true;
 		
 		script.setName(newName);
 	}
@@ -132,11 +154,20 @@ public class ScriptTab {
 
 		script.setSourceCode(sourceCodeEditor.getText());
 		script.save();
+		
+		changed = false;
 	}
 
 	public void remove() {
 
 		parent.remove(visualPanel);
+	}
+	
+	public void delete() {
+	
+		// TODO :: actually delete the script from the parent file
+	
+		remove();
 	}
 
 }

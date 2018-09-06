@@ -172,11 +172,7 @@ public class GUI implements Runnable {
 		saveCdm.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for (ScriptTab scriptTab : scriptTabs) {
-					scriptTab.save();
-				}
-				removeAllChangeIndicators();
-				JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
+				saveCdm();
 			}
 		});
 		file.add(saveCdm);
@@ -239,7 +235,7 @@ public class GUI implements Runnable {
 				renameDialog.add(explanationLabel);
 				
 				JTextField newScriptName = new JTextField();
-				newScriptName.setText(currentlyShownTab.getScript().getName());
+				newScriptName.setText(currentlyShownTab.getName());
 				renameDialog.add(newScriptName);
 				
 				JPanel buttonRow = new JPanel();
@@ -335,7 +331,7 @@ public class GUI implements Runnable {
 				// open a dialog to confirm that the script should be deleted
 
 				// Create the window
-				String deleteScript = currentlyShownTab.getScript().getName();
+				String deleteScript = currentlyShownTab.getName();
 				JFrame deleteDialog = new JFrame("Delete " + deleteScript);
 				GridLayout deleteDialogLayout = new GridLayout(3, 1);
 				deleteDialogLayout.setVgap(8);
@@ -362,17 +358,9 @@ public class GUI implements Runnable {
 				{
 					public void actionPerformed(ActionEvent e)
 					{
-						// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to delete the script
-						// (actually, most likely the whole file has to be deleted, together with potentially the activity mapper
-						// entry that attaches the script to an activity, and possibly even the entire activity... hooray!)
-						// TODO
-
-						// remove script from the left hand side
-						// TODO
-
-						JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
-
-						deleteDialog.dispose();
+						if (deleteCurrentScript()) {
+							deleteDialog.dispose();
+						}
 					}
 				});
 				buttonRow.add(deleteButton);
@@ -410,6 +398,9 @@ public class GUI implements Runnable {
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
+				// TODO :: check all scripts; if any have been changed, ask first before closing!
+				
 				System.exit(0);
 			}
 		});
@@ -579,9 +570,14 @@ public class GUI implements Runnable {
 		if (selectedItem.endsWith(CHANGE_INDICATOR)) {
 			selectedItem = selectedItem.substring(0, selectedItem.length() - CHANGE_INDICATOR.length());
 		}
-
+		
+		showTab(selectedItem);
+	}
+	
+	private void showTab(String name) {
+	
 		for (ScriptTab tab : scriptTabs) {
-			if (tab.isItem(selectedItem)) {
+			if (tab.isItem(name)) {
 				tab.show();
 				currentlyShownTab = tab;
 			} else {
@@ -625,14 +621,19 @@ public class GUI implements Runnable {
 		mainWindow.setVisible(true);
 	}
 	
-	private void removeAllChangeIndicators() {
+	private void saveCdm() {
 	
-		for (int i = 0; i < strScripts.length; i++) {
-			if (strScripts[i].endsWith(CHANGE_INDICATOR)) {
-				strScripts[i] = strScripts[i].substring(0, strScripts[i].length() - CHANGE_INDICATOR.length());
-			}
-			scriptListComponent.setListData(strScripts);
+		// TODO :: add validation step here, in which we validate that all scripts are assigned to activities, and if they are not,
+		// then we ask the user explicitly whether we should really save the scripts in the current state or not
+	
+		for (ScriptTab scriptTab : scriptTabs) {
+			scriptTab.save();
 		}
+		
+		// remove all change indicators on the left-hand side
+		regenerateScriptList();
+		
+		JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private void openCdmDirectory() {
@@ -673,29 +674,14 @@ public class GUI implements Runnable {
 
 					// update the script list on the left and load the new script tabs
 					List<CdmScript> scripts = CdmCtrl.getScripts();
-					strScripts = new String[scripts.size()];
 					scriptTabs = new ArrayList<>();
 					for (int i = 0; i < scripts.size(); i++) {
 						CdmScript script = scripts.get(i);
-						strScripts[i] = script.getName();
 						final int scriptNumber = i;
-						scriptTabs.add(new ScriptTab(mainPanelRight, script, new Callback() {
-							public void call() {
-								if (!strScripts[scriptNumber].endsWith(CHANGE_INDICATOR)) {
-									strScripts[scriptNumber] += CHANGE_INDICATOR;
-									scriptListComponent.setListData(strScripts);
-								}
-							}
-						}));
+						scriptTabs.add(new ScriptTab(mainPanelRight, script, this));
 					}
-					scriptListComponent.setListData(strScripts);
+					regenerateScriptList();
 					
-					// show the first tab explicitly - this is fun, and the tabbed layout otherwise shows it anyway, so may as well...
-					if (scriptTabs.size() > 0) {
-						currentlyShownTab = scriptTabs.get(0);
-						currentlyShownTab.show();
-					}
-				
 				} catch (AttemptingEmfException | CdmLoadingException e) {
 					JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 				}
@@ -714,6 +700,8 @@ public class GUI implements Runnable {
 	 */
 	private boolean renameCurrentScript(String newScriptStr) {
 	
+		// TODO :: also add a way to rename the associated activity, if an activity is associated, or even the alias
+	
 		if ("".equals(newScriptStr)) {
 			JOptionPane.showMessageDialog(new JFrame(), "Please enter a new name for the script.", "Enter Name", JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -725,7 +713,7 @@ public class GUI implements Runnable {
 		}
 		
 		// if the name does not change - do nothing... ;)
-		String oldScriptStr = currentlyShownTab.getScript().getName();
+		String oldScriptStr = currentlyShownTab.getName();
 		if (oldScriptStr.equals(newScriptStr)) {
 			return true;
 		}
@@ -743,16 +731,94 @@ public class GUI implements Runnable {
 		}
 
 		// apply changed marker on the left hand side
-		String oldScriptStrStar = oldScriptStr + CHANGE_INDICATOR;
-		for (int i = 0; i < strScripts.length; i++) {
-			if (oldScriptStr.equals(strScripts[i]) || oldScriptStrStar.equals(strScripts[i])) {
-				strScripts[i] = newScriptStr + CHANGE_INDICATOR;
-				break;
-			}
-		}
-		scriptListComponent.setListData(strScripts);
+		regenerateScriptList();
 		
 		return true;
 	}
+	
+	/**
+	 * Delete the currently opened script
+	 * @return true if something happened and the dialog should be closed, false if it should stay open
+	 */
+	private boolean deleteCurrentScript() {
+	
+		if (currentlyShownTab == null) {
+			JOptionPane.showMessageDialog(new JFrame(), "The script cannot be deleted as currently no script has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
+			return true;
+		}
+		
+		// TODO :: make it configurable whether to also delete the related activity!
+		
+		// tell the currently opened script tab to tell the cdmscript to tell the cdmfile to delete the script
+		// (actually, most likely the whole file has to be deleted, together with potentially the activity mapper
+		// entry that attaches the script to an activity, and possibly even the entire activity... hooray!)
+		// TODO :: make this call work (internally, it actually does not do anything yet...)
+		currentlyShownTab.delete();
 
+		// remove the currently shown tab from the list of existing tabs
+		List<ScriptTab> oldScriptTabs = scriptTabs;
+		
+		scriptTabs = new ArrayList<>();
+		for (ScriptTab sT : oldScriptTabs) {
+			if (sT != currentlyShownTab) {
+				scriptTabs.add(sT);
+			}
+		}
+		
+		currentlyShownTab = null;
+		
+		// remove script from the left hand side
+		regenerateScriptList();
+
+		return true;
+	}
+	
+	/**
+	 * Regenerate the script list on the left hand side based on the scriptTabs list,
+	 * and (if at least one script exists), select and open the current tab or, if it
+	 * is null, the first one
+	 */
+	public void regenerateScriptList() {
+	
+		strScripts = new String[scriptTabs.size()];
+		
+		int i = 0;
+					
+		for (ScriptTab scriptTab : scriptTabs) {
+			strScripts[i] = scriptTab.getName();
+			if (scriptTab.hasBeenChanged()) {
+				strScripts[i] += CHANGE_INDICATOR;
+			}
+			i++;
+		}
+
+		scriptListComponent.setListData(strScripts);
+		
+		// if there is no last shown tab...
+		if (currentlyShownTab == null) {
+			// ... show the first tab explicitly - this is fun, and the tabbed layout otherwise shows it anyway, so may as well...
+			if (scriptTabs.size() > 0) {
+				currentlyShownTab = scriptTabs.get(0);
+			}
+		}
+
+		// show the last shown tab
+		showTab(currentlyShownTab.getName());
+		
+		highlightTabInLeftList(currentlyShownTab.getName());
+	}
+
+	private void highlightTabInLeftList(String name) {
+	
+		int i = 0;
+					
+		for (ScriptTab scriptTab : scriptTabs) {
+			if (name.equals(scriptTab.getName())) {
+				scriptListComponent.setSelectedIndex(i);
+				break;
+			}
+			i++;
+		}
+	}
+	
 }
