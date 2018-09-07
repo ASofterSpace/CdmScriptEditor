@@ -20,6 +20,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 public class CdmCtrl {
 
+	public static final String ASS_CDM_NAMESPACE = "http://www.asofterspace.com/ConfigurationTracking/";
+
 	private static List<CdmFile> fileList = new ArrayList<>();
 
 	// has a CDM been loaded, like, at all?
@@ -38,7 +40,7 @@ public class CdmCtrl {
 
 		for (File cdmFile : cdmFiles) {
 			if (cdmFile.getFilename().endsWith(".cdm")) {
-				fileList.add(loadCdmFile(cdmFile));
+				loadCdmFile(cdmFile);
 			}
 		}
 		
@@ -50,7 +52,7 @@ public class CdmCtrl {
 		
 		cdmLoaded = true;
 	}
-
+	
 	public static CdmFile loadCdmFile(File cdmFile) throws AttemptingEmfException, CdmLoadingException {
 
 		CdmFile result = loadCdmFileViaXML(cdmFile);
@@ -72,6 +74,8 @@ public class CdmCtrl {
 		// TODO - also get the EMF stuff to work ;)
 		// loadCdmFileViaEMF(cdmFile);
 
+		fileList.add(result);
+		
 		return result;
 	}
 
@@ -188,5 +192,25 @@ public class CdmCtrl {
 	
 	public static Directory getLastLoadedDirectory() {
 		return lastLoadedDirectory;
+	}
+	
+	/**
+	 * Get the CDM version of one CDM file at random - as they should all have the same version,
+	 * we would like to receive the correct one no matter which one is being used ;)
+	 */
+	public static String getCdmVersion() {
+		
+		if (fileList.size() <= 0) {
+			return "";
+		}
+		
+		return fileList.get(0).getCdmVersion();
+	}
+	
+	/**
+	 * Get the list of CDM files that have been loaded
+	 */
+	public static List<CdmFile> getCdmFiles() {
+		return new ArrayList<>(fileList);
 	}
 }

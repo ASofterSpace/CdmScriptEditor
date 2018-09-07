@@ -28,6 +28,7 @@ import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.web.JSON;
 
+
 public class ScriptTab {
 
 	private JPanel parent;
@@ -301,6 +302,10 @@ public class ScriptTab {
 		changed = true;
 		
 		script.setName(newName);
+	}
+	
+	public void setChanged(boolean changed) {
+		this.changed = changed;
 	}
 
 	public void show() {
