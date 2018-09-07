@@ -121,7 +121,7 @@ public class GUI implements Runnable {
 		createMenu(mainWindow);
 		createMainPanel(mainWindow);
 
-		// TODO :: create an extra panel that lets a user either create a new empty CDM, or open a CDM directory - instead of having to wobble through the menu in search of it all ^^
+		// TODO :: show an extra panel in the middle that lets a user either create a new empty CDM, or open a CDM directory - instead of having to wobble through the menu in search of it all ^^
 
 		// Stage everything to be shown
 		mainWindow.pack();
@@ -156,85 +156,88 @@ public class GUI implements Runnable {
 		newCdm.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				ifAllowedToLeaveCurrentCDM(new Callback() {
+					public void call() {
+						// show dialog in which the user can select the path to the new CDM, the CDM format (XML / EMF) and the CDM version
+						// (offer several presets or also a free-text-field, in each case going for CdmCtrl.ASS_CDM_NAMESPACE + version)
 
-				// show dialog in which the user can select the path to the new CDM, the CDM format (XML / EMF) and the CDM version
-				// (offer several presets or also a free-text-field, in each case going for CdmCtrl.ASS_CDM_NAMESPACE + version)
+						// Create the window
+						JFrame newCdmDialog = new JFrame("Create New CDM");
+						GridLayout newCdmDialogLayout = new GridLayout(5, 1);
+						newCdmDialogLayout.setVgap(8);
+						newCdmDialog.setLayout(newCdmDialogLayout);
+						newCdmDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-				// Create the window
-				JFrame newCdmDialog = new JFrame("Create New CDM");
-				GridLayout newCdmDialogLayout = new GridLayout(5, 1);
-				newCdmDialogLayout.setVgap(8);
-				newCdmDialog.setLayout(newCdmDialogLayout);
-				newCdmDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+						// Populate the window
+						JLabel explanationLabel = new JLabel();
+						explanationLabel.setText("Please enter the working directory in which the new CDM shall be stored:");
+						newCdmDialog.add(explanationLabel);
 
-				// Populate the window
-				JLabel explanationLabel = new JLabel();
-				explanationLabel.setText("Please enter the working directory in which the new CDM shall be stored:");
-				newCdmDialog.add(explanationLabel);
+						// next to the path edit field, there is a small button with three dots, clicking upon which opens a directory picker dialog
+						// TODO
 
-				// next to the path edit field, there is a small button with three dots, clicking upon which opens a directory picker dialog
-				// TODO
-
-				JTextField newCdmPath = new JTextField();
-				String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
-				if (lastDirectory != null) {
-					newCdmPath.setText(lastDirectory);
-				}
-				newCdmDialog.add(newCdmPath);
-
-				// enable the user to choose between creating an XML and an EMF binary CDM
-				// TODO
-
-				JLabel explanationLabelCdmVersion = new JLabel();
-				explanationLabelCdmVersion.setText("Please enter the CDM version that should be used, e.g. 1.13.0bd1 or 1.14.0b:");
-				newCdmDialog.add(explanationLabelCdmVersion);
-
-				// store the various versions that have been entered before in the configuration,
-				// and offer a dropdown of them all
-				// TODO
-
-				JTextField newCdmVersion = new JTextField();
-				newCdmVersion.setText(CdmCtrl.getCdmVersion());
-				newCdmDialog.add(newCdmVersion);
-
-				JPanel buttonRow = new JPanel();
-				GridLayout buttonRowLayout = new GridLayout(1, 2);
-				buttonRowLayout.setHgap(8);
-				buttonRow.setLayout(buttonRowLayout);
-				newCdmDialog.add(buttonRow);
-
-				JButton okButton = new JButton("OK");
-				okButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						if (createNewCdm(newCdmPath.getText().trim(), newCdmVersion.getText().trim())) {
-							newCdmDialog.dispose();
+						JTextField newCdmPath = new JTextField();
+						String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
+						if (lastDirectory != null) {
+							newCdmPath.setText(lastDirectory);
 						}
+						newCdmDialog.add(newCdmPath);
+
+						// enable the user to choose between creating an XML and an EMF binary CDM
+						// TODO
+
+						JLabel explanationLabelCdmVersion = new JLabel();
+						explanationLabelCdmVersion.setText("Please enter the CDM version that should be used, e.g. 1.13.0bd1 or 1.14.0b:");
+						newCdmDialog.add(explanationLabelCdmVersion);
+
+						// store the various versions that have been entered before in the configuration,
+						// and offer a dropdown of them all
+						// TODO
+
+						JTextField newCdmVersion = new JTextField();
+						newCdmVersion.setText(CdmCtrl.getCdmVersion());
+						newCdmDialog.add(newCdmVersion);
+
+						JPanel buttonRow = new JPanel();
+						GridLayout buttonRowLayout = new GridLayout(1, 2);
+						buttonRowLayout.setHgap(8);
+						buttonRow.setLayout(buttonRowLayout);
+						newCdmDialog.add(buttonRow);
+
+						JButton okButton = new JButton("OK");
+						okButton.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								if (createNewCdm(newCdmPath.getText().trim(), newCdmVersion.getText().trim())) {
+									newCdmDialog.dispose();
+								}
+							}
+						});
+						buttonRow.add(okButton);
+
+						JButton cancelButton = new JButton("Cancel");
+						cancelButton.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								newCdmDialog.dispose();
+							}
+						});
+						buttonRow.add(cancelButton);
+
+						// Stage everything to be shown
+						newCdmDialog.pack();
+
+						// Actually display the whole jazz
+						newCdmDialog.setVisible(true);
+
+						// Set the preferred size of the dialog
+						int width = 550;
+						int height = 220;
+						newCdmDialog.setSize(width, height);
+						newCdmDialog.setPreferredSize(new Dimension(width, height));
+
+						// Center the dialog
+						newCdmDialog.setLocationRelativeTo(null);
 					}
 				});
-				buttonRow.add(okButton);
-
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						newCdmDialog.dispose();
-					}
-				});
-				buttonRow.add(cancelButton);
-
-				// Stage everything to be shown
-				newCdmDialog.pack();
-
-				// Actually display the whole jazz
-				newCdmDialog.setVisible(true);
-
-				// Set the preferred size of the dialog
-				int width = 550;
-				int height = 220;
-				newCdmDialog.setSize(width, height);
-				newCdmDialog.setPreferredSize(new Dimension(width, height));
-
-				// Center the dialog
-				newCdmDialog.setLocationRelativeTo(null);
 			}
 		});
 		file.add(newCdm);
@@ -372,7 +375,8 @@ public class GUI implements Runnable {
 				// open a dialog in which all the current mappings are shown, similar to show info
 				// TODO
 
-				// enable the adding of new mappings in the dialog
+				// enable the adding of new mappings in the dialog, either mapping to an existing activity or creating a new activity
+				// (but not to an existing activity that is already mapped somewhere? or then delete the old mapping first?)
 				// TODO
 
 				// enable the deletion of mappings in the dialog, with checkbox about deleting the activity too
@@ -546,10 +550,11 @@ public class GUI implements Runnable {
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-				// TODO :: check all scripts; if any have been changed, ask first before closing!
-
-				System.exit(0);
+				ifAllowedToLeaveCurrentCDM(new Callback() {
+					public void call() {
+						System.exit(0);
+					}
+				});
 			}
 		});
 		file.add(close);
@@ -855,46 +860,50 @@ public class GUI implements Runnable {
 	}
 
 	private void openCdmDirectory() {
+	
+		ifAllowedToLeaveCurrentCDM(new Callback() {
+			public void call() {
+				JFileChooser activeCdmPicker;
 
-		JFileChooser activeCdmPicker;
+				String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
 
-		String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
-
-		if ((lastDirectory != null) && !"".equals(lastDirectory)) {
-			activeCdmPicker = new JFileChooser(new java.io.File(lastDirectory));
-		} else {
-			activeCdmPicker = new JFileChooser();
-		}
-
-		activeCdmPicker.setDialogTitle("Open a CDM working directory");
-		activeCdmPicker.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-		int result = activeCdmPicker.showOpenDialog(mainWindow);
-
-		switch (result) {
-
-			case JFileChooser.APPROVE_OPTION:
-
-				clearAllScriptTabs();
-
-				try {
-					// load the CDM files
-					configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
-					Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
-					CdmCtrl.loadCdmDirectory(cdmDir);
-
-				} catch (AttemptingEmfException | CdmLoadingException e) {
-					JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+				if ((lastDirectory != null) && !"".equals(lastDirectory)) {
+					activeCdmPicker = new JFileChooser(new java.io.File(lastDirectory));
+				} else {
+					activeCdmPicker = new JFileChooser();
 				}
 
-				reloadAllScriptTabs();
+				activeCdmPicker.setDialogTitle("Open a CDM working directory");
+				activeCdmPicker.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-				break;
+				int result = activeCdmPicker.showOpenDialog(mainWindow);
 
-			case JFileChooser.CANCEL_OPTION:
-				// cancel was pressed... do nothing for now
-				break;
-		}
+				switch (result) {
+
+					case JFileChooser.APPROVE_OPTION:
+
+						clearAllScriptTabs();
+
+						try {
+							// load the CDM files
+							configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
+							Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
+							CdmCtrl.loadCdmDirectory(cdmDir);
+
+						} catch (AttemptingEmfException | CdmLoadingException e) {
+							JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+						}
+
+						reloadAllScriptTabs();
+
+						break;
+
+					case JFileChooser.CANCEL_OPTION:
+						// cancel was pressed... do nothing for now
+						break;
+				}
+			}
+		});
 	}
 
 	private void validateCdm() {
@@ -927,7 +936,7 @@ public class GUI implements Runnable {
 		// remove all change indicators on the left-hand side
 		regenerateScriptList();
 	}
-
+	
 	private void saveCdm() {
 
 		prepareToSave();
@@ -1314,4 +1323,92 @@ public class GUI implements Runnable {
 		refreshTitleBar();
 	}
 
+	/**
+	 * Check if currently a CDM is loaded, and if so then if files have been changed,
+	 * and if yes ask the user if we want to save first, proceed, or cancel
+	 * return true if we saved or proceed anyway, and false if we cancel
+	 */
+	private void ifAllowedToLeaveCurrentCDM(Callback proceedWithThisIfAllowed) {
+	
+		// check all scripts; if any have been changed, ask first before closing!
+		boolean noneHaveBeenChanged = true;
+		
+		for (ScriptTab scriptTab : scriptTabs) {
+			if (scriptTab.hasBeenChanged()) {
+				noneHaveBeenChanged = false;
+				break;
+			}
+		}
+		
+		// if none have been changed, then we are allowed to proceed in any case :)
+		if (noneHaveBeenChanged) {
+			proceedWithThisIfAllowed.call();
+			return;
+		}
+
+		// okay, something has been changed, so we now want to ask the user about what to do...
+		
+		// TODO :: make this pop up window (and possibly many others) modal,
+		// such that the main window cannot be played with in the meantime!
+
+		// Create the window
+		JFrame whatToDoDialog = new JFrame("What to do?");
+		GridLayout whatToDoDialogLayout = new GridLayout(2, 1);
+		whatToDoDialogLayout.setVgap(8);
+		whatToDoDialog.setLayout(whatToDoDialogLayout);
+		whatToDoDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		// Populate the window
+		JLabel explanationLabel = new JLabel();
+		explanationLabel.setText("The currently loaded CDM has been modified - what do you want to do?");
+		whatToDoDialog.add(explanationLabel);
+
+		JPanel buttonRow = new JPanel();
+		GridLayout buttonRowLayout = new GridLayout(1, 3);
+		buttonRowLayout.setHgap(8);
+		buttonRow.setLayout(buttonRowLayout);
+		whatToDoDialog.add(buttonRow);
+
+		JButton saveButton = new JButton("Save, then Proceed");
+		saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveCdm();
+				whatToDoDialog.dispose();
+				proceedWithThisIfAllowed.call();
+			}
+		});
+		buttonRow.add(saveButton);
+
+		JButton proceedButton = new JButton("Proceed without Saving");
+		proceedButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				whatToDoDialog.dispose();
+				proceedWithThisIfAllowed.call();
+			}
+		});
+		buttonRow.add(proceedButton);
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				whatToDoDialog.dispose();
+			}
+		});
+		buttonRow.add(cancelButton);
+
+		// Stage everything to be shown
+		whatToDoDialog.pack();
+
+		// Actually display the whole jazz
+		whatToDoDialog.setVisible(true);
+
+		// Set the preferred size of the dialog
+		int width = 600;
+		int height = 120;
+		whatToDoDialog.setSize(width, height);
+		whatToDoDialog.setPreferredSize(new Dimension(width, height));
+
+		// Center the dialog
+		whatToDoDialog.setLocationRelativeTo(null);
+	}
 }
