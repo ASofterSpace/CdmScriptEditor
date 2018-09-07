@@ -20,7 +20,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 public class CdmCtrl {
 
-	public static final String ASS_CDM_NAMESPACE = "http://www.asofterspace.com/ConfigurationTracking/";
+	public static final String ASS_CDM_NAMESPACE_ROOT = "http://www.asofterspace.com/";
+	public static final String ASS_CDM_NAMESPACE = ASS_CDM_NAMESPACE_ROOT + "ConfigurationTracking/";
 
 	private static List<CdmFile> fileList = new ArrayList<>();
 
@@ -213,4 +214,47 @@ public class CdmCtrl {
 	public static List<CdmFile> getCdmFiles() {
 		return new ArrayList<>(fileList);
 	}
+	
+	/**
+	 * Check if the CDM as a whole is valid;
+	 * returns true if it is valid, and false if it is not;
+	 * in the case of it not being valid, the StringBuilder
+	 * that has been passed in will be filled with more detailed
+	 * explanations about why it is not valid
+	 */
+	public static boolean isCdmValid(StringBuilder outProblemsFound) {
+
+		// innocent unless proven otherwise
+		boolean verdict = true;
+
+		// validate that all CDM files are using the same CDM version
+		List<CdmFile> cdmFiles = CdmCtrl.getCdmFiles();
+		List<String> cdmVersionsFound = new ArrayList<>();
+
+		for (CdmFile file : cdmFiles) {
+			String curVersion = file.getCdmVersion();
+			if (!cdmVersionsFound.contains(curVersion)) {
+				cdmVersionsFound.add(curVersion);
+			}
+		}
+
+		// oh no, we have different CDM versions!
+		if (cdmVersionsFound.size() > 1) {
+			verdict = false;
+			outProblemsFound.append("CIs with multiple CDM versions have been mixed together!\n");
+			outProblemsFound.append("Found CDM versions: ");
+			String sep = "";
+			for (String cdmVersionFound : cdmVersionsFound) {
+				outProblemsFound.append(sep);
+				sep = ", ";
+				outProblemsFound.append(cdmVersionFound);
+			}
+		}
+
+		// TODO :: check that all activity mappers are fully filled (e.g. no script or activity missing),
+		// and that these mappings then also exist (e.g. not mapping to a CI that is not existing, etc.)
+
+		return verdict;
+	}
+
 }

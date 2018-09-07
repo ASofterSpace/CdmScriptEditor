@@ -159,25 +159,82 @@ public class GUI implements Runnable {
 
 				// show dialog in which the user can select the path to the new CDM, the CDM format (XML / EMF) and the CDM version
 				// (offer several presets or also a free-text-field, in each case going for CdmCtrl.ASS_CDM_NAMESPACE + version)
-				// TODO
+
+				// Create the window
+				JFrame newCdmDialog = new JFrame("Create New CDM");
+				GridLayout newCdmDialogLayout = new GridLayout(5, 1);
+				newCdmDialogLayout.setVgap(8);
+				newCdmDialog.setLayout(newCdmDialogLayout);
+				newCdmDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+				// Populate the window
+				JLabel explanationLabel = new JLabel();
+				explanationLabel.setText("Please enter the working directory in which the new CDM shall be stored:");
+				newCdmDialog.add(explanationLabel);
 
 				// next to the path edit field, there is a small button with three dots, clicking upon which opens a directory picker dialog
 				// TODO
 
-				// upon clicking OK, check that the selected directory truly is empty
+				JTextField newCdmPath = new JTextField();
+				String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
+				if (lastDirectory != null) {
+					newCdmPath.setText(lastDirectory);
+				}
+				newCdmDialog.add(newCdmPath);
 
-				// now create just the ResourceMcm.cdm file in XML format with one root node (mcmRoot) and the Manifest file
+				// enable the user to choose between creating an XML and an EMF binary CDM
 				// TODO
 
-				// immediately open the newly created CDM using the CdmCtrl, just as if the open dialog had been called
+				JLabel explanationLabelCdmVersion = new JLabel();
+				explanationLabelCdmVersion.setText("Please enter the CDM version that should be used, e.g. 1.13.0bd1 or 1.14.0b:");
+				newCdmDialog.add(explanationLabelCdmVersion);
+
+				// store the various versions that have been entered before in the configuration,
+				// and offer a dropdown of them all
 				// TODO
 
-				reEnableDisableMenuItems();
+				JTextField newCdmVersion = new JTextField();
+				newCdmVersion.setText(CdmCtrl.getCdmVersion());
+				newCdmDialog.add(newCdmVersion);
 
-				refreshTitleBar();
+				JPanel buttonRow = new JPanel();
+				GridLayout buttonRowLayout = new GridLayout(1, 2);
+				buttonRowLayout.setHgap(8);
+				buttonRow.setLayout(buttonRowLayout);
+				newCdmDialog.add(buttonRow);
 
-				// TODO :: sort out the creation of a completely new CDM from scratch
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				JButton okButton = new JButton("OK");
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						if (createNewCdm(newCdmPath.getText().trim(), newCdmVersion.getText().trim())) {
+							newCdmDialog.dispose();
+						}
+					}
+				});
+				buttonRow.add(okButton);
+
+				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						newCdmDialog.dispose();
+					}
+				});
+				buttonRow.add(cancelButton);
+
+				// Stage everything to be shown
+				newCdmDialog.pack();
+
+				// Actually display the whole jazz
+				newCdmDialog.setVisible(true);
+
+				// Set the preferred size of the dialog
+				int width = 550;
+				int height = 220;
+				newCdmDialog.setSize(width, height);
+				newCdmDialog.setPreferredSize(new Dimension(width, height));
+
+				// Center the dialog
+				newCdmDialog.setLocationRelativeTo(null);
 			}
 		});
 		file.add(newCdm);
@@ -291,8 +348,8 @@ public class GUI implements Runnable {
 				addDialog.setVisible(true);
 
 				// Set the preferred size of the dialog
-				int width = 300;
-				int height = 240;
+				int width = 450;
+				int height = 280;
 				addDialog.setSize(width, height);
 				addDialog.setPreferredSize(new Dimension(width, height));
 
@@ -386,7 +443,7 @@ public class GUI implements Runnable {
 				renameDialog.setVisible(true);
 
 				// Set the preferred size of the dialog
-				int width = 300;
+				int width = 350;
 				int height = 160;
 				renameDialog.setSize(width, height);
 				renameDialog.setPreferredSize(new Dimension(width, height));
@@ -726,6 +783,77 @@ public class GUI implements Runnable {
 		mainWindow.setVisible(true);
 	}
 
+	private boolean createNewCdm(String newCdmPath, String newCdmVersion) {
+
+		if ("".equals(newCdmPath)) {
+			JOptionPane.showMessageDialog(new JFrame(), "Please enter a CDM path to create the new CDM files!", "CDM Path Missing", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+
+		if ("".equals(newCdmVersion)) {
+			JOptionPane.showMessageDialog(new JFrame(), "Please enter a CDM version to create the new CDM files!", "CDM Version Missing", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+
+		configuration.set(CONFIG_KEY_LAST_DIRECTORY, newCdmPath);
+		Directory cdmDir = new Directory(newCdmPath);
+
+		// if the new directory does not yet exist, then we have to create it...
+		if (!cdmDir.exists()) {
+			cdmDir.create();
+		}
+
+		// complain if the directory is not empty
+		Boolean isEmpty = cdmDir.isEmpty();
+		if ((isEmpty == null) || !isEmpty) {
+			JOptionPane.showMessageDialog(new JFrame(), "The specified directory is not empty - please create the new CDM in an empty directory!", "Directory Not Empty", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+
+		// now create just the ResourceMcm.cdm file in XML format with one root node (mcmRoot)
+		String routeUuid = Utils.generateEcoreUUID();
+		String routeTypeUuid = Utils.generateEcoreUUID();
+		String sapUuid = Utils.generateEcoreUUID();
+		String mcmRootDefinitionUuid = Utils.generateEcoreUUID();
+		String routeDefinitionUuid = Utils.generateEcoreUUID();
+		String routeTypeDefinitionUuid = Utils.generateEcoreUUID();
+		String sapDefinitionUuid = Utils.generateEcoreUUID();
+		String resourceMcmContent =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<configurationcontrol:McmCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:checkandcondition=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/CheckAndCondition/" + newCdmVersion + "\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + newCdmVersion + "\" xmlns:mcmchecks=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/MCMChecks/1.13.0bd1\" xmlns:mcmimplementationitems=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MCMImplementationItems/1.13.0bd1\" xmlns:monitoringcontrolcommon=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/1.13.0bd1\" xmlns:monitoringcontrolmodel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/1.13.0bd1\" xmlns:qudv.conceptualmodel_extModel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "core/qudv/conceptualmodel/1.5\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by A Softer Space CDM Script Editor Version " + Main.VERSION_NUMBER + "\" onlineRevisionIdentifier=\"0\" name=\"mcmCI\">\n" +
+			"  <monitoringControlElement xmi:id=\"" + Utils.generateEcoreUUID() + "\" name=\"mcmRoot\" subElements=\"\" defaultRoute=\"" + routeUuid + "\" definition=\"" + mcmRootDefinitionUuid + "\" defaultServiceAccessPoint=\"" + sapUuid + "\">\n" +
+			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:Route\" xmi:id=\"" + routeUuid + "\" name=\"DefaultRoute\" baseElement=\"" + routeDefinitionUuid + "\" hasPredictedValue=\"false\" routeName=\"DefaultRoute\" routeID=\"1\" routeType=\"" + routeTypeUuid + "\"/>\n" +
+			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:RouteType\" xmi:id=\"" + routeTypeUuid + "\" name=\"DefaultRouteType\" baseElement=\"" + routeTypeDefinitionUuid + "\" hasPredictedValue=\"false\" routeIDType=\"1\"/>\n" +
+			"    <monitoringControlElementAspects xsi:type=\"mcmimplementationitems:ServiceAccessPoint\" xmi:id=\"" + sapUuid + "\" name=\"0\" baseElement=\"" + sapDefinitionUuid + "\" hasPredictedValue=\"false\" validRoutes=\"" + routeUuid + "\"/>\n" +
+			"  </monitoringControlElement>\n" +
+			"  <monitoringControlElementDefinition xmi:id=\"" + mcmRootDefinitionUuid + "\" name=\"mcmRoot_Definition\" subElements=\"\">\n" +
+			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:Route\" xmi:id=\"" + routeDefinitionUuid + "\" name=\"DefaultRoute\" hasPredictedValue=\"false\" routeName=\"DefaultRoute\" routeID=\"1\" routeType=\"" + routeTypeDefinitionUuid + "\"/>\n" +
+			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:RouteType\" xmi:id=\"" + routeTypeDefinitionUuid + "\" name=\"DefaultRouteType\" hasPredictedValue=\"false\" routeIDType=\"1\"/>\n" +
+			"    <monitoringControlElementAspects xsi:type=\"mcmimplementationitems:ServiceAccessPoint\" xmi:id=\"" + sapDefinitionUuid + "\" name=\"0\" hasPredictedValue=\"false\" validRoutes=\"" + routeDefinitionUuid + "\" />\n" +
+			"  </monitoringControlElementDefinition>\n" +
+			"</configurationcontrol:McmCI>";
+
+		File mcmCi = new File(cdmDir, "ResourceMcm.cdm");
+		mcmCi.setContent(resourceMcmContent);
+		mcmCi.save();
+
+		// also create the Manifest file
+		// TODO
+
+		// immediately open the newly created CDM using the CdmCtrl, just as if the open dialog had been called
+		clearAllScriptTabs();
+
+		try {
+			CdmCtrl.loadCdmDirectory(cdmDir);
+		} catch (AttemptingEmfException | CdmLoadingException e) {
+			JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+		}
+
+		reloadAllScriptTabs();
+		
+		return true;
+	}
+
 	private void openCdmDirectory() {
 
 		JFileChooser activeCdmPicker;
@@ -747,14 +875,7 @@ public class GUI implements Runnable {
 
 			case JFileChooser.APPROVE_OPTION:
 
-				// remove old script tabs
-				for (ScriptTab scriptTab : scriptTabs) {
-					scriptTab.remove();
-				}
-				strScripts = new String[0];
-				scriptTabs = new ArrayList<>();
-				scriptListComponent.setListData(strScripts);
-				currentlyShownTab = null;
+				clearAllScriptTabs();
 
 				try {
 					// load the CDM files
@@ -762,23 +883,11 @@ public class GUI implements Runnable {
 					Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
 					CdmCtrl.loadCdmDirectory(cdmDir);
 
-					// update the script list on the left and load the new script tabs
-					List<CdmScript> scripts = CdmCtrl.getScripts();
-					scriptTabs = new ArrayList<>();
-					for (int i = 0; i < scripts.size(); i++) {
-						CdmScript script = scripts.get(i);
-						scriptTabs.add(new ScriptTab(mainPanelRight, script, this));
-					}
-
 				} catch (AttemptingEmfException | CdmLoadingException e) {
 					JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 				}
 
-				regenerateScriptList();
-
-				reEnableDisableMenuItems();
-
-				refreshTitleBar();
+				reloadAllScriptTabs();
 
 				break;
 
@@ -788,46 +897,11 @@ public class GUI implements Runnable {
 		}
 	}
 
-	private boolean isCdmValid(StringBuilder outProblemsFound) {
-
-		// innocent unless proven otherwise
-		boolean verdict = true;
-
-		// validate that all CDM files are using the same CDM version
-		List<CdmFile> cdmFiles = CdmCtrl.getCdmFiles();
-		List<String> cdmVersionsFound = new ArrayList<>();
-
-		for (CdmFile file : cdmFiles) {
-			String curVersion = file.getCdmVersion();
-			if (!cdmVersionsFound.contains(curVersion)) {
-				cdmVersionsFound.add(curVersion);
-			}
-		}
-
-		// oh no, we have different CDM versions!
-		if (cdmVersionsFound.size() > 1) {
-			verdict = false;
-			outProblemsFound.append("CIs with multiple CDM versions have been mixed together!\n");
-			outProblemsFound.append("Found CDM versions: ");
-			String sep = "";
-			for (String cdmVersionFound : cdmVersionsFound) {
-				outProblemsFound.append(sep);
-				sep = ", ";
-				outProblemsFound.append(cdmVersionFound);
-			}
-		}
-
-		// TODO :: check that all activity mappers are fully filled (e.g. no script or activity missing),
-		// and that these mappings then also exist (e.g. not mapping to a CI that is not existing, etc.)
-
-		return verdict;
-	}
-
 	private void validateCdm() {
 
 		StringBuilder result = new StringBuilder();
 
-		if (isCdmValid(result)) {
+		if (CdmCtrl.isCdmValid(result)) {
 			JOptionPane.showMessageDialog(new JFrame(), "As far as scripts are concerned, the CDM seems valid! :)", "Valid", JOptionPane.INFORMATION_MESSAGE);
 		} else {
 			JOptionPane.showMessageDialog(new JFrame(), "Problems with the CDM have been found:\n\n" + result.toString(), "Invalid", JOptionPane.WARNING_MESSAGE);
@@ -843,7 +917,7 @@ public class GUI implements Runnable {
 
 		// TODO :: add validation step here, in which we validate that all scripts are assigned to activities, and if they are not,
 		// then we ask the user explicitly whether we should really save the scripts in the current state or not
-		// (for this, we can call isCdmValid())
+		// (for this, we can call CdmCtrl.isCdmValid())
 
 		// apply all changes, such that the current source code editor contents are actually stored in the CDM file objects
 		for (ScriptTab scriptTab : scriptTabs) {
@@ -865,8 +939,6 @@ public class GUI implements Runnable {
 	}
 
 	private void saveCdmAs() {
-
-		prepareToSave();
 
 		// open a save dialog in which a directory can be picked
 		JFileChooser saveCdmPicker;
@@ -900,8 +972,11 @@ public class GUI implements Runnable {
 				Boolean isEmpty = cdmDir.isEmpty();
 				if ((isEmpty == null) || !isEmpty) {
 					JOptionPane.showMessageDialog(new JFrame(), "The specified directory is not empty - please save into an empty directory!", "Directory Not Empty", JOptionPane.ERROR_MESSAGE);
-					break;
+					saveCdmAs();
+					return;
 				}
+
+				prepareToSave();
 
 				// for all currently opened CDM files, save them relative to the new directory as they were in the previous one
 				CdmCtrl.saveTo(cdmDir);
@@ -970,6 +1045,58 @@ public class GUI implements Runnable {
 			currentlyShownTab = new ScriptTab(mainPanelRight, scripts.get(0), this);
 
 			currentlyShownTab.setChanged(true);
+			
+			String newScriptTemplate = "package scripts;\n" +
+				"\n" +
+				"import org.osgi.framework.BundleContext;\n" +
+				"import org.osgi.framework.Filter;\n" +
+				"import org.osgi.framework.FrameworkUtil;\n" +
+				"import org.osgi.framework.ServiceReference;\n" +
+				"\n" +
+				"import esa.egscc.kernel.api.commonDataTypes.exceptions.EgsccException;\n" +
+				"import esa.egscc.kernel.infrastructure.componentframework.core.EgsccBundleContext;\n" +
+				"import esa.egscc.kernel.infrastructure.componentframework.core.EgsccFrameworkUtil;\n" +
+				"\n" +
+				"\n" +
+				"/**\n" +
+				" * " + newScriptName + " script\n" +
+				" *\n" +
+				" * Created with the A Softer Space CDM Script Editor\n" +
+				" *\n" +
+				" * @author \n" +
+				" */\n" +
+				"public class " + newScriptName + " {\n" +
+				"\n" +
+				"	private static EgsccBundleContext context;\n" +
+				"\n" +
+				"\n" +
+				"	public static main(args) {\n" +
+				"		println \"The " + newScriptName + " script has been called!\"\n" +
+				"	}\n" +
+				"\n" +
+				"	private static <T> T getService(Class<T> serviceToGet, String filter) {\n" +
+				"\n" +
+				"		if (context == null) {\n" +
+				"			context = EgsccFrameworkUtil.getEgsccBundleContext();\n" +
+				"		}\n" +
+				"\n" +
+				"		if (filterString == null) {\n" +
+				"			return context.getService(serviceToGet);\n" +
+				"		} else {\n" +
+				"			Filter serviceFilter = FrameworkUtil.createFilter(filter);\n" +
+				"			Collection<ServiceReference<T>> refs = context.getServiceReferences(serviceToGet, serviceFilter);\n" +
+				"			if (refs.size() <= 0) {\n" +
+				"				return null;\n" +
+				"			}\n" +
+				"			return context.getService(refs.getAt(0));\n" +
+				"		}\n" +
+				"	}\n" +
+				"}";
+			
+			// by default, load up a nice script template
+			// TODO :: create several templates and let the user select one (or none) when adding a script!
+			// (e.g. templates could be: none, regular script, script with arguments - to see how arguments work, check the IR4 scripts! THEY ARE WONKY!)
+			currentlyShownTab.setScriptEditorContent(newScriptTemplate);
 
 			// add the new script to the GUI
 			scriptTabs.add(currentlyShownTab);
@@ -1144,7 +1271,6 @@ public class GUI implements Runnable {
 		deleteCurScriptFile.setEnabled(scriptIsSelected);
 
 		// set everything to false that is not yet working
-		newCdm.setEnabled(false);
 		manageActMapsOfScriptFile.setEnabled(false);
 	}
 
@@ -1157,6 +1283,35 @@ public class GUI implements Runnable {
 		} else {
 			mainWindow.setTitle(Main.PROGRAM_TITLE + " - " + lastLoadedDir.getDirname());
 		}
+	}
+
+	private void clearAllScriptTabs() {
+
+		// remove old script tabs
+		for (ScriptTab scriptTab : scriptTabs) {
+			scriptTab.remove();
+		}
+		strScripts = new String[0];
+		scriptTabs = new ArrayList<>();
+		scriptListComponent.setListData(strScripts);
+		currentlyShownTab = null;
+	}
+
+	private void reloadAllScriptTabs() {
+
+		// update the script list on the left and load the new script tabs
+		List<CdmScript> scripts = CdmCtrl.getScripts();
+		scriptTabs = new ArrayList<>();
+		for (int i = 0; i < scripts.size(); i++) {
+			CdmScript script = scripts.get(i);
+			scriptTabs.add(new ScriptTab(mainPanelRight, script, this));
+		}
+
+		regenerateScriptList();
+
+		reEnableDisableMenuItems();
+
+		refreshTitleBar();
 	}
 
 }

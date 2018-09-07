@@ -106,6 +106,7 @@ public class ScriptTab {
 
 		tab.setVisible(false);
 
+		// scroll to the top
 		sourceCodeEditor.setCaretPosition(0);
 
 	    return tab;
@@ -287,6 +288,7 @@ public class ScriptTab {
 	}
 	
 	public boolean hasBeenChanged() {
+
 		return changed;
 	}
 	
@@ -305,6 +307,7 @@ public class ScriptTab {
 	}
 	
 	public void setChanged(boolean changed) {
+
 		this.changed = changed;
 	}
 
@@ -316,6 +319,15 @@ public class ScriptTab {
 	public void hide() {
 
 		visualPanel.setVisible(false);
+	}
+	
+	public void setScriptEditorContent(String newScriptContent) {
+
+		// set the new script content (without saving it anywhere)
+		sourceCodeEditor.setText(newScriptContent);
+		
+		// scroll to the top
+		sourceCodeEditor.setCaretPosition(0);
 	}
 
 	public void applyChanges() {
