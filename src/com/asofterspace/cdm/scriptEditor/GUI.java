@@ -99,6 +99,8 @@ public class GUI implements Runnable {
 		createGUI();
 
 		configureGUI();
+		
+		refreshTitleBar();
 
 		showGUI();
 		
@@ -110,7 +112,7 @@ public class GUI implements Runnable {
 		JFrame.setDefaultLookAndFeelDecorated(false);
 
 		// Create the window
-		mainWindow = new JFrame(Main.PROGRAM_TITLE);
+		mainWindow = new JFrame();
 
 		// Add content to the window
 		createMenu(mainWindow);
@@ -168,6 +170,8 @@ public class GUI implements Runnable {
 				// TODO
 			
 				reEnableDisableMenuItems();
+		
+				refreshTitleBar();
 			
 				// TODO :: sort out the creation of a completely new CDM from scratch
 				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
@@ -716,6 +720,8 @@ public class GUI implements Runnable {
 				
 				reEnableDisableMenuItems();
 				
+				refreshTitleBar();
+				
 				break;
 
 			case JFileChooser.CANCEL_OPTION:
@@ -801,6 +807,8 @@ public class GUI implements Runnable {
 				for (ScriptTab scriptTab : scriptTabs) {
 					scriptTab.invalidateInfo();
 				}
+				
+				refreshTitleBar();
 				
 				JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
 
@@ -972,6 +980,17 @@ public class GUI implements Runnable {
 		newCdm.setEnabled(false);
 		addScriptFile.setEnabled(false);
 		manageActMapsOfScriptFile.setEnabled(false);
+	}
+	
+	private void refreshTitleBar() {
+	
+		Directory lastLoadedDir = CdmCtrl.getLastLoadedDirectory();
+		
+		if (lastLoadedDir == null) {
+			mainWindow.setTitle(Main.PROGRAM_TITLE);
+		} else {
+			mainWindow.setTitle(Main.PROGRAM_TITLE + " - " + lastLoadedDir.getDirname());
+		}				
 	}
 	
 }

@@ -185,4 +185,8 @@ public class CdmCtrl {
 		
 		lastLoadedDirectory = newLocation;
 	}
+	
+	public static Directory getLastLoadedDirectory() {
+		return lastLoadedDirectory;
+	}
 }
