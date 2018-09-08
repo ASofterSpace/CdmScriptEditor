@@ -36,17 +36,21 @@ public class ScriptTab {
 	private JPanel visualPanel;
 
 	private CdmScript script;
+	
+	private GUI gui;
 
-	private Callback callback;
+	private Callback onChangeCallback;
 	
 	private boolean changed = false;
 	
 	private boolean infoShown = false;
+	private boolean mappingsShown = false;
 
 	// graphical components
 	private JLabel titleLabel;
 	private JTextPane sourceCodeEditor;
 	private JPanel scriptInfo;
+	private JPanel scriptMappings;
 	private JTextArea scriptInfoText;
 
 
@@ -55,8 +59,10 @@ public class ScriptTab {
 		this.parent = parentPanel;
 
 		this.script = script;
+		
+		this.gui = gui;
 
-		this.callback = new Callback() {
+		this.onChangeCallback = new Callback() {
 			public void call() {
 				if (!changed) {
 					changed = true;
@@ -98,7 +104,7 @@ public class ScriptTab {
 		};
 		GroovyCode groovyCode = new GroovyCode(sourceCodeEditor);
 		sourceCodeEditor.setText(script.getSourceCode());
-		groovyCode.setOnChange(callback);
+		groovyCode.setOnChange(onChangeCallback);
 		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
 		tab.add(sourceCodeScroller, c2);
 
@@ -155,7 +161,11 @@ public class ScriptTab {
 		JButton scriptInfoHide = new JButton("Hide");
 		scriptInfoHide.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				hideInfo();
+				// hide info only on this particular tab:
+				// hideInfo();
+				
+				// hide info on all tabs:
+				gui.setShowScriptFileInfoSwitch(false);
 			}
 		});
 		scriptInfoHeadline.add(scriptInfoHide, ch3);
@@ -183,6 +193,32 @@ public class ScriptTab {
 		scriptInfo.add(infoScroller, c5);
 		
 		visualPanel.add(scriptInfo, c3);
+		
+		visualPanel.revalidate();
+	}
+	
+	private void createMappingArea() {
+	
+		// enable the adding of new mappings in the dialog, either mapping to an existing activity or creating a new activity
+		// (but not to an existing activity that is already mapped somewhere? or then delete the old mapping first?)
+		// TODO
+
+		// enable the deletion of mappings in the dialog, with checkbox about deleting the activity too
+		// TODO
+		
+		// tell the script tab to refresh the script info in case it is open as the mappings shown in there might have changed now
+		// TODO
+				
+		GridBagConstraints c3 = new GridBagConstraints();
+		c3.fill = GridBagConstraints.BOTH;
+		c3.weightx = 1.0;
+		c3.weighty = 1.0;
+		c3.gridx = 0;
+		c3.gridy = 3;
+		
+		scriptMappings = new JPanel();
+		
+		visualPanel.add(scriptMappings, c3);
 		
 		visualPanel.revalidate();
 	}
@@ -228,6 +264,11 @@ public class ScriptTab {
 		);
 	}
 	
+	private void reloadMappingData() {
+	
+		// TODO
+	}
+	
 	/**
 	 * Call this to invalidate the info area such that it is repopulated before being shown to the user the next time
 	 */
@@ -264,6 +305,37 @@ public class ScriptTab {
 	public void toggleInfo() {
 
 		if (infoShown) {
+			hideInfo();
+		} else {
+			showInfo();
+		}
+	}
+	
+	public void showMappings() {
+	
+		if (scriptMappings == null) {
+			createMappingArea();
+		}
+		
+		reloadMappingData();
+		
+		scriptMappings.setVisible(true);
+	
+		mappingsShown = true;
+	}
+	
+	public void hideMappings() {
+	
+		if (scriptMappings != null) {
+			scriptMappings.setVisible(false);
+		}
+	
+		mappingsShown = false;
+	}
+	
+	public void toggleMappings() {
+
+		if (mappingsShown) {
 			hideInfo();
 		} else {
 			showInfo();

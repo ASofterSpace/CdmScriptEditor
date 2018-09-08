@@ -78,11 +78,14 @@ public class GUI implements Runnable {
 	private JMenuItem saveCdm;
 	private JMenuItem saveCdmAs;
 	private JMenuItem addScriptFile;
-	private JMenuItem manageActMapsOfScriptFile;
 	private JMenuItem renameCurScriptFile;
-	private JMenuItem showCurScriptFileInfo;
 	private JMenuItem deleteCurScriptFile;
+	private JCheckBoxMenuItem showScriptFileInfo;
+	private JCheckBoxMenuItem manageActMaps;
 	private JMenuItem close;
+	
+	private boolean showScriptFileInfoSwitch;
+	private boolean manageActMapsSwitch;
 
 	private List<ScriptTab> scriptTabs;
 
@@ -357,32 +360,6 @@ public class GUI implements Runnable {
 			}
 		});
 		file.add(addScriptFile);
-		manageActMapsOfScriptFile = new JMenuItem("Manage Activity Mappings of Current Script File");
-		manageActMapsOfScriptFile.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				// figure out which script tab is currently open (show error if none is open)
-				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no activity mappings can be managed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				// open a dialog in which all the current mappings are shown, similar to show info
-				// TODO
-
-				// enable the adding of new mappings in the dialog, either mapping to an existing activity or creating a new activity
-				// (but not to an existing activity that is already mapped somewhere? or then delete the old mapping first?)
-				// TODO
-
-				// enable the deletion of mappings in the dialog, with checkbox about deleting the activity too
-				// TODO
-
-				// TODO :: sort out the managing of script file mappings!
-				JOptionPane.showMessageDialog(mainWindow, "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
-			}
-		});
-		file.add(manageActMapsOfScriptFile);
 		renameCurScriptFile = new JMenuItem("Rename Current Script File");
 		renameCurScriptFile.addActionListener(new ActionListener() {
 			@Override
@@ -446,22 +423,6 @@ public class GUI implements Runnable {
 			}
 		});
 		file.add(renameCurScriptFile);
-		showCurScriptFileInfo = new JMenuItem("Show Current Script File Info");
-		showCurScriptFileInfo.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				// figure out which script tab is currently open (show error if none is open)
-				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no information can be shown - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				// show some information about the currently opened script
-				currentlyShownTab.toggleInfo();
-			}
-		});
-		file.add(showCurScriptFileInfo);
 		deleteCurScriptFile = new JMenuItem("Delete Current Script File");
 		deleteCurScriptFile.addActionListener(new ActionListener() {
 			@Override
@@ -614,6 +575,33 @@ public class GUI implements Runnable {
 		defineNewScriptBlock.setEnabled(false);
 		menu.add(scriptBlocks);
 
+		JMenu views = new JMenu("Views");
+		showScriptFileInfo = new JCheckBoxMenuItem("Show Script File Info");
+		showScriptFileInfo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			
+				setShowScriptFileInfoSwitch(!showScriptFileInfoSwitch);
+			}
+		});
+		// TODO :: initialize from (and upon change store in) config file!
+		showScriptFileInfoSwitch = false;
+		reShowScriptFileInfo();
+		views.add(showScriptFileInfo);
+		manageActMaps = new JCheckBoxMenuItem("Manage Activity Mappings");
+		manageActMaps.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				setManageActMapsSwitch(!manageActMapsSwitch);
+			}
+		});
+		// TODO :: initialize from (and upon change store in) config file!
+		manageActMapsSwitch = false;
+		reManageActMaps();
+		views.add(manageActMaps);
+		menu.add(views);
+		
 		JMenu huh = new JMenu("?");
 		JMenuItem about = new JMenuItem("About");
 		about.addActionListener(new ActionListener() {
@@ -632,7 +620,7 @@ public class GUI implements Runnable {
 
 		return menu;
 	}
-
+	
 	private JPanel createMainPanel(JFrame parent) {
 
 	    JPanel mainPanel = new JPanel();
@@ -1085,7 +1073,9 @@ public class GUI implements Runnable {
 
 			// add the new script to the GUI
 			scriptTabs.add(currentlyShownTab);
-
+			
+			reScriptTabViews();
+			
 		} catch (AttemptingEmfException | CdmLoadingException e) {
 			JOptionPane.showMessageDialog(mainWindow, "Oops - while trying to create the new script, after creating it temporarily, it could not be loaded!", "Sorry", JOptionPane.ERROR_MESSAGE);
 		}
@@ -1250,13 +1240,8 @@ public class GUI implements Runnable {
 		saveCdm.setEnabled(cdmLoaded);
 		saveCdmAs.setEnabled(cdmLoaded);
 		addScriptFile.setEnabled(cdmLoaded);
-		manageActMapsOfScriptFile.setEnabled(scriptIsSelected);
 		renameCurScriptFile.setEnabled(scriptIsSelected);
-		showCurScriptFileInfo.setEnabled(scriptIsSelected);
 		deleteCurScriptFile.setEnabled(scriptIsSelected);
-
-		// set everything to false that is not yet working
-		manageActMapsOfScriptFile.setEnabled(false);
 	}
 
 	private void refreshTitleBar() {
@@ -1292,6 +1277,8 @@ public class GUI implements Runnable {
 			scriptTabs.add(new ScriptTab(mainPanelRight, script, this));
 		}
 
+		reScriptTabViews();
+		
 		regenerateScriptList();
 
 		reEnableDisableMenuItems();
@@ -1389,4 +1376,56 @@ public class GUI implements Runnable {
 		// Actually display the whole jazz
 		window.setVisible(true);
 	}
+	
+	private void reScriptTabViews() {
+	
+		reShowScriptFileInfo();
+	
+		reManageActMaps();
+	}
+	
+	public void setShowScriptFileInfoSwitch(boolean value) {
+
+		showScriptFileInfoSwitch = value;
+
+		// TODO :: store value in the configuration
+		
+		reShowScriptFileInfo();
+	}
+	
+	private void reShowScriptFileInfo() {
+	
+		showScriptFileInfo.setSelected(showScriptFileInfoSwitch);
+	
+		for (ScriptTab scriptTab : scriptTabs) {
+			if (showScriptFileInfoSwitch) {
+				scriptTab.showInfo();
+			} else {
+				scriptTab.hideInfo();
+			}
+		}
+	}
+
+	public void setManageActMapsSwitch(boolean value) {
+
+		manageActMapsSwitch = value;
+
+		// TODO :: store value in the configuration
+		
+		reManageActMaps();
+	}
+	
+	private void reManageActMaps() {
+	
+		manageActMaps.setSelected(manageActMapsSwitch);
+	
+		for (ScriptTab scriptTab : scriptTabs) {
+			if (manageActMapsSwitch) {
+				scriptTab.showMappings();
+			} else {
+				scriptTab.hideMappings();
+			}
+		}
+	}
+
 }
