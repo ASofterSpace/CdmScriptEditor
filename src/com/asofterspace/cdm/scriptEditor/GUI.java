@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -304,17 +306,32 @@ public class GUI implements Runnable {
 				explanationLabelCI.setText("Please enter the name of the new script CI containing it:");
 				addDialog.add(explanationLabelCI);
 
-				// TODO :: automatically write newScriptName + Script whenever newScriptName is changed
 				JTextField newCiName = new JTextField();
 				newCiName.setText("DoSomethingScript");
 				addDialog.add(newCiName);
+				
+				// automatically write newScriptName + Script in the newCiName field whenever newScriptName is changed
+				newScriptName.getDocument().addDocumentListener(new DocumentListener() {
+					public void changedUpdate(DocumentEvent e) {
+						onchange();
+					}
+					public void removeUpdate(DocumentEvent e) {
+						onchange();
+					}
+					public void insertUpdate(DocumentEvent e) {
+						onchange();
+					}
+					public void onchange() {
+						newCiName.setText(newScriptName.getText() + "Script");
+					}
+				});
 
 				JLabel explanationLabelNamespace = new JLabel();
 				explanationLabelNamespace.setText("Please enter the namespace of the new script:");
 				addDialog.add(explanationLabelNamespace);
 
 				JTextField newScriptNamespace = new JTextField();
-				newScriptNamespace.setText("SomeDefaultNamespace");
+				newScriptNamespace.setText("DefaultNamespace");
 				addDialog.add(newScriptNamespace);
 
 				// also let the user immediately associate an activity with this script?
