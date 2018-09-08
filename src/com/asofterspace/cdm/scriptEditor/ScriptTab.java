@@ -93,7 +93,7 @@ public class ScriptTab {
 		GridBagConstraints c2 = new GridBagConstraints();
 		c2.fill = GridBagConstraints.BOTH;
 		c2.weightx = 1.0;
-		c2.weighty = 1.0;
+		c2.weighty = 0.8;
 		c2.gridx = 0;
 		c2.gridy = 1;
 
@@ -106,6 +106,7 @@ public class ScriptTab {
 		sourceCodeEditor.setText(script.getSourceCode());
 		groovyCode.setOnChange(onChangeCallback);
 		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
+		sourceCodeScroller.setPreferredSize(new Dimension(1, 1));
 		tab.add(sourceCodeScroller, c2);
 
 		parent.add(tab);
@@ -192,6 +193,7 @@ public class ScriptTab {
 		JScrollPane infoScroller = new JScrollPane(scriptInfoText);
 		scriptInfo.add(infoScroller, c5);
 		
+		scriptInfo.setPreferredSize(new Dimension(1, 1));
 		visualPanel.add(scriptInfo, c3);
 		
 		visualPanel.revalidate();
@@ -217,7 +219,73 @@ public class ScriptTab {
 		c3.gridy = 3;
 		
 		scriptMappings = new JPanel();
+		scriptMappings.setLayout(new GridBagLayout());
 		
+		JPanel mappingsHeadline = new JPanel();
+		mappingsHeadline.setLayout(new GridBagLayout());
+		
+		GridBagConstraints ch1 = new GridBagConstraints();
+		ch1.fill = GridBagConstraints.BOTH;
+		ch1.weightx = 0.0;
+		ch1.weighty = 0.0;
+		ch1.gridx = 0;
+		ch1.gridy = 0;
+		
+		GridBagConstraints ch2 = new GridBagConstraints();
+		ch2.fill = GridBagConstraints.BOTH;
+		ch2.weightx = 1.0;
+		ch2.weighty = 0.0;
+		ch2.gridx = 1;
+		ch2.gridy = 0;
+		
+		GridBagConstraints ch3 = new GridBagConstraints();
+		ch3.fill = GridBagConstraints.BOTH;
+		ch3.weightx = 0.0;
+		ch3.weighty = 0.0;
+		ch3.gridx = 2;
+		ch3.gridy = 0;
+		
+		JLabel mappingsHeadLabel = new JLabel("Activity Mappings:");
+		mappingsHeadline.add(mappingsHeadLabel, ch1);
+		JPanel mappingsHeadGapPanel = new JPanel();
+		mappingsHeadline.add(mappingsHeadGapPanel, ch2);
+		JButton mappingsHide = new JButton("Hide");
+		mappingsHide.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// hide mappings only on this particular tab:
+				// hideMappings();
+				
+				// hide mappings on all tabs:
+				gui.setManageActMapsSwitch(false);
+			}
+		});
+		mappingsHeadline.add(mappingsHide, ch3);
+		
+		GridBagConstraints c4 = new GridBagConstraints();
+		c4.fill = GridBagConstraints.BOTH;
+		c4.weightx = 1.0;
+		c4.weighty = 0.0;
+		c4.gridx = 0;
+		c4.gridy = 0;
+		
+		scriptMappings.add(mappingsHeadline, c4);
+
+		JPanel mappingsPanel = new JPanel();
+		
+		// TODO
+		mappingsPanel.add(new JLabel("Mappings can not be managed yet - wait for the next version. ;)"));
+		
+		GridBagConstraints c5 = new GridBagConstraints();
+		c5.fill = GridBagConstraints.BOTH;
+		c5.weightx = 1.0;
+		c5.weighty = 1.0;
+		c5.gridx = 0;
+		c5.gridy = 1;
+		
+		JScrollPane mappingsScroller = new JScrollPane(mappingsPanel);
+		scriptMappings.add(mappingsScroller, c5);
+		
+		scriptMappings.setPreferredSize(new Dimension(1, 1));
 		visualPanel.add(scriptMappings, c3);
 		
 		visualPanel.revalidate();

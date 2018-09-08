@@ -651,12 +651,15 @@ public class GUI implements Runnable {
 
 	    mainPanelRight = new JPanel();
 		mainPanelRight.setLayout(new CardLayout());
-		String[] scriptList = new String[0];
-		scriptListComponent = new JList<String>(scriptList);
-		scriptTabs = new ArrayList<>();
+		mainPanelRight.setPreferredSize(new Dimension(8, 8));
 
 	    JPanel gapPanel = new JPanel();
 	    gapPanel.setPreferredSize(new Dimension(8, 8));
+
+		String[] scriptList = new String[0];
+		scriptListComponent = new JList<String>(scriptList);
+		scriptListComponent.setPreferredSize(new Dimension(8, 8));
+		scriptTabs = new ArrayList<>();
 
 		MouseListener scriptListClickListener = new MouseListener() {
 
@@ -666,16 +669,16 @@ public class GUI implements Runnable {
 		    }
 
 			@Override
+			public void mousePressed(MouseEvent e) {
+				showSelectedTab();
+			}
+
+			@Override
 			public void mouseEntered(MouseEvent e) {
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				showSelectedTab();
 			}
 
 			@Override
