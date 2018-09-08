@@ -28,6 +28,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import javax.swing.BorderFactory;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -107,8 +109,6 @@ public class GUI implements Runnable {
 
 		refreshTitleBar();
 
-		showGUI();
-
 		reEnableDisableMenuItems();
 	}
 
@@ -125,13 +125,7 @@ public class GUI implements Runnable {
 
 		// TODO :: show an extra panel in the middle that lets a user either create a new empty CDM, or open a CDM directory - instead of having to wobble through the menu in search of it all ^^
 
-		// Stage everything to be shown
-		mainWindow.pack();
-
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		// Actually display the whole jazz
-        mainWindow.setVisible(true);
 
 		// Maximize the window
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -143,8 +137,7 @@ public class GUI implements Runnable {
 		// so instead we do it manually in the lines above...
 		// mainWindow.setExtendedState(mainWindow.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 
-		// Center the window
-        mainWindow.setLocationRelativeTo(null);
+		centerAndShowWindow(mainWindow);
 	}
 
 	private JMenuBar createMenu(JFrame parent) {
@@ -164,7 +157,7 @@ public class GUI implements Runnable {
 						// (offer several presets or also a free-text-field, in each case going for CdmCtrl.ASS_CDM_NAMESPACE + version)
 
 						// Create the window
-						JFrame newCdmDialog = new JFrame("Create New CDM");
+						JDialog newCdmDialog = new JDialog(mainWindow, "Create New CDM", true);
 						GridLayout newCdmDialogLayout = new GridLayout(5, 1);
 						newCdmDialogLayout.setVgap(8);
 						newCdmDialog.setLayout(newCdmDialogLayout);
@@ -224,20 +217,13 @@ public class GUI implements Runnable {
 						});
 						buttonRow.add(cancelButton);
 
-						// Stage everything to be shown
-						newCdmDialog.pack();
-
-						// Actually display the whole jazz
-						newCdmDialog.setVisible(true);
-
 						// Set the preferred size of the dialog
 						int width = 550;
 						int height = 220;
 						newCdmDialog.setSize(width, height);
 						newCdmDialog.setPreferredSize(new Dimension(width, height));
 
-						// Center the dialog
-						newCdmDialog.setLocationRelativeTo(null);
+						centerAndShowWindow(newCdmDialog);
 					}
 				});
 			}
@@ -287,7 +273,7 @@ public class GUI implements Runnable {
 				// open a dialog in which the name of the new script can be entered
 
 				// Create the window
-				JFrame addDialog = new JFrame("Add Script");
+				JDialog addDialog = new JDialog(mainWindow, "Add Script", true);
 				GridLayout addDialogLayout = new GridLayout(7, 1);
 				addDialogLayout.setVgap(8);
 				addDialog.setLayout(addDialogLayout);
@@ -361,20 +347,13 @@ public class GUI implements Runnable {
 				});
 				buttonRow.add(cancelButton);
 
-				// Stage everything to be shown
-				addDialog.pack();
-
-				// Actually display the whole jazz
-				addDialog.setVisible(true);
-
 				// Set the preferred size of the dialog
 				int width = 450;
 				int height = 280;
 				addDialog.setSize(width, height);
 				addDialog.setPreferredSize(new Dimension(width, height));
 
-				// Center the dialog
-				addDialog.setLocationRelativeTo(null);
+				centerAndShowWindow(addDialog);
 			}
 		});
 		file.add(addScriptFile);
@@ -385,7 +364,7 @@ public class GUI implements Runnable {
 
 				// figure out which script tab is currently open (show error if none is open)
 				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(new JFrame(), "No script has been selected, so no activity mappings can be managed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no activity mappings can be managed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
@@ -400,7 +379,7 @@ public class GUI implements Runnable {
 				// TODO
 
 				// TODO :: sort out the managing of script file mappings!
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(mainWindow, "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
 		file.add(manageActMapsOfScriptFile);
@@ -411,14 +390,14 @@ public class GUI implements Runnable {
 
 				// figure out which script tab is currently open (show error if none is open)
 				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(new JFrame(), "No script has been selected, so no script can be renamed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no script can be renamed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
 				// open a dialog in which the new name is to be entered (pre-filled with the current name)
 
 				// Create the window
-				JFrame renameDialog = new JFrame("Rename Script");
+				JDialog renameDialog = new JDialog(mainWindow, "Rename Script", true);
 				GridLayout renameDialogLayout = new GridLayout(3, 1);
 				renameDialogLayout.setVgap(8);
 				renameDialog.setLayout(renameDialogLayout);
@@ -457,20 +436,13 @@ public class GUI implements Runnable {
 				});
 				buttonRow.add(cancelButton);
 
-				// Stage everything to be shown
-				renameDialog.pack();
-
-				// Actually display the whole jazz
-				renameDialog.setVisible(true);
-
 				// Set the preferred size of the dialog
 				int width = 350;
 				int height = 160;
 				renameDialog.setSize(width, height);
 				renameDialog.setPreferredSize(new Dimension(width, height));
 
-				// Center the dialog
-				renameDialog.setLocationRelativeTo(null);
+				centerAndShowWindow(renameDialog);
 			}
 		});
 		file.add(renameCurScriptFile);
@@ -481,7 +453,7 @@ public class GUI implements Runnable {
 
 				// figure out which script tab is currently open (show error if none is open)
 				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(new JFrame(), "No script has been selected, so no information can be shown - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no information can be shown - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
@@ -497,7 +469,7 @@ public class GUI implements Runnable {
 
 				// figure out which script tab is currently open (show error if none is open)
 				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(new JFrame(), "No script has been selected, so no script can be deleted - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no script can be deleted - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
@@ -505,7 +477,7 @@ public class GUI implements Runnable {
 
 				// Create the window
 				String deleteScript = currentlyShownTab.getName();
-				JFrame deleteDialog = new JFrame("Delete " + deleteScript);
+				JDialog deleteDialog = new JDialog(mainWindow, "Delete " + deleteScript, true);
 				GridLayout deleteDialogLayout = new GridLayout(3, 1);
 				deleteDialogLayout.setVgap(8);
 				deleteDialog.setLayout(deleteDialogLayout);
@@ -544,20 +516,13 @@ public class GUI implements Runnable {
 				});
 				buttonRow.add(cancelButton);
 
-				// Stage everything to be shown
-				deleteDialog.pack();
-
-				// Actually display the whole jazz
-				deleteDialog.setVisible(true);
-
 				// Set the preferred size of the dialog
 				int width = 300;
 				int height = 160;
 				deleteDialog.setSize(width, height);
 				deleteDialog.setPreferredSize(new Dimension(width, height));
 
-				// Center the dialog
-				deleteDialog.setLocationRelativeTo(null);
+				centerAndShowWindow(deleteDialog);
 			}
 		});
 		file.add(deleteCurScriptFile);
@@ -642,7 +607,7 @@ public class GUI implements Runnable {
 				// upon OK, store the script block in the configuration and add it to the menu
 				// TODO
 
-				JOptionPane.showMessageDialog(new JFrame(), "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(mainWindow, "Sorry, I am not yet working...", "Sorry", JOptionPane.ERROR_MESSAGE);
 			}
 		});
 		scriptBlocks.add(defineNewScriptBlock);
@@ -657,7 +622,7 @@ public class GUI implements Runnable {
 				String aboutMessage = "This is the " + Main.PROGRAM_TITLE + ".\n" +
 					"Version: " + Main.VERSION_NUMBER + " (" + Main.VERSION_DATE + ")\n" +
 					"Brought to you by: A Softer Space";
-				JOptionPane.showMessageDialog(new JFrame(), aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(mainWindow, aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		huh.add(about);
@@ -799,21 +764,15 @@ public class GUI implements Runnable {
 		GroovyCode.setFontSize(currentFontSize);
 	}
 
-	private void showGUI() {
-
-		mainWindow.pack();
-		mainWindow.setVisible(true);
-	}
-
 	private boolean createNewCdm(String newCdmPath, String newCdmVersion) {
 
 		if ("".equals(newCdmPath)) {
-			JOptionPane.showMessageDialog(new JFrame(), "Please enter a CDM path to create the new CDM files!", "CDM Path Missing", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "Please enter a CDM path to create the new CDM files!", "CDM Path Missing", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 
 		if ("".equals(newCdmVersion)) {
-			JOptionPane.showMessageDialog(new JFrame(), "Please enter a CDM version to create the new CDM files!", "CDM Version Missing", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "Please enter a CDM version to create the new CDM files!", "CDM Version Missing", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 
@@ -828,7 +787,7 @@ public class GUI implements Runnable {
 		// complain if the directory is not empty
 		Boolean isEmpty = cdmDir.isEmpty();
 		if ((isEmpty == null) || !isEmpty) {
-			JOptionPane.showMessageDialog(new JFrame(), "The specified directory is not empty - please create the new CDM in an empty directory!", "Directory Not Empty", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "The specified directory is not empty - please create the new CDM in an empty directory!", "Directory Not Empty", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 
@@ -868,7 +827,7 @@ public class GUI implements Runnable {
 		try {
 			CdmCtrl.loadCdmDirectory(cdmDir);
 		} catch (AttemptingEmfException | CdmLoadingException e) {
-			JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 		}
 
 		reloadAllScriptTabs();
@@ -908,7 +867,7 @@ public class GUI implements Runnable {
 							CdmCtrl.loadCdmDirectory(cdmDir);
 
 						} catch (AttemptingEmfException | CdmLoadingException e) {
-							JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(mainWindow, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 						}
 
 						reloadAllScriptTabs();
@@ -928,16 +887,16 @@ public class GUI implements Runnable {
 		StringBuilder result = new StringBuilder();
 
 		if (CdmCtrl.isCdmValid(result)) {
-			JOptionPane.showMessageDialog(new JFrame(), "As far as scripts are concerned, the CDM seems valid! :)", "Valid", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "As far as scripts are concerned, the CDM seems valid! :)", "Valid", JOptionPane.INFORMATION_MESSAGE);
 		} else {
-			JOptionPane.showMessageDialog(new JFrame(), "Problems with the CDM have been found:\n\n" + result.toString(), "Invalid", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "Problems with the CDM have been found:\n\n" + result.toString(), "Invalid", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
 	private void prepareToSave() {
 
 		if (!CdmCtrl.hasCdmBeenLoaded()) {
-			JOptionPane.showMessageDialog(new JFrame(), "The CDM cannot be saved as no CDM has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "The CDM cannot be saved as no CDM has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -961,7 +920,7 @@ public class GUI implements Runnable {
 		// save all opened CDM files
 		CdmCtrl.save();
 
-		JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(mainWindow, "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private void saveCdmAs() {
@@ -997,7 +956,7 @@ public class GUI implements Runnable {
 				// complain if the directory is not empty
 				Boolean isEmpty = cdmDir.isEmpty();
 				if ((isEmpty == null) || !isEmpty) {
-					JOptionPane.showMessageDialog(new JFrame(), "The specified directory is not empty - please save into an empty directory!", "Directory Not Empty", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(mainWindow, "The specified directory is not empty - please save into an empty directory!", "Directory Not Empty", JOptionPane.ERROR_MESSAGE);
 					saveCdmAs();
 					return;
 				}
@@ -1016,7 +975,7 @@ public class GUI implements Runnable {
 
 				refreshTitleBar();
 
-				JOptionPane.showMessageDialog(new JFrame(), "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(mainWindow, "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
 
 				break;
 
@@ -1032,7 +991,7 @@ public class GUI implements Runnable {
 
 		// check that the newCiName (+ .cdm) is not already the file name of some other CDM file!
 		if (newFileLocation.exists()) {
-			JOptionPane.showMessageDialog(new JFrame(), newCiName + ".cdm already exists - please choose a different CI name!", "CI Name Already Taken", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, newCiName + ".cdm already exists - please choose a different CI name!", "CI Name Already Taken", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 
@@ -1053,7 +1012,7 @@ public class GUI implements Runnable {
 			List<CdmScript> scripts = newCdmFile.getScripts();
 
 			if (scripts.size() != 1) {
-				JOptionPane.showMessageDialog(new JFrame(), "Oops - while trying to create the new script, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(mainWindow, "Oops - while trying to create the new script, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
 				return true;
 			}
 
@@ -1128,7 +1087,7 @@ public class GUI implements Runnable {
 			scriptTabs.add(currentlyShownTab);
 
 		} catch (AttemptingEmfException | CdmLoadingException e) {
-			JOptionPane.showMessageDialog(new JFrame(), "Oops - while trying to create the new script, after creating it temporarily, it could not be loaded!", "Sorry", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "Oops - while trying to create the new script, after creating it temporarily, it could not be loaded!", "Sorry", JOptionPane.ERROR_MESSAGE);
 		}
 
 		// this also automagically switch to the newly added tab, as it is the currentlyShownTab
@@ -1148,12 +1107,12 @@ public class GUI implements Runnable {
 		// TODO :: also add a way to rename the associated activity, if an activity is associated, or even the alias
 
 		if ("".equals(newScriptStr)) {
-			JOptionPane.showMessageDialog(new JFrame(), "Please enter a new name for the script.", "Enter Name", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "Please enter a new name for the script.", "Enter Name", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 
 		if (currentlyShownTab == null) {
-			JOptionPane.showMessageDialog(new JFrame(), "The script cannot be renamed as currently no script has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "The script cannot be renamed as currently no script has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
 			return true;
 		}
 
@@ -1188,7 +1147,7 @@ public class GUI implements Runnable {
 	private boolean deleteCurrentScript() {
 
 		if (currentlyShownTab == null) {
-			JOptionPane.showMessageDialog(new JFrame(), "The script cannot be deleted as currently no script has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow, "The script cannot be deleted as currently no script has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
 			return true;
 		}
 
@@ -1365,11 +1324,8 @@ public class GUI implements Runnable {
 
 		// okay, something has been changed, so we now want to ask the user about what to do...
 		
-		// TODO :: make this pop up window (and possibly many others) modal,
-		// such that the main window cannot be played with in the meantime!
-
 		// Create the window
-		JFrame whatToDoDialog = new JFrame("What to do?");
+		JDialog whatToDoDialog = new JDialog(mainWindow, "What to do?", true);
 		GridLayout whatToDoDialogLayout = new GridLayout(2, 1);
 		whatToDoDialogLayout.setVgap(8);
 		whatToDoDialog.setLayout(whatToDoDialogLayout);
@@ -1413,19 +1369,24 @@ public class GUI implements Runnable {
 		});
 		buttonRow.add(cancelButton);
 
-		// Stage everything to be shown
-		whatToDoDialog.pack();
-
-		// Actually display the whole jazz
-		whatToDoDialog.setVisible(true);
-
 		// Set the preferred size of the dialog
 		int width = 600;
 		int height = 120;
 		whatToDoDialog.setSize(width, height);
 		whatToDoDialog.setPreferredSize(new Dimension(width, height));
 
-		// Center the dialog
-		whatToDoDialog.setLocationRelativeTo(null);
+		centerAndShowWindow(whatToDoDialog);
+	}
+	
+	private void centerAndShowWindow(Window window) {
+
+		// Center the window
+		window.setLocationRelativeTo(null);
+		
+		// Stage everything to be shown
+		window.pack();
+
+		// Actually display the whole jazz
+		window.setVisible(true);
 	}
 }
