@@ -313,19 +313,39 @@ public class ScriptTab {
 			JButton deleteMappingBtn = new JButton("Delete Mapping");
 			deleteMappingBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					// TODO
+					mapping.delete();
+					
+					invalidateInfo();
+					invalidateMappings();
+					
+					changed = true;
+					gui.regenerateScriptList();
 				}
 			});
-			deleteMappingBtn.setEnabled(false);
 			buttonRow.add(deleteMappingBtn);
 
 			JButton deleteMappingAndActivityBtn = new JButton("Delete Mapping and Activity");
 			deleteMappingAndActivityBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					// TODO
+					CdmActivity mappedActivity = mapping.getMappedActivity();
+					
+					mapping.delete();
+					
+					if (mappedActivity != null) {
+						mappedActivity.delete();
+					}
+					
+					invalidateInfo();
+					invalidateMappings();
+					
+					changed = true;
+					gui.regenerateScriptList();
+					
+					// TODO :: potentially invalidate mappings on other script tabs too, as the activity
+					// may have been associated with them as well and may have deleted the other mappings
+					// while going down? aargs!
 				}
 			});
-			deleteMappingAndActivityBtn.setEnabled(false);
 			buttonRow.add(deleteMappingAndActivityBtn);
 
 			makeWide(mapPanel);
@@ -348,6 +368,17 @@ public class ScriptTab {
 		// if the info is not currently shown, do nothing, as the info data will be reloaded when it is shown again anyway
 		if (infoShown) {
 			reloadInfoData();
+		}
+	}
+	
+	/**
+	 * Call this to invalidate the mapping area such that it is repopulated before being shown to the user the next time
+	 */
+	public void invalidateMappings() {
+	
+		// if the mappings are not currently shown, do nothing, as the mapping data will be reloaded when it is shown again anyway
+		if (mappingsShown) {
+			reloadMappingData();
 		}
 	}
 

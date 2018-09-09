@@ -2,6 +2,7 @@ package com.asofterspace.cdm;
 
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.XmlFile;
+import com.asofterspace.toolbox.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +134,7 @@ public class CdmFile extends XmlFile {
 					}
 				}
 			} catch (NullPointerException e) {
-				System.err.println("ERROR: A monitoringControlElement in " + getFilename() + " does not have a properly assigned attribute and will be ignored!");
+				System.err.println("ERROR: The " + Utils.th(i) + " child node in " + getFilename() + " does not have a properly assigned attribute and will be ignored!");
 			}
 		}
 

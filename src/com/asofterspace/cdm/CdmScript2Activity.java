@@ -162,7 +162,7 @@ public class CdmScript2Activity {
 	public void delete() {
 	
 		// delete the script itself from the parent file
-		parent.getRoot().removeChild(thisNode);
+		thisNode.getParentNode().removeChild(thisNode);
 	}
 
 }

@@ -41,18 +41,36 @@ public class CdmActivity {
 
 		this.thisNode = activityNode;
 
-		this.name = attributes.getNamedItem("name").getNodeValue();
+		Node name = attributes.getNamedItem("name");
+		if (name != null) {
+			this.name = name.getNodeValue();
+		}
+		
+		Node baseElement = attributes.getNamedItem("baseElement");
+		if (baseElement != null) {
+			this.baseElementId = baseElement.getNodeValue();
+		}
+		
+		Node hasPredictedValue = attributes.getNamedItem("hasPredictedValue");
+		if (hasPredictedValue != null) {
+			this.hasPredictedValue = hasPredictedValue.getNodeValue();
+		}
+		
+		Node permittedRoute = attributes.getNamedItem("permittedRoute");
+		if (permittedRoute != null) {
+			this.permittedRouteId = permittedRoute.getNodeValue();
+		}
 
-		this.baseElementId = attributes.getNamedItem("baseElement").getNodeValue();
-
-		this.hasPredictedValue = attributes.getNamedItem("hasPredictedValue").getNodeValue();
-
-		this.permittedRouteId = attributes.getNamedItem("permittedRoute").getNodeValue();
-
-		this.defaultRouteId = attributes.getNamedItem("defaultRoute").getNodeValue();
-
-		this.defaultServiceAccessPointId = attributes.getNamedItem("defaultServiceAccessPoint").getNodeValue();
-
+		Node defaultRoute = attributes.getNamedItem("defaultRoute");
+		if (defaultRoute != null) {
+			this.defaultRouteId = defaultRoute.getNodeValue();
+		}
+		
+		Node defaultServiceAccessPoint = attributes.getNamedItem("defaultServiceAccessPoint");
+		if (defaultServiceAccessPoint != null) {
+			this.defaultServiceAccessPointId = defaultServiceAccessPoint.getNodeValue();
+		}
+		
 		NodeList aliassesAndArgs = activityNode.getChildNodes();
 
 		int len = aliassesAndArgs.getLength();
@@ -111,9 +129,14 @@ public class CdmActivity {
 	public void delete() {
 
 		// delete the activity itself from the parent file
-		parent.getRoot().removeChild(thisNode);
+		thisNode.getParentNode().removeChild(thisNode);
 
 		// TODO - delete the definition as well if this is a regular activity, or delete the activity/ies as well if this is a definition
+		// (however, if this is a regular activity, and there are others that have the same definition, then delete nothing except this activity!)
+		
+		// TODO - delete all mappings involving this activity
+		
+		// TODO - if we did delete some other mappings, somehow tell the ScriptTabs about that, such that they can update their own mapping and info views?
 	}
 
 }
