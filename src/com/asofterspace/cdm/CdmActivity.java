@@ -133,6 +133,9 @@ public class CdmActivity {
 
 		// TODO - delete the definition as well if this is a regular activity, or delete the activity/ies as well if this is a definition
 		// (however, if this is a regular activity, and there are others that have the same definition, then delete nothing except this activity!)
+		// ((however however - take care; right now, we only get the real activities, NOT the activity definitions inside mce definitions,
+		// so the definition activities right now are not given to us by the CdmCtrl, and if we change that then we need to change many other
+		// places, so ideally we would like to keep it this way - just never display activities from inside mce definitions anywhere!))
 		
 		// TODO - delete all mappings involving this activity
 		

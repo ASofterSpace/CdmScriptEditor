@@ -211,7 +211,8 @@ public class ScriptTab {
 				activitiesPanel.setLayout(new BoxLayout(activitiesPanel, BoxLayout.Y_AXIS));
 				activitiesPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-				// TODO - show all the existing activities
+				// show all the existing activities
+				// TODO :: add a way to filter, maybe sort, etc.
 
 				List<CdmActivity> activities = CdmCtrl.getActivities();
 
@@ -251,11 +252,18 @@ public class ScriptTab {
 					buttonRow.setLayout(buttonRowLayout);
 					actPanel.add(buttonRow);
 
-					// the deletion of mappings happens here, optionally including the deletion of the mapped activity
 					JButton mapBtn = new JButton("Map to Current Script");
 					mapBtn.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
-							// TODO
+							// TODO - first of all, get all script to activity mapping CIs
+							
+							// TODO - if there are none, create a new one
+							
+							// TODO - add a new script to activity mapping to the first script to activity mapping CI that comes into our hands
+							// (take care of subfolders, as the script CI containing the script, the script to activity mapping CI, the mcm CI
+							// containing the activity, and the CDM working directory might all four be different directories!)
+							
+							// TODO - set the current script to changed and display this in the GUI
 						}
 					});
 					mapBtn.setEnabled(false);
