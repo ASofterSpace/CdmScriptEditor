@@ -23,11 +23,17 @@ public class CdmCtrl {
 	public static final String ASS_CDM_NAMESPACE_ROOT = "http://www.asofterspace.com/";
 	public static final String ASS_CDM_NAMESPACE = ASS_CDM_NAMESPACE_ROOT + "ConfigurationTracking/";
 
-	private static List<CdmFile> fileList = new ArrayList<>();
-
 	// has a CDM been loaded, like, at all?
 	private static boolean cdmLoaded = false;
 	
+	// all of the loaded CDM files (intended more for internal-ish use)
+	private static List<CdmFile> fileList = new ArrayList<>();
+	
+	// our model of the CDM (intended more for external-ish use)
+	private static List<CdmScript> scripts;
+	private static List<CdmFile> scriptToActivityMappers;
+	private static List<CdmActivity> activities;
+
 	private static Directory lastLoadedDirectory;
 
 
@@ -36,12 +42,15 @@ public class CdmCtrl {
 		cdmLoaded = false;
 		
 		fileList = new ArrayList<>();
-
+		scripts = new ArrayList<>();
+		scriptToActivityMappers = new ArrayList<>();
+		activities = new ArrayList<>();
+		
 		List<File> cdmFiles = cdmDir.getAllFiles(true);
 
 		for (File cdmFile : cdmFiles) {
 			if (cdmFile.getFilename().endsWith(".cdm")) {
-				loadCdmFile(cdmFile);
+				loadAnotherCdmFile(cdmFile);
 			}
 		}
 		
@@ -51,10 +60,24 @@ public class CdmCtrl {
 		
 		lastLoadedDirectory = cdmDir;
 		
+		// reload the model once, after all the CDM files have been loaded
+		reloadModel();
+		
 		cdmLoaded = true;
 	}
 	
 	public static CdmFile loadCdmFile(File cdmFile) throws AttemptingEmfException, CdmLoadingException {
+	
+		CdmFile result = loadAnotherCdmFile(cdmFile);
+		
+		// as this function was called from - gasp! - the outside world, we have to reload the model now...
+		// at least for this one file ;)
+		reloadModel(result);
+		
+		return result;
+	}
+	
+	private static CdmFile loadAnotherCdmFile(File cdmFile) throws AttemptingEmfException, CdmLoadingException {
 
 		CdmFile result = loadCdmFileViaXML(cdmFile);
 
@@ -128,43 +151,38 @@ public class CdmCtrl {
 		}
 */ // TAKE OUT EMF DEPENDENCIES
 	}
-
-	public static List<CdmScript> getScripts() {
-
-		List<CdmScript> results = new ArrayList<>();
-
-		if (!cdmLoaded) {
-			return results;
-		}
-		
+	
+	/**
+	 * Reload the entire internal model of the CDM
+	 */
+	private static void reloadModel() {
 		for (CdmFile cdmFile : fileList) {
-			if ("configurationcontrol:ScriptCI".equals(cdmFile.getCiType())) {
-				results.addAll(cdmFile.getScripts());
-			}
+			reloadModel(cdmFile);
 		}
-
-		return results;
 	}
 	
-	public static List<CdmFile> getScriptToActivityMappers() {
+	/**
+	 * Reload the internal model of the CDM for one particular file
+	 */
+	private static void reloadModel(CdmFile cdmFile) {
 	
-		List<CdmFile> results = new ArrayList<>();
-
-		if (!cdmLoaded) {
-			return results;
+		switch (cdmFile.getCiType()) {
+			
+			case "configurationcontrol:ScriptCI":
+				scripts.addAll(cdmFile.getScripts());
+				break;
+	
+			case "configurationcontrol:Script2ActivityMapperCI":
+				scriptToActivityMappers.add(cdmFile);
+				break;
+				
+			case "configurationcontrol:McmCI":
+				activities.addAll(cdmFile.getActivities());
+				break;
 		}
-		
-		for (CdmFile cdmFile : fileList) {
-			if ("configurationcontrol:Script2ActivityMapperCI".equals(cdmFile.getCiType())) {
-				results.add(cdmFile);
-			}
-		}
-
-		return results;
 	}
-	
+
 	public static boolean hasCdmBeenLoaded() {
-	
 		return cdmLoaded;
 	}
 	
@@ -208,11 +226,35 @@ public class CdmCtrl {
 		return fileList.get(0).getCdmVersion();
 	}
 	
+	public static List<CdmScript> getScripts() {
+		if (!cdmLoaded) {
+			return new ArrayList<>();
+		}
+		return scripts;
+	}
+
+	public static List<CdmFile> getScriptToActivityMappers() {
+		if (!cdmLoaded) {
+			return new ArrayList<>();
+		}
+		return scriptToActivityMappers;
+	}
+	
+	public static List<CdmActivity> getActivities() {
+		if (!cdmLoaded) {
+			return new ArrayList<>();
+		}
+		return activities;
+	}
+	
 	/**
 	 * Get the list of CDM files that have been loaded
 	 */
 	public static List<CdmFile> getCdmFiles() {
-		return new ArrayList<>(fileList);
+		if (!cdmLoaded) {
+			return new ArrayList<>();
+		}
+		return fileList;
 	}
 	
 	/**

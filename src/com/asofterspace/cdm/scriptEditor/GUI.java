@@ -83,7 +83,7 @@ public class GUI implements Runnable {
 	private JCheckBoxMenuItem showScriptFileInfo;
 	private JCheckBoxMenuItem manageActMaps;
 	private JMenuItem close;
-	
+
 	private boolean showScriptFileInfoSwitch;
 	private boolean manageActMapsSwitch;
 
@@ -298,7 +298,7 @@ public class GUI implements Runnable {
 				JTextField newCiName = new JTextField();
 				newCiName.setText("DoSomethingScript");
 				addDialog.add(newCiName);
-				
+
 				// automatically write newScriptName + Script in the newCiName field whenever newScriptName is changed
 				newScriptName.getDocument().addDocumentListener(new DocumentListener() {
 					public void changedUpdate(DocumentEvent e) {
@@ -580,7 +580,7 @@ public class GUI implements Runnable {
 		showScriptFileInfo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			
+
 				setShowScriptFileInfoSwitch(!showScriptFileInfoSwitch);
 			}
 		});
@@ -601,7 +601,7 @@ public class GUI implements Runnable {
 		reManageActMaps();
 		views.add(manageActMaps);
 		menu.add(views);
-		
+
 		JMenu huh = new JMenu("?");
 		JMenuItem about = new JMenuItem("About");
 		about.addActionListener(new ActionListener() {
@@ -620,7 +620,7 @@ public class GUI implements Runnable {
 
 		return menu;
 	}
-	
+
 	private JPanel createMainPanel(JFrame parent) {
 
 	    JPanel mainPanel = new JPanel();
@@ -801,12 +801,12 @@ public class GUI implements Runnable {
 		}
 
 		reloadAllScriptTabs();
-		
+
 		return true;
 	}
 
 	private void openCdmDirectory() {
-	
+
 		ifAllowedToLeaveCurrentCDM(new Callback() {
 			public void call() {
 				JFileChooser activeCdmPicker;
@@ -882,7 +882,7 @@ public class GUI implements Runnable {
 		// remove all change indicators on the left-hand side
 		regenerateScriptList();
 	}
-	
+
 	private void saveCdm() {
 
 		prepareToSave();
@@ -1000,7 +1000,7 @@ public class GUI implements Runnable {
 			currentlyShownTab = new ScriptTab(mainPanelRight, scripts.get(0), this);
 
 			currentlyShownTab.setChanged(true);
-			
+
 			String newScriptTemplate = "package scripts;\n" +
 				"\n" +
 				"import org.osgi.framework.BundleContext;\n" +
@@ -1047,7 +1047,7 @@ public class GUI implements Runnable {
 				"		}\n" +
 				"	}\n" +
 				"}";
-			
+
 			// by default, load up a nice script template
 			// TODO :: create several templates and let the user select one (or none) when adding a script!
 			// (e.g. templates could be: none, regular script, script with arguments - to see how arguments work, check the IR4 scripts! THEY ARE WONKY!)
@@ -1055,9 +1055,9 @@ public class GUI implements Runnable {
 
 			// add the new script to the GUI
 			scriptTabs.add(currentlyShownTab);
-			
+
 			reScriptTabViews();
-			
+
 		} catch (AttemptingEmfException | CdmLoadingException e) {
 			JOptionPane.showMessageDialog(mainWindow, "Oops - while trying to create the new script, after creating it temporarily, it could not be loaded!", "Sorry", JOptionPane.ERROR_MESSAGE);
 		}
@@ -1260,7 +1260,7 @@ public class GUI implements Runnable {
 		}
 
 		reScriptTabViews();
-		
+
 		regenerateScriptList();
 
 		reEnableDisableMenuItems();
@@ -1274,17 +1274,17 @@ public class GUI implements Runnable {
 	 * return true if we saved or proceed anyway, and false if we cancel
 	 */
 	private void ifAllowedToLeaveCurrentCDM(Callback proceedWithThisIfAllowed) {
-	
+
 		// check all scripts; if any have been changed, ask first before closing!
 		boolean noneHaveBeenChanged = true;
-		
+
 		for (ScriptTab scriptTab : scriptTabs) {
 			if (scriptTab.hasBeenChanged()) {
 				noneHaveBeenChanged = false;
 				break;
 			}
 		}
-		
+
 		// if none have been changed, then we are allowed to proceed in any case :)
 		if (noneHaveBeenChanged) {
 			proceedWithThisIfAllowed.call();
@@ -1292,7 +1292,7 @@ public class GUI implements Runnable {
 		}
 
 		// okay, something has been changed, so we now want to ask the user about what to do...
-		
+
 		// Create the window
 		JDialog whatToDoDialog = new JDialog(mainWindow, "What to do?", true);
 		GridLayout whatToDoDialogLayout = new GridLayout(2, 1);
@@ -1346,39 +1346,39 @@ public class GUI implements Runnable {
 
 		centerAndShowWindow(whatToDoDialog);
 	}
-	
+
 	private void centerAndShowWindow(Window window) {
 
 		// Center the window
 		window.setLocationRelativeTo(null);
-		
+
 		// Stage everything to be shown
 		window.pack();
 
 		// Actually display the whole jazz
 		window.setVisible(true);
 	}
-	
+
 	private void reScriptTabViews() {
-	
+
 		reShowScriptFileInfo();
-	
+
 		reManageActMaps();
 	}
-	
+
 	public void setShowScriptFileInfoSwitch(boolean value) {
 
 		showScriptFileInfoSwitch = value;
 
 		// TODO :: store value in the configuration
-		
+
 		reShowScriptFileInfo();
 	}
-	
+
 	private void reShowScriptFileInfo() {
-	
+
 		showScriptFileInfo.setSelected(showScriptFileInfoSwitch);
-	
+
 		for (ScriptTab scriptTab : scriptTabs) {
 			if (showScriptFileInfoSwitch) {
 				scriptTab.showInfo();
@@ -1393,14 +1393,14 @@ public class GUI implements Runnable {
 		manageActMapsSwitch = value;
 
 		// TODO :: store value in the configuration
-		
+
 		reManageActMaps();
 	}
-	
+
 	private void reManageActMaps() {
-	
+
 		manageActMaps.setSelected(manageActMapsSwitch);
-	
+
 		for (ScriptTab scriptTab : scriptTabs) {
 			if (manageActMapsSwitch) {
 				scriptTab.showMappings();

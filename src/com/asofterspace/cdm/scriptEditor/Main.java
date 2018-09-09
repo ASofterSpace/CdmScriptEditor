@@ -11,11 +11,11 @@ public class Main {
 	public final static String PROGRAM_TITLE = "CDM Script Editor";
 	public final static String VERSION_NUMBER = "0.0.0.8(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
 	public final static String VERSION_DATE = "26. August 2018 - 8. September 2018";
-	
+
 	public static void main(String[] args) {
 
 		ConfigFile config = new ConfigFile("settings");
-		
+
 		// create a default config file, if necessary
 		if (config.getAllContents().isEmpty()) {
 			config.setAllContents(new JSON("{\"lastDirectory\": \"\"}"));
@@ -23,5 +23,5 @@ public class Main {
 
 		SwingUtilities.invokeLater(new GUI(config));
 	}
-	
+
 }

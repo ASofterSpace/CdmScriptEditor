@@ -1,5 +1,7 @@
 package com.asofterspace.cdm;
 
+import java.util.List;
+
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -8,6 +10,8 @@ import org.w3c.dom.NodeList;
 public class CdmScript2Activity {
 
 	private CdmFile parent;
+	
+	private Node thisNode;
 	
 	private String name;
 	
@@ -21,19 +25,21 @@ public class CdmScript2Activity {
 	private String mappedScriptId;
 
 
-	public CdmScript2Activity(CdmFile parent, Node scriptNode) {
+	public CdmScript2Activity(CdmFile parent, Node script2ActivityNode) {
 	
-		NamedNodeMap scriptAttributes = scriptNode.getAttributes();
+		NamedNodeMap attributes = script2ActivityNode.getAttributes();
 
 		this.parent = parent;
 		
-		this.name = scriptAttributes.getNamedItem("name").getNodeValue();
+		this.thisNode = script2ActivityNode;
 		
-		this.namespace = scriptAttributes.getNamedItem("namespace").getNodeValue();
+		this.name = attributes.getNamedItem("name").getNodeValue();
 		
-		this.id = scriptAttributes.getNamedItem("xmi:id").getNodeValue();
+		this.namespace = attributes.getNamedItem("namespace").getNodeValue();
 		
-		NodeList elements = scriptNode.getChildNodes();
+		this.id = attributes.getNamedItem("xmi:id").getNodeValue();
+		
+		NodeList elements = script2ActivityNode.getChildNodes();
 
 		int len = elements.getLength();
 
@@ -101,45 +107,9 @@ public class CdmScript2Activity {
 		return true;
 	}
 	
-	private Node getScript2ActivityNode() {
-	
-		NodeList elements = parent.getRoot().getChildNodes();
-
-		int len = elements.getLength();
-
-		for (int i = 0; i < len; i++) {
-			try {
-				Node elem = elements.item(i);
-				if ("scriptActivityImpl".equals(elem.getNodeName())) {
-					NamedNodeMap scriptAttributes = elem.getAttributes();
-					String scriptIdFound = scriptAttributes.getNamedItem("xmi:id").getNodeValue();
-					if (scriptIdFound.equals(id)) {
-						return elem;
-					}
-				}
-			} catch (NullPointerException e) {
-				// ignore script nodes that do not contain name or scriptContent attributes
-				System.err.println("ERROR: A scriptActivityImpl in " + parent.getFilename() + " does not have a properly assigned attribute and will be ignored!");
-			}
-		}
-		
-		return null;
-	}
-	
-	private NamedNodeMap getScript2ActivityNodeAttributes() {
-	
-		Node script2ActivityNode = getScript2ActivityNode();
-		
-		if (script2ActivityNode == null) {
-			return null;
-		}
-		
-		return script2ActivityNode.getAttributes();
-	}
-	
 	public void setName(String newName) {
 	
-		NamedNodeMap script2ActivityNodeAttributes = getScript2ActivityNodeAttributes();
+		NamedNodeMap script2ActivityNodeAttributes = thisNode.getAttributes();
 		
 		Node script2ActivityNameNode = script2ActivityNodeAttributes.getNamedItem("name");
 		
@@ -152,16 +122,47 @@ public class CdmScript2Activity {
 		name = newName;
 	}
 	
+	public String getMappedActivityFilename() {
+		return mappedActivityFilename;
+	}
+	
+	public String getMappedActivityId() {
+		return mappedActivityId;
+	}
+	
+	public CdmActivity getMappedActivity() {
+	
+		if (mappedActivityId == null) {
+			return null;
+		}
+		
+		List<CdmActivity> activities = CdmCtrl.getActivities();
+		
+		if (activities == null) {
+			return null;
+		}
+		
+		for (CdmActivity activity : activities) {
+			if (mappedActivityId.equals(activity.getId())) {
+				return activity;
+			}
+		}
+		
+		return null;
+	}
+	
+	public String getMappedScriptFilename() {
+		return mappedScriptFilename;
+	}
+	
+	public String getMappedScriptId() {
+		return mappedScriptId;
+	}
+	
 	public void delete() {
 	
 		// delete the script itself from the parent file
-		Node script2ActivityNode = getScript2ActivityNode();
-		
-		if (script2ActivityNode == null) {
-			return;
-		}
-		
-		parent.getRoot().removeChild(script2ActivityNode);
+		parent.getRoot().removeChild(thisNode);
 	}
 
 }

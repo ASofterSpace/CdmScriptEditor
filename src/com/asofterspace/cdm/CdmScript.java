@@ -12,6 +12,8 @@ public class CdmScript {
 
 	private CdmFile parent;
 	
+	private Node thisNode;
+	
 	private String name;
 	
 	private String namespace;
@@ -23,17 +25,19 @@ public class CdmScript {
 
 	public CdmScript(CdmFile parent, Node scriptNode) {
 	
-		NamedNodeMap scriptAttributes = scriptNode.getAttributes();
+		NamedNodeMap attributes = scriptNode.getAttributes();
 
 		this.parent = parent;
 		
-		this.name = scriptAttributes.getNamedItem("name").getNodeValue();
+		this.thisNode = scriptNode;
 		
-		this.namespace = scriptAttributes.getNamedItem("namespace").getNodeValue();
+		this.name = attributes.getNamedItem("name").getNodeValue();
 		
-		this.id = scriptAttributes.getNamedItem("xmi:id").getNodeValue();
+		this.namespace = attributes.getNamedItem("namespace").getNodeValue();
 		
-		this.content = scriptAttributes.getNamedItem("scriptContent").getNodeValue();
+		this.id = attributes.getNamedItem("xmi:id").getNodeValue();
+		
+		this.content = attributes.getNamedItem("scriptContent").getNodeValue();
 	}
 	
 	public CdmFile getParent() {
@@ -56,45 +60,9 @@ public class CdmScript {
 		return content;
 	}
 	
-	private Node getScriptNode() {
-	
-		NodeList elements = parent.getRoot().getChildNodes();
-
-		int len = elements.getLength();
-
-		for (int i = 0; i < len; i++) {
-			try {
-				Node elem = elements.item(i);
-				if ("script".equals(elem.getNodeName())) {
-					NamedNodeMap scriptAttributes = elem.getAttributes();
-					String scriptIdFound = scriptAttributes.getNamedItem("xmi:id").getNodeValue();
-					if (scriptIdFound.equals(id)) {
-						return elem;
-					}
-				}
-			} catch (NullPointerException e) {
-				// ignore script nodes that do not contain name or scriptContent attributes
-				System.err.println("ERROR: A script in " + parent.getFilename() + " does not have a properly assigned attribute and will be ignored!");
-			}
-		}
-		
-		return null;
-	}
-	
-	private NamedNodeMap getScriptNodeAttributes() {
-	
-		Node scriptNode = getScriptNode();
-		
-		if (scriptNode == null) {
-			return null;
-		}
-		
-		return scriptNode.getAttributes();
-	}
-	
 	public void setSourceCode(String scriptContent) {
 	
-		NamedNodeMap scriptNodeAttributes = getScriptNodeAttributes();
+		NamedNodeMap scriptNodeAttributes = thisNode.getAttributes();
 		
 		Node scriptContentNode = scriptNodeAttributes.getNamedItem("scriptContent");
 		
@@ -109,7 +77,7 @@ public class CdmScript {
 	
 	public void setName(String newName) {
 	
-		NamedNodeMap scriptNodeAttributes = getScriptNodeAttributes();
+		NamedNodeMap scriptNodeAttributes = thisNode.getAttributes();
 		
 		Node scriptNameNode = scriptNodeAttributes.getNamedItem("name");
 		
@@ -166,13 +134,7 @@ public class CdmScript {
 		}
 		
 		// delete the script itself from the parent file
-		Node scriptNode = getScriptNode();
-		
-		if (scriptNode == null) {
-			return;
-		}
-		
-		parent.getRoot().removeChild(scriptNode);
+		parent.getRoot().removeChild(thisNode);
 
 		// check if there are still elements left now, and if not, delete the entire parent file
 		NodeList elements = parent.getRoot().getChildNodes();

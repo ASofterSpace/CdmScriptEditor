@@ -102,6 +102,45 @@ public class CdmFile extends XmlFile {
 	}
 	
 	/**
+	 * Get all the activities defined in this CDM file
+	 * (this does not check if this even is an McmCI - you should check it first, to not search through others forever ^^)
+	 */
+	public List<CdmActivity> getActivities() {
+
+		List<CdmActivity> results = new ArrayList<>();
+
+		if (deleted) {
+			return results;
+		}
+
+		NodeList elements = getRoot().getChildNodes();
+
+		int len = elements.getLength();
+
+		for (int i = 0; i < len; i++) {
+			try {
+				Node mce = elements.item(i);
+				if ("monitoringControlElement".equals(mce.getNodeName())) {
+					NodeList mceAspects = mce.getChildNodes();
+					int mceAspectLen = mceAspects.getLength();
+					for (int j = 0; j < mceAspectLen; j++) {
+						Node mceAspect = mceAspects.item(j);
+						if ("monitoringControlElementAspects".equals(mceAspect.getNodeName())) {
+							if ("monitoringcontrolmodel:Activity".equals(mceAspect.getAttributes().getNamedItem("xsi:type").getNodeValue())) {
+								results.add(new CdmActivity(this, mceAspect));
+							}
+						}
+					}
+				}
+			} catch (NullPointerException e) {
+				System.err.println("ERROR: A monitoringControlElement in " + getFilename() + " does not have a properly assigned attribute and will be ignored!");
+			}
+		}
+
+		return results;
+	}
+	
+	/**
 	 * Get the CDM version that this CDM file belongs to, or null if none can be identified.
 	 */
 	public String getCdmVersion() {
