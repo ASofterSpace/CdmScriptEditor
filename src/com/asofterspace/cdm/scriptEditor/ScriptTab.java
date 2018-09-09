@@ -4,7 +4,6 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.io.IOException;
@@ -25,6 +24,7 @@ import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
+import com.asofterspace.toolbox.gui.Arrangement;
 import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.web.JSON;
 
@@ -79,23 +79,9 @@ public class ScriptTab {
 		JPanel tab = new JPanel();
 		tab.setLayout(new GridBagLayout());
 
-		GridBagConstraints c1 = new GridBagConstraints();
-		c1.fill = GridBagConstraints.BOTH;
-		c1.weightx = 1.0;
-		c1.weighty = 0.0;
-		c1.gridx = 0;
-		c1.gridy = 0;
-
 		titleLabel = new JLabel(script.getName());
 		titleLabel.setPreferredSize(new Dimension(0, titleLabel.getPreferredSize().height));
-		tab.add(titleLabel, c1);
-
-		GridBagConstraints c2 = new GridBagConstraints();
-		c2.fill = GridBagConstraints.BOTH;
-		c2.weightx = 1.0;
-		c2.weighty = 0.8;
-		c2.gridx = 0;
-		c2.gridy = 1;
+		tab.add(titleLabel, new Arrangement(0, 0, 1.0, 0.0));
 
 		sourceCodeEditor = new JTextPane() {
 			public boolean getScrollableTracksViewportWidth() {
@@ -107,7 +93,7 @@ public class ScriptTab {
 		groovyCode.setOnChange(onChangeCallback);
 		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
 		sourceCodeScroller.setPreferredSize(new Dimension(1, 1));
-		tab.add(sourceCodeScroller, c2);
+		tab.add(sourceCodeScroller, new Arrangement(0, 1, 1.0, 0.8));
 
 		parent.add(tab);
 
@@ -121,44 +107,16 @@ public class ScriptTab {
 	
 	private void createInfoArea() {
 	
-		GridBagConstraints c3 = new GridBagConstraints();
-		c3.fill = GridBagConstraints.BOTH;
-		c3.weightx = 1.0;
-		c3.weighty = 1.0;
-		c3.gridx = 0;
-		c3.gridy = 2;
-		
 		scriptInfo = new JPanel();
 		scriptInfo.setLayout(new GridBagLayout());
 		
 		JPanel scriptInfoHeadline = new JPanel();
 		scriptInfoHeadline.setLayout(new GridBagLayout());
 		
-		GridBagConstraints ch1 = new GridBagConstraints();
-		ch1.fill = GridBagConstraints.BOTH;
-		ch1.weightx = 0.0;
-		ch1.weighty = 0.0;
-		ch1.gridx = 0;
-		ch1.gridy = 0;
-		
-		GridBagConstraints ch2 = new GridBagConstraints();
-		ch2.fill = GridBagConstraints.BOTH;
-		ch2.weightx = 1.0;
-		ch2.weighty = 0.0;
-		ch2.gridx = 1;
-		ch2.gridy = 0;
-		
-		GridBagConstraints ch3 = new GridBagConstraints();
-		ch3.fill = GridBagConstraints.BOTH;
-		ch3.weightx = 0.0;
-		ch3.weighty = 0.0;
-		ch3.gridx = 2;
-		ch3.gridy = 0;
-		
 		JLabel scriptInfoHeadLabel = new JLabel("Info:");
-		scriptInfoHeadline.add(scriptInfoHeadLabel, ch1);
+		scriptInfoHeadline.add(scriptInfoHeadLabel, new Arrangement(0, 0, 0.0, 0.0));
 		JPanel scriptInfoHeadGapPanel = new JPanel();
-		scriptInfoHeadline.add(scriptInfoHeadGapPanel, ch2);
+		scriptInfoHeadline.add(scriptInfoHeadGapPanel, new Arrangement(1, 0, 1.0, 0.0));
 		JButton scriptInfoHide = new JButton("Hide");
 		scriptInfoHide.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -169,32 +127,18 @@ public class ScriptTab {
 				gui.setShowScriptFileInfoSwitch(false);
 			}
 		});
-		scriptInfoHeadline.add(scriptInfoHide, ch3);
+		scriptInfoHeadline.add(scriptInfoHide, new Arrangement(2, 0, 0.0, 0.0));
 		
-		GridBagConstraints c4 = new GridBagConstraints();
-		c4.fill = GridBagConstraints.BOTH;
-		c4.weightx = 1.0;
-		c4.weighty = 0.0;
-		c4.gridx = 0;
-		c4.gridy = 0;
-		
-		scriptInfo.add(scriptInfoHeadline, c4);
+		scriptInfo.add(scriptInfoHeadline, new Arrangement(0, 0, 1.0, 0.0));
 
 		scriptInfoText = new JTextArea();
 		scriptInfoText.setEditable(false);
 		
-		GridBagConstraints c5 = new GridBagConstraints();
-		c5.fill = GridBagConstraints.BOTH;
-		c5.weightx = 1.0;
-		c5.weighty = 1.0;
-		c5.gridx = 0;
-		c5.gridy = 1;
-		
 		JScrollPane infoScroller = new JScrollPane(scriptInfoText);
-		scriptInfo.add(infoScroller, c5);
+		scriptInfo.add(infoScroller, new Arrangement(0, 1, 1.0, 1.0));
 		
 		scriptInfo.setPreferredSize(new Dimension(1, 1));
-		visualPanel.add(scriptInfo, c3);
+		visualPanel.add(scriptInfo, new Arrangement(0, 2, 1.0, 1.0));
 		
 		visualPanel.revalidate();
 	}
@@ -210,45 +154,17 @@ public class ScriptTab {
 		
 		// tell the script tab to refresh the script info in case it is open as the mappings shown in there might have changed now
 		// TODO
-				
-		GridBagConstraints c3 = new GridBagConstraints();
-		c3.fill = GridBagConstraints.BOTH;
-		c3.weightx = 1.0;
-		c3.weighty = 1.0;
-		c3.gridx = 0;
-		c3.gridy = 3;
-		
+
 		scriptMappings = new JPanel();
 		scriptMappings.setLayout(new GridBagLayout());
 		
 		JPanel mappingsHeadline = new JPanel();
 		mappingsHeadline.setLayout(new GridBagLayout());
 		
-		GridBagConstraints ch1 = new GridBagConstraints();
-		ch1.fill = GridBagConstraints.BOTH;
-		ch1.weightx = 0.0;
-		ch1.weighty = 0.0;
-		ch1.gridx = 0;
-		ch1.gridy = 0;
-		
-		GridBagConstraints ch2 = new GridBagConstraints();
-		ch2.fill = GridBagConstraints.BOTH;
-		ch2.weightx = 1.0;
-		ch2.weighty = 0.0;
-		ch2.gridx = 1;
-		ch2.gridy = 0;
-		
-		GridBagConstraints ch3 = new GridBagConstraints();
-		ch3.fill = GridBagConstraints.BOTH;
-		ch3.weightx = 0.0;
-		ch3.weighty = 0.0;
-		ch3.gridx = 2;
-		ch3.gridy = 0;
-		
 		JLabel mappingsHeadLabel = new JLabel("Activity Mappings:");
-		mappingsHeadline.add(mappingsHeadLabel, ch1);
+		mappingsHeadline.add(mappingsHeadLabel, new Arrangement(0, 0, 0.0, 0.0));
 		JPanel mappingsHeadGapPanel = new JPanel();
-		mappingsHeadline.add(mappingsHeadGapPanel, ch2);
+		mappingsHeadline.add(mappingsHeadGapPanel, new Arrangement(1, 0, 1.0, 0.0));
 		JButton mappingsHide = new JButton("Hide");
 		mappingsHide.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -259,34 +175,28 @@ public class ScriptTab {
 				gui.setManageActMapsSwitch(false);
 			}
 		});
-		mappingsHeadline.add(mappingsHide, ch3);
+		mappingsHeadline.add(mappingsHide, new Arrangement(2, 0, 0.0, 0.0));
 		
-		GridBagConstraints c4 = new GridBagConstraints();
-		c4.fill = GridBagConstraints.BOTH;
-		c4.weightx = 1.0;
-		c4.weighty = 0.0;
-		c4.gridx = 0;
-		c4.gridy = 0;
-		
-		scriptMappings.add(mappingsHeadline, c4);
+		scriptMappings.add(mappingsHeadline, new Arrangement(0, 0, 1.0, 0.0));
 
 		JPanel mappingsPanel = new JPanel();
+		mappingsPanel.setLayout(new GridBagLayout());
 		
-		// TODO
-		mappingsPanel.add(new JLabel("Mappings can not be managed yet - wait for the next version. ;)"));
+		// TODO - also show mappings
 		
-		GridBagConstraints c5 = new GridBagConstraints();
-		c5.fill = GridBagConstraints.BOTH;
-		c5.weightx = 1.0;
-		c5.weighty = 1.0;
-		c5.gridx = 0;
-		c5.gridy = 1;
+		JButton addBtn = new JButton("Add Mapping");
+		addBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO
+			}
+		});
+		mappingsPanel.add(addBtn, new Arrangement(0, 4, 1.0, 0.0));
 		
 		JScrollPane mappingsScroller = new JScrollPane(mappingsPanel);
-		scriptMappings.add(mappingsScroller, c5);
+		scriptMappings.add(mappingsScroller, new Arrangement(0, 1, 1.0, 1.0));
 		
 		scriptMappings.setPreferredSize(new Dimension(1, 1));
-		visualPanel.add(scriptMappings, c3);
+		visualPanel.add(scriptMappings, new Arrangement(0, 3, 1.0, 1.0));
 		
 		visualPanel.revalidate();
 	}

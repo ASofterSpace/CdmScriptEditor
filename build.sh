@@ -10,6 +10,7 @@ cd toolbox
 mkdir codeeditor
 mkdir configuration
 mkdir io
+mkdir gui
 mkdir utils
 mkdir web
 
@@ -19,6 +20,7 @@ cp ../Toolbox-Java/src/com/asofterspace/toolbox/*.java src/com/asofterspace/tool
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/codeeditor/*.* src/com/asofterspace/toolbox/codeeditor
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/configuration/*.* src/com/asofterspace/toolbox/configuration
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/io/*.* src/com/asofterspace/toolbox/io
+cp ../Toolbox-Java/src/com/asofterspace/toolbox/gui/*.* src/com/asofterspace/toolbox/gui
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/utils/*.* src/com/asofterspace/toolbox/utils
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/web/*.* src/com/asofterspace/toolbox/web
 

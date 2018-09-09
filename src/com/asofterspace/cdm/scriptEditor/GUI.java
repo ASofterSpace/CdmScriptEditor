@@ -10,6 +10,7 @@ import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.XmlMode;
+import com.asofterspace.toolbox.gui.Arrangement;
 import com.asofterspace.toolbox.Utils;
 import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.web.JSON;
@@ -24,7 +25,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -628,27 +628,6 @@ public class GUI implements Runnable {
 		GridBagLayout mainPanelLayout = new GridBagLayout();
 		mainPanel.setLayout(mainPanelLayout);
 
-		GridBagConstraints cLeft = new GridBagConstraints();
-		cLeft.fill = GridBagConstraints.BOTH;
-		cLeft.weightx = 0.2;
-		cLeft.weighty = 1.0;
-		cLeft.gridx = 0;
-		cLeft.gridy = 0;
-
-		GridBagConstraints cGap = new GridBagConstraints();
-		cGap.fill = GridBagConstraints.BOTH;
-		cGap.weightx = 0.0;
-		cGap.weighty = 0.0;
-		cGap.gridx = 1;
-		cGap.gridy = 0;
-
-		GridBagConstraints cRight = new GridBagConstraints();
-		cRight.fill = GridBagConstraints.BOTH;
-		cRight.weightx = 1.0;
-		cRight.weighty = 1.0;
-		cRight.gridx = 2;
-		cRight.gridy = 0;
-
 	    mainPanelRight = new JPanel();
 		mainPanelRight.setLayout(new CardLayout());
 		mainPanelRight.setPreferredSize(new Dimension(8, 8));
@@ -688,11 +667,11 @@ public class GUI implements Runnable {
 		};
 		scriptListComponent.addMouseListener(scriptListClickListener);
 
-		mainPanel.add(scriptListComponent, cLeft);
+		mainPanel.add(scriptListComponent, new Arrangement(0, 0, 0.2, 1.0));
 
-		mainPanel.add(gapPanel, cGap);
+		mainPanel.add(gapPanel, new Arrangement(1, 0, 0.0, 0.0));
 
-	    mainPanel.add(mainPanelRight, cRight);
+	    mainPanel.add(mainPanelRight, new Arrangement(2, 0, 1.0, 1.0));
 
 		parent.add(mainPanel, BorderLayout.CENTER);
 
