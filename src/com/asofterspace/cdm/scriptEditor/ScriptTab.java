@@ -1,5 +1,18 @@
 package com.asofterspace.cdm.scriptEditor;
 
+import com.asofterspace.cdm.CdmActivity;
+import com.asofterspace.cdm.CdmCtrl;
+import com.asofterspace.cdm.CdmScript;
+import com.asofterspace.cdm.CdmScript2Activity;
+import com.asofterspace.toolbox.codeeditor.GroovyCode;
+import com.asofterspace.toolbox.configuration.ConfigFile;
+import com.asofterspace.toolbox.io.Directory;
+import com.asofterspace.toolbox.io.File;
+import com.asofterspace.toolbox.gui.Arrangement;
+import com.asofterspace.toolbox.gui.GuiUtils;
+import com.asofterspace.toolbox.utils.Callback;
+import com.asofterspace.toolbox.web.JSON;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -19,22 +32,12 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
-
-import com.asofterspace.cdm.CdmActivity;
-import com.asofterspace.cdm.CdmScript;
-import com.asofterspace.cdm.CdmScript2Activity;
-import com.asofterspace.toolbox.codeeditor.GroovyCode;
-import com.asofterspace.toolbox.configuration.ConfigFile;
-import com.asofterspace.toolbox.io.Directory;
-import com.asofterspace.toolbox.io.File;
-import com.asofterspace.toolbox.gui.Arrangement;
-import com.asofterspace.toolbox.utils.Callback;
-import com.asofterspace.toolbox.web.JSON;
 
 
 public class ScriptTab {
@@ -156,16 +159,6 @@ public class ScriptTab {
 
 	private void createMappingArea() {
 
-		// enable the adding of new mappings in the dialog, either mapping to an existing activity or creating a new activity
-		// (but not to an existing activity that is already mapped somewhere? or then delete the old mapping first?)
-		// TODO
-
-		// enable the deletion of mappings in the dialog, with checkbox about deleting the activity too
-		// TODO
-
-		// tell the script tab to refresh the script info in case it is open as the mappings shown in there might have changed now
-		// TODO
-
 		scriptMappings = new JPanel();
 		scriptMappings.setLayout(new GridBagLayout());
 
@@ -195,19 +188,129 @@ public class ScriptTab {
 		mappingsPanel.setLayout(new BoxLayout(mappingsPanel, BoxLayout.Y_AXIS));
 		mappingsPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-		// TODO - also show mappings
+		// adding of new mappings happens here, either mapping to an existing activity or creating a new activity
+		// (but not to an existing activity that is already mapped somewhere? or then delete the old mapping first?)
 
 		mappingsAddBtn = new JButton("Add Mapping");
-		mappingsAddBtn.setEnabled(false);
 		mappingsAddBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO
+
+				// Create the window
+				JDialog addMappingDialog = new JDialog(gui.getMainWindow(), "Add Mapping to " + script.getName(), true);
+				addMappingDialog.setLayout(new GridBagLayout());
+				addMappingDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+				// Populate the window
+				JLabel explanationLabel = new JLabel();
+				explanationLabel.setText("You can create a mapping by selecting one of the existing activities:");
+				addMappingDialog.add(explanationLabel, new Arrangement(0, 0, 1.0, 0.0));
+
+				addMappingDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 1, 1.0, 0.0));
+
+				JPanel activitiesPanel = new JPanel();
+				activitiesPanel.setLayout(new BoxLayout(activitiesPanel, BoxLayout.Y_AXIS));
+				activitiesPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+				// TODO - show all the existing activities
+
+				List<CdmActivity> activities = CdmCtrl.getActivities();
+
+				boolean first = true;
+
+				for (CdmActivity activity : activities) {
+
+					if (!first) {
+						activitiesPanel.add(Box.createRigidArea(new Dimension(8, 8)));
+					}
+					first = false;
+
+					JPanel actPanel = new JPanel();
+					actPanel.setLayout(new BoxLayout(actPanel, BoxLayout.Y_AXIS));
+					actPanel.setBorder(new CompoundBorder(
+						BorderFactory.createLineBorder(Color.gray),
+						BorderFactory.createEmptyBorder(8, 8, 8, 8)
+					));
+
+					JLabel nameLabel = new JLabel("Name: " + activity.getName());
+					GuiUtils.makeWide(nameLabel);
+					actPanel.add(nameLabel);
+					actPanel.add(Box.createRigidArea(new Dimension(8, 8)));
+
+					String alias = activity.getAlias();
+					if (alias == null) {
+						alias = "(none)";
+					}
+					JLabel aliasLabel = new JLabel("Alias: " + alias);
+					GuiUtils.makeWide(aliasLabel);
+					actPanel.add(aliasLabel);
+					actPanel.add(Box.createRigidArea(new Dimension(8, 8)));
+
+					JPanel buttonRow = new JPanel();
+					GridLayout buttonRowLayout = new GridLayout(1, 1);
+					buttonRowLayout.setHgap(8);
+					buttonRow.setLayout(buttonRowLayout);
+					actPanel.add(buttonRow);
+
+					// the deletion of mappings happens here, optionally including the deletion of the mapped activity
+					JButton mapBtn = new JButton("Map to Current Script");
+					mapBtn.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							// TODO
+						}
+					});
+					mapBtn.setEnabled(false);
+					buttonRow.add(mapBtn);
+
+					GuiUtils.makeWide(actPanel);
+
+					activitiesPanel.add(actPanel);
+				}
+
+				JScrollPane activitiesScroller = new JScrollPane(activitiesPanel);
+				addMappingDialog.add(activitiesScroller, new Arrangement(0, 2, 1.0, 1.0));
+
+				addMappingDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 3, 1.0, 0.0));
+
+				JPanel buttonRow = new JPanel();
+				GridLayout buttonRowLayout = new GridLayout(1, 3);
+				buttonRowLayout.setHgap(8);
+				buttonRow.setLayout(buttonRowLayout);
+				addMappingDialog.add(buttonRow, new Arrangement(0, 4, 1.0, 0.0));
+
+				JButton createNewActBtn = new JButton("Create New Activity");
+				createNewActBtn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						// TODO - open a new dialog to ask about the properties of the new activity (name, location in MCM tree, ...)
+
+						// TODO - create new Activity
+
+						// TODO - map the new activity to the script
+
+						// TODO - if the mapping has happened (but not if cancel was pressed), dispose of the parent dialog too
+						addMappingDialog.dispose();
+					}
+				});
+				createNewActBtn.setEnabled(false);
+				buttonRow.add(createNewActBtn);
+
+				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						addMappingDialog.dispose();
+					}
+				});
+				buttonRow.add(cancelButton);
+
+				// Set the preferred size of the dialog
+				int width = 500;
+				int height = 600;
+				addMappingDialog.setSize(width, height);
+				addMappingDialog.setPreferredSize(new Dimension(width, height));
+
+				GuiUtils.centerAndShowWindow(addMappingDialog);
 			}
 		});
-		mappingsAddBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-		Dimension makeWide = mappingsAddBtn.getPreferredSize();
-		makeWide.width = Integer.MAX_VALUE;
-		mappingsAddBtn.setMaximumSize(makeWide);
+		GuiUtils.makeWide(mappingsAddBtn);
 		mappingsPanel.add(mappingsAddBtn);
 
 		JScrollPane mappingsScroller = new JScrollPane(mappingsPanel);
@@ -266,6 +369,7 @@ public class ScriptTab {
 
 		List<CdmScript2Activity> mappings = script.getAssociatedScript2Activities();
 
+		// show the actual mappings
 		for (CdmScript2Activity mapping : mappings) {
 
 			JPanel mapPanel = new JPanel();
@@ -276,7 +380,7 @@ public class ScriptTab {
 			));
 
 			JLabel nameLabel = new JLabel("Name: " + mapping.getName());
-			makeWide(nameLabel);
+			GuiUtils.makeWide(nameLabel);
 			mapPanel.add(nameLabel);
 			mapPanel.add(Box.createRigidArea(new Dimension(8, 8)));
 
@@ -300,24 +404,26 @@ public class ScriptTab {
 			}
 
 			JLabel mapsToLabel = new JLabel("Maps to: " + mapsTo);
-			makeWide(mapsToLabel);
+			GuiUtils.makeWide(mapsToLabel);
 			mapPanel.add(mapsToLabel);
 			mapPanel.add(Box.createRigidArea(new Dimension(8, 8)));
 
 			JPanel buttonRow = new JPanel();
-			GridLayout buttonRowLayout = new GridLayout(1, 2);
+			GridLayout buttonRowLayout = new GridLayout(1, 3);
 			buttonRowLayout.setHgap(8);
 			buttonRow.setLayout(buttonRowLayout);
 			mapPanel.add(buttonRow);
 
+			// the deletion of mappings happens here, optionally including the deletion of the mapped activity
 			JButton deleteMappingBtn = new JButton("Delete Mapping");
 			deleteMappingBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					mapping.delete();
-					
+
+					// tell the script tab to refresh the script info in case it is open as the mappings shown in there might have changed now
 					invalidateInfo();
 					invalidateMappings();
-					
+
 					changed = true;
 					gui.regenerateScriptList();
 				}
@@ -328,19 +434,20 @@ public class ScriptTab {
 			deleteMappingAndActivityBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					CdmActivity mappedActivity = mapping.getMappedActivity();
-					
+
 					mapping.delete();
-					
+
 					if (mappedActivity != null) {
 						mappedActivity.delete();
 					}
-					
+
+					// tell the script tab to refresh the script info in case it is open as the mappings shown in there might have changed now
 					invalidateInfo();
 					invalidateMappings();
-					
+
 					changed = true;
 					gui.regenerateScriptList();
-					
+
 					// TODO :: potentially invalidate mappings on other script tabs too, as the activity
 					// may have been associated with them as well and may have deleted the other mappings
 					// while going down? aargs!
@@ -348,7 +455,16 @@ public class ScriptTab {
 			});
 			buttonRow.add(deleteMappingAndActivityBtn);
 
-			makeWide(mapPanel);
+			JButton changeAliasBtn = new JButton("Change Alias");
+			changeAliasBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					// TODO - open dialog in which we ask for the new Alias (preset with the old one)
+				}
+			});
+			changeAliasBtn.setEnabled(false);
+			buttonRow.add(changeAliasBtn);
+
+			GuiUtils.makeWide(mapPanel);
 
 			mappingsPanel.add(mapPanel);
 
@@ -370,12 +486,12 @@ public class ScriptTab {
 			reloadInfoData();
 		}
 	}
-	
+
 	/**
 	 * Call this to invalidate the mapping area such that it is repopulated before being shown to the user the next time
 	 */
 	public void invalidateMappings() {
-	
+
 		// if the mappings are not currently shown, do nothing, as the mapping data will be reloaded when it is shown again anyway
 		if (mappingsShown) {
 			reloadMappingData();
@@ -523,21 +639,6 @@ public class ScriptTab {
 		script.delete();
 
 		remove();
-	}
-
-	/**
-	 * Extends the width of a component in a vertical boxlayout to the maximum width of the container
-	 * Attention: This should only be called after all the content has been added to whatToMakeWide,
-	 * as it will set the current vertical size as maximum size, so if you add content to it later,
-	 * it will not be considered!
-	 */
-	private void makeWide(JComponent whatToMakeWide) {
-
-		whatToMakeWide.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-		Dimension makeWide = whatToMakeWide.getPreferredSize();
-		makeWide.width = Integer.MAX_VALUE;
-		whatToMakeWide.setMaximumSize(makeWide);
 	}
 
 }

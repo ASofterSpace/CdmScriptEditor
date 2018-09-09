@@ -11,6 +11,7 @@ import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.XmlMode;
 import com.asofterspace.toolbox.gui.Arrangement;
+import com.asofterspace.toolbox.gui.GuiUtils;
 import com.asofterspace.toolbox.Utils;
 import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.web.JSON;
@@ -28,7 +29,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
-import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,7 +140,7 @@ public class GUI implements Runnable {
 		// so instead we do it manually in the lines above...
 		// mainWindow.setExtendedState(mainWindow.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 
-		centerAndShowWindow(mainWindow);
+		GuiUtils.centerAndShowWindow(mainWindow);
 	}
 
 	private JMenuBar createMenu(JFrame parent) {
@@ -226,7 +226,7 @@ public class GUI implements Runnable {
 						newCdmDialog.setSize(width, height);
 						newCdmDialog.setPreferredSize(new Dimension(width, height));
 
-						centerAndShowWindow(newCdmDialog);
+						GuiUtils.centerAndShowWindow(newCdmDialog);
 					}
 				});
 			}
@@ -356,7 +356,7 @@ public class GUI implements Runnable {
 				addDialog.setSize(width, height);
 				addDialog.setPreferredSize(new Dimension(width, height));
 
-				centerAndShowWindow(addDialog);
+				GuiUtils.centerAndShowWindow(addDialog);
 			}
 		});
 		file.add(addScriptFile);
@@ -419,7 +419,7 @@ public class GUI implements Runnable {
 				renameDialog.setSize(width, height);
 				renameDialog.setPreferredSize(new Dimension(width, height));
 
-				centerAndShowWindow(renameDialog);
+				GuiUtils.centerAndShowWindow(renameDialog);
 			}
 		});
 		file.add(renameCurScriptFile);
@@ -483,7 +483,7 @@ public class GUI implements Runnable {
 				deleteDialog.setSize(width, height);
 				deleteDialog.setPreferredSize(new Dimension(width, height));
 
-				centerAndShowWindow(deleteDialog);
+				GuiUtils.centerAndShowWindow(deleteDialog);
 			}
 		});
 		file.add(deleteCurScriptFile);
@@ -1344,19 +1344,7 @@ public class GUI implements Runnable {
 		whatToDoDialog.setSize(width, height);
 		whatToDoDialog.setPreferredSize(new Dimension(width, height));
 
-		centerAndShowWindow(whatToDoDialog);
-	}
-
-	private void centerAndShowWindow(Window window) {
-
-		// Center the window
-		window.setLocationRelativeTo(null);
-
-		// Stage everything to be shown
-		window.pack();
-
-		// Actually display the whole jazz
-		window.setVisible(true);
+		GuiUtils.centerAndShowWindow(whatToDoDialog);
 	}
 
 	private void reScriptTabViews() {
@@ -1408,6 +1396,10 @@ public class GUI implements Runnable {
 				scriptTab.hideMappings();
 			}
 		}
+	}
+	
+	public JFrame getMainWindow() {
+		return mainWindow;
 	}
 
 }
