@@ -7,6 +7,7 @@ import com.asofterspace.toolbox.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -21,9 +22,9 @@ public class CdmFile extends XmlFile {
 	// this prefix is in the MIDDLE of the version string, a PREFIX to the actual version;
 	// but preceded by whatever nonsense the CDM-writing-application wrote into it!
 	private final static String CDM_VERSION_PREFIX = "/ConfigurationTracking/";
-	
+
 	private String ciType;
-	
+
 	private boolean deleted = false;
 
 	/**
@@ -32,10 +33,14 @@ public class CdmFile extends XmlFile {
 	public CdmFile(File regularFile) {
 
 		super(regularFile);
+
+		Node root = getRoot();
 		
-		ciType = getRoot().getNodeName();
+		if (root != null) {
+			ciType = root.getNodeName();
+		}
 	}
-	
+
 	public String getCiType() {
 		return ciType;
 	}
@@ -47,7 +52,7 @@ public class CdmFile extends XmlFile {
 	public List<CdmScript> getScripts() {
 
 		List<CdmScript> results = new ArrayList<>();
-		
+
 		if (deleted) {
 			return results;
 		}
@@ -70,7 +75,7 @@ public class CdmFile extends XmlFile {
 
 		return results;
 	}
-	
+
 	/**
 	 * Get all the script to activity mapper entries defined in this CDM file
 	 * (this does not check if this even is a Script2ActivityMapperCI - you should check it first, to not search through others forever ^^)
@@ -78,7 +83,7 @@ public class CdmFile extends XmlFile {
 	public List<CdmScript2Activity> getScript2Activities() {
 
 		List<CdmScript2Activity> results = new ArrayList<>();
-		
+
 		if (deleted) {
 			return results;
 		}
@@ -101,7 +106,37 @@ public class CdmFile extends XmlFile {
 
 		return results;
 	}
-	
+
+	/**
+	 * Add a new mapping to the file (but do not save it immediately)
+	 */
+	public CdmScript2Activity addScript2Activity(String mappingName, String scriptFile, String scriptId, String activityFile, String activityId) {
+
+		// TODO :: make this configurable
+		String mappingNamespace = CdmCtrl.DEFAULT_NAMESPACE;
+
+		// generate a new random ID
+		String mappingId = Utils.generateEcoreUUID();
+
+		// actually create the element
+		Element newMapping = createElement("scriptActivityImpl");
+		newMapping.setAttribute("xmi:id", mappingId);
+		newMapping.setAttribute("name", mappingName);
+		newMapping.setAttribute("namespace", mappingNamespace);
+
+		Element newMappedActivity = createElement("activity");
+		newMappedActivity.setAttribute("href", activityFile + "#" + activityId);
+		newMapping.appendChild(newMappedActivity);
+
+		Element newMappedScript = createElement("script");
+		newMappedScript.setAttribute("href", scriptFile + "#" + scriptId);
+		newMapping.appendChild(newMappedScript);
+
+		getRoot().appendChild(newMapping);
+		
+		return new CdmScript2Activity(this, newMapping);
+	}
+
 	/**
 	 * Get all the activities defined in this CDM file
 	 * (this does not check if this even is an McmCI - you should check it first, to not search through others forever ^^)
@@ -140,7 +175,7 @@ public class CdmFile extends XmlFile {
 
 		return results;
 	}
-	
+
 	/**
 	 * Get the CDM version that this CDM file belongs to, or null if none can be identified.
 	 */
@@ -148,28 +183,28 @@ public class CdmFile extends XmlFile {
 
 		try {
 			Node root = getRoot();
-			
+
 			NamedNodeMap scriptAttributes = root.getAttributes();
 			String cdmVersion = scriptAttributes.getNamedItem("xmlns:configurationcontrol").getNodeValue();
 
 			if (cdmVersion.contains(CDM_VERSION_PREFIX)) {
 				cdmVersion = cdmVersion.substring(cdmVersion.indexOf(CDM_VERSION_PREFIX) + CDM_VERSION_PREFIX.length());
 			}
-			
+
 			return cdmVersion;
-			
+
 		} catch (NullPointerException e) {
-		
+
 			return null;
 		}
 	}
-	
+
 	public void delete() {
-	
+
 		// remember for later that we have been deleted
 		deleted = true;
 	}
-	
+
 	public void save() {
 
 		if (deleted) {

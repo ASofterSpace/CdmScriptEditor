@@ -13,6 +13,11 @@ public class Main {
 	public final static String VERSION_DATE = "26. August 2018 - 8. September 2018";
 
 	public static void main(String[] args) {
+	
+		// let the Utils know in what program it is being used
+		Utils.setProgramTitle(PROGRAM_TITLE);
+		Utils.setVersionNumber(VERSION_NUMBER);
+		Utils.setVersionDate(VERSION_DATE);
 
 		ConfigFile config = new ConfigFile("settings");
 

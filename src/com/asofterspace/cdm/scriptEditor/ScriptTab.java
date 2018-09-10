@@ -2,8 +2,11 @@ package com.asofterspace.cdm.scriptEditor;
 
 import com.asofterspace.cdm.CdmActivity;
 import com.asofterspace.cdm.CdmCtrl;
+import com.asofterspace.cdm.CdmFile;
 import com.asofterspace.cdm.CdmScript;
 import com.asofterspace.cdm.CdmScript2Activity;
+import com.asofterspace.cdm.exceptions.AttemptingEmfException;
+import com.asofterspace.cdm.exceptions.CdmLoadingException;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
@@ -34,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -255,18 +259,16 @@ public class ScriptTab {
 					JButton mapBtn = new JButton("Map to Current Script");
 					mapBtn.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
-							// TODO - first of all, get all script to activity mapping CIs
-							
-							// TODO - if there are none, create a new one
-							
-							// TODO - add a new script to activity mapping to the first script to activity mapping CI that comes into our hands
-							// (take care of subfolders, as the script CI containing the script, the script to activity mapping CI, the mcm CI
-							// containing the activity, and the CDM working directory might all four be different directories!)
-							
-							// TODO - set the current script to changed and display this in the GUI
+							if (CdmCtrl.addScriptToActivityMapping(script, activity)) {
+								// set the current script to changed, display this in the GUI, and update the info and mappings tabs
+								mappingsOfThisScriptChanged();
+								
+								addMappingDialog.dispose();
+							} else {
+								JOptionPane.showMessageDialog(gui.getMainWindow(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
+							}
 						}
 					});
-					mapBtn.setEnabled(false);
 					buttonRow.add(mapBtn);
 
 					GuiUtils.makeWide(actPanel);
@@ -428,12 +430,8 @@ public class ScriptTab {
 				public void actionPerformed(ActionEvent e) {
 					mapping.delete();
 
-					// tell the script tab to refresh the script info in case it is open as the mappings shown in there might have changed now
-					invalidateInfo();
-					invalidateMappings();
-
-					changed = true;
-					gui.regenerateScriptList();
+					// set the current script to changed, display this in the GUI, and update the info and mappings tabs
+					mappingsOfThisScriptChanged();
 				}
 			});
 			buttonRow.add(deleteMappingBtn);
@@ -449,12 +447,8 @@ public class ScriptTab {
 						mappedActivity.delete();
 					}
 
-					// tell the script tab to refresh the script info in case it is open as the mappings shown in there might have changed now
-					invalidateInfo();
-					invalidateMappings();
-
-					changed = true;
-					gui.regenerateScriptList();
+					// set the current script to changed, display this in the GUI, and update the info and mappings tabs
+					mappingsOfThisScriptChanged();
 
 					// TODO :: potentially invalidate mappings on other script tabs too, as the activity
 					// may have been associated with them as well and may have deleted the other mappings
@@ -482,6 +476,22 @@ public class ScriptTab {
 		mappingsPanel.add(mappingsAddBtn);
 
 		visualPanel.revalidate();
+	}
+
+	private void mappingsOfThisScriptChanged() {
+
+		// refresh the script info pane in case it is open, as the mappings shown in there might have changed now
+		invalidateInfo();
+
+		// refresh the mappings pane, as that definitely changed
+		invalidateMappings();
+
+		// if our tab does not have a change indicator in the GUI yet...
+		if (changed == false) {
+			changed = true;
+			// ... then add one!
+			gui.regenerateScriptList();
+		}
 	}
 
 	/**

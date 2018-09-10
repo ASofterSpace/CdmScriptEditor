@@ -36,17 +36,17 @@ import javax.swing.BorderFactory;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -319,8 +319,9 @@ public class GUI implements Runnable {
 				explanationLabelNamespace.setText("Please enter the namespace of the new script:");
 				addDialog.add(explanationLabelNamespace);
 
+				// TODO :: remember the last namespace choice and read it from the configuration
 				JTextField newScriptNamespace = new JTextField();
-				newScriptNamespace.setText("DefaultNamespace");
+				newScriptNamespace.setText(CdmCtrl.DEFAULT_NAMESPACE);
 				addDialog.add(newScriptNamespace);
 
 				// also let the user immediately associate an activity with this script?
@@ -762,6 +763,7 @@ public class GUI implements Runnable {
 		}
 
 		// now create just the ResourceMcm.cdm file in XML format with one root node (mcmRoot)
+		String newCiName = "Mcm";
 		String routeUuid = Utils.generateEcoreUUID();
 		String routeTypeUuid = Utils.generateEcoreUUID();
 		String sapUuid = Utils.generateEcoreUUID();
@@ -771,7 +773,7 @@ public class GUI implements Runnable {
 		String sapDefinitionUuid = Utils.generateEcoreUUID();
 		String resourceMcmContent =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:McmCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:checkandcondition=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/CheckAndCondition/" + newCdmVersion + "\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + newCdmVersion + "\" xmlns:mcmchecks=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/MCMChecks/1.13.0bd1\" xmlns:mcmimplementationitems=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MCMImplementationItems/1.13.0bd1\" xmlns:monitoringcontrolcommon=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/1.13.0bd1\" xmlns:monitoringcontrolmodel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/1.13.0bd1\" xmlns:qudv.conceptualmodel_extModel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "core/qudv/conceptualmodel/1.5\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by A Softer Space CDM Script Editor Version " + Main.VERSION_NUMBER + "\" onlineRevisionIdentifier=\"0\" name=\"mcmCI\">\n" +
+			"<configurationcontrol:McmCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:checkandcondition=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/CheckAndCondition/" + newCdmVersion + "\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + newCdmVersion + "\" xmlns:mcmchecks=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/MCMChecks/1.13.0bd1\" xmlns:mcmimplementationitems=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MCMImplementationItems/1.13.0bd1\" xmlns:monitoringcontrolcommon=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/1.13.0bd1\" xmlns:monitoringcontrolmodel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/1.13.0bd1\" xmlns:qudv.conceptualmodel_extModel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "core/qudv/conceptualmodel/1.5\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" onlineRevisionIdentifier=\"0\" name=\"" + newCiName + "CI\">\n" +
 			"  <monitoringControlElement xmi:id=\"" + Utils.generateEcoreUUID() + "\" name=\"mcmRoot\" subElements=\"\" defaultRoute=\"" + routeUuid + "\" definition=\"" + mcmRootDefinitionUuid + "\" defaultServiceAccessPoint=\"" + sapUuid + "\">\n" +
 			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:Route\" xmi:id=\"" + routeUuid + "\" name=\"DefaultRoute\" baseElement=\"" + routeDefinitionUuid + "\" hasPredictedValue=\"false\" routeName=\"DefaultRoute\" routeID=\"1\" routeType=\"" + routeTypeUuid + "\"/>\n" +
 			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:RouteType\" xmi:id=\"" + routeTypeUuid + "\" name=\"DefaultRouteType\" baseElement=\"" + routeTypeDefinitionUuid + "\" hasPredictedValue=\"false\" routeIDType=\"1\"/>\n" +
@@ -784,7 +786,7 @@ public class GUI implements Runnable {
 			"  </monitoringControlElementDefinition>\n" +
 			"</configurationcontrol:McmCI>";
 
-		File mcmCi = new File(cdmDir, "ResourceMcm.cdm");
+		File mcmCi = new File(cdmDir, "Resource_" + newCiName + ".cdm");
 		mcmCi.setContent(resourceMcmContent);
 		mcmCi.save();
 
@@ -809,6 +811,7 @@ public class GUI implements Runnable {
 
 		ifAllowedToLeaveCurrentCDM(new Callback() {
 			public void call() {
+				// TODO :: de-localize the JFileChooser (by default it seems localized, which is inconsistent when the rest of the program is in English...)
 				JFileChooser activeCdmPicker;
 
 				String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
@@ -967,8 +970,8 @@ public class GUI implements Runnable {
 
 		// add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
 		String scriptCiContent =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
-			"<configurationcontrol:ScriptCI xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + CdmCtrl.getCdmVersion() + "\" xmlns:xmi=\"http://www.omg.org/XMI\" externalVersionLabel=\"Created by A Softer Space CDM Script Editor Version " + Main.VERSION_NUMBER + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" xmi:version=\"2.0\">\n" +
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + CdmCtrl.getCdmVersion() + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
 			"  <script name=\"" + newScriptName + "\" namespace=\"" + newNamespace + "\" scriptContent=\"\" xmi:id=\"" + Utils.generateEcoreUUID() + "\"/>\n" +
 			"</configurationcontrol:ScriptCI>";
 
@@ -1040,7 +1043,7 @@ public class GUI implements Runnable {
 				"		} else {\n" +
 				"			Filter serviceFilter = FrameworkUtil.createFilter(filter);\n" +
 				"			Collection<ServiceReference<T>> refs = context.getServiceReferences(serviceToGet, serviceFilter);\n" +
-				"			if (refs.size() <= 0) {\n" +
+				"			if (refs.size() < 1) {\n" +
 				"				return null;\n" +
 				"			}\n" +
 				"			return context.getService(refs.getAt(0));\n" +
@@ -1062,7 +1065,7 @@ public class GUI implements Runnable {
 			JOptionPane.showMessageDialog(mainWindow, "Oops - while trying to create the new script, after creating it temporarily, it could not be loaded!", "Sorry", JOptionPane.ERROR_MESSAGE);
 		}
 
-		// this also automagically switch to the newly added tab, as it is the currentlyShownTab
+		// this also automagically switches to the newly added tab, as it is the currentlyShownTab
 		regenerateScriptList();
 
 		reEnableDisableMenuItems();

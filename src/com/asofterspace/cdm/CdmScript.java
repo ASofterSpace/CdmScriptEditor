@@ -98,17 +98,22 @@ public class CdmScript {
 	
 		List<CdmScript2Activity> results = new ArrayList<>();
 		
-		List<CdmFile> scriptToActivityMapperCis = CdmCtrl.getScriptToActivityMappers();
+		List<CdmFile> scriptToActivityMapperCis = CdmCtrl.getScriptToActivityMappingCIs();
 	
-		String parentFilename = parent.getLocalFilename();
+		// String parentFilename = parent.getLocalFilename();
 	
+		// TODO :: maybe get the CdmScript2Activity instances from the CdmCtrl directly, instead of going via the CIs here!
+		
 		for (CdmFile scriptToActivityMapperCi : scriptToActivityMapperCis) {
 			
 			List<CdmScript2Activity> script2Activities = scriptToActivityMapperCi.getScript2Activities();
 			
 			for (CdmScript2Activity script2Activity : script2Activities) {
 				// check if a script to activity mapper maps the script id of this particular script!
-				if (script2Activity.mapsScript(parentFilename, id)) {
+				// TODO :: also check if the filename maps (however, this is complicated, as the file
+				// could be in a different folder etc. - so it is simpler to only check for the id,
+				// which *should* be unique anyway!)
+				if (script2Activity.mapsScript(id)) {
 					results.add(script2Activity);
 				}
 			}

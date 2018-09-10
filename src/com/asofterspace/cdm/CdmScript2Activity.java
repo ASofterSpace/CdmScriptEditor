@@ -94,6 +94,13 @@ public class CdmScript2Activity {
 		return id;
 	}
 	
+	public boolean mapsScript(String scriptId) {
+		return scriptId.equals(mappedScriptId);
+	}
+	
+	// TODO - this works as long as the file is in the same folder as this file,
+	// but for CIs in different subfolders, this would need to be more elaborate...
+	// (for now, we therefore just use mapsScript(id), as the id should be unique)
 	public boolean mapsScript(String cdmFilename, String scriptId) {
 	
 		if (!cdmFilename.equals(mappedScriptFilename)) {
@@ -163,6 +170,10 @@ public class CdmScript2Activity {
 	
 		// delete the script itself from the parent file
 		thisNode.getParentNode().removeChild(thisNode);
+		
+		// delete us from the list of mappings, as the CI containing us will be kept always, so we do not need to keep
+		// track of being deleted and later on truly delete us (like in the case of a CdmScript), but can instead just
+		// remove ourselves entirely from the program right now
+		CdmCtrl.getScriptToActivityMappings().remove(this);
 	}
-
 }
