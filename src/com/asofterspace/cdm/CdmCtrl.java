@@ -5,6 +5,7 @@ import com.asofterspace.cdm.exceptions.CdmLoadingException;
 import com.asofterspace.toolbox.gui.ProgressDialog;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
+import com.asofterspace.toolbox.io.IoUtils;
 import com.asofterspace.toolbox.io.XmlMode;
 import com.asofterspace.toolbox.Utils;
 
@@ -399,14 +400,18 @@ public class CdmCtrl {
 			}
 		}
 
-		// TODO :: do not just use the filename, but keep track of the relative paths - here, the relative path
+		// do not just use the filename, but keep track of the relative paths - here, the relative path
 		// of the script relative to the script to activity mapper CI
-		String scriptFile = script.getParent().getLocalFilename();
+		String scriptFile = scriptToActivityMapperCI.getParentDirectory().getRelativePath(script.getParent());
+		// we want a path with forward slashes, even under Windows, as the CDM is always written Linux-y
+		scriptFile = IoUtils.osPathStrToLinuxPathStr(scriptFile);
 		String scriptId = script.getId();
 
-		// TODO :: do not just use the filename, but keep track of the relative paths - here, the relative path
+		// do not just use the filename, but keep track of the relative paths - here, the relative path
 		// of the activity relative to the script to activity mapper CI
-		String activityFile = activity.getParent().getLocalFilename();
+		String activityFile = scriptToActivityMapperCI.getParentDirectory().getRelativePath(activity.getParent());
+		// we want a path with forward slashes, even under Windows, as the CDM is always written Linux-y
+		activityFile = IoUtils.osPathStrToLinuxPathStr(activityFile);
 		String activityId = activity.getId();
 
 		CdmScript2Activity createdMapping = scriptToActivityMapperCI.addScript2Activity(

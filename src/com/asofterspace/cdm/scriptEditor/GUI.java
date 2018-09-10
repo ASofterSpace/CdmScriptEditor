@@ -715,6 +715,7 @@ public class GUI implements Runnable {
 		ifAllowedToLeaveCurrentCDM(new Callback() {
 			public void call() {
 				// TODO :: de-localize the JFileChooser (by default it seems localized, which is inconsistent when the rest of the program is in English...)
+				// (while you're at it, make Öffnen into Save for the save dialog, but keep it as Open for the open dialog... ^^)
 				JFileChooser activeCdmPicker;
 
 				String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);

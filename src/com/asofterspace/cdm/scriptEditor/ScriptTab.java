@@ -414,7 +414,7 @@ public class ScriptTab {
 				public void actionPerformed(ActionEvent e) {
 
 					// create new Activity
-					CdmActivity activity = CdmCtrl.addActivity(newActivityName.getText(), newActivityAlias.getText(), mce);
+					CdmActivity activity = CdmCtrl.addActivity(newActivityName.getText().trim(), newActivityAlias.getText().trim(), mce);
 					
 					// TODO - also add a definition for the new activity (if possible - that is, if the mce in which
 					// the activity lies has an associated mce definition in which the activity's definition can be hosted)
