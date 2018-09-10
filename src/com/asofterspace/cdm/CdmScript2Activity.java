@@ -7,38 +7,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class CdmScript2Activity {
+public class CdmScript2Activity extends CdmNode {
 
-	private CdmFile parent;
-	
-	private Node thisNode;
-	
-	private String name;
-	
-	private String namespace;
-	
-	private String id;
-	
 	private String mappedActivityFilename;
+	
 	private String mappedActivityId;
+	
 	private String mappedScriptFilename;
+	
 	private String mappedScriptId;
 
 
 	public CdmScript2Activity(CdmFile parent, Node script2ActivityNode) {
 	
-		NamedNodeMap attributes = script2ActivityNode.getAttributes();
+		super(parent, script2ActivityNode);
 
-		this.parent = parent;
-		
-		this.thisNode = script2ActivityNode;
-		
-		this.name = attributes.getNamedItem("name").getNodeValue();
-		
-		this.namespace = attributes.getNamedItem("namespace").getNodeValue();
-		
-		this.id = attributes.getNamedItem("xmi:id").getNodeValue();
-		
 		NodeList elements = script2ActivityNode.getChildNodes();
 
 		int len = elements.getLength();
@@ -77,23 +60,7 @@ public class CdmScript2Activity {
 			}
 		}
 	}
-	
-	public CdmFile getParent() {
-		return parent;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public String getNamespace() {
-		return namespace;
-	}
-	
-	public String getId() {
-		return id;
-	}
-	
+
 	public boolean mapsScript(String scriptId) {
 		return scriptId.equals(mappedScriptId);
 	}
@@ -113,22 +80,7 @@ public class CdmScript2Activity {
 		
 		return true;
 	}
-	
-	public void setName(String newName) {
-	
-		NamedNodeMap script2ActivityNodeAttributes = thisNode.getAttributes();
-		
-		Node script2ActivityNameNode = script2ActivityNodeAttributes.getNamedItem("name");
-		
-		if (script2ActivityNameNode == null) {
-			return;
-		}
-		
-		script2ActivityNameNode.setNodeValue(newName);
-		
-		name = newName;
-	}
-	
+
 	public String getMappedActivityFilename() {
 		return mappedActivityFilename;
 	}
@@ -169,7 +121,7 @@ public class CdmScript2Activity {
 	public void delete() {
 	
 		// delete the script itself from the parent file
-		thisNode.getParentNode().removeChild(thisNode);
+		super.delete();
 		
 		// delete us from the list of mappings, as the CI containing us will be kept always, so we do not need to keep
 		// track of being deleted and later on truly delete us (like in the case of a CdmScript), but can instead just

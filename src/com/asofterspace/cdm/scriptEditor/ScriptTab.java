@@ -3,6 +3,7 @@ package com.asofterspace.cdm.scriptEditor;
 import com.asofterspace.cdm.CdmActivity;
 import com.asofterspace.cdm.CdmCtrl;
 import com.asofterspace.cdm.CdmFile;
+import com.asofterspace.cdm.CdmMonitoringControlElement;
 import com.asofterspace.cdm.CdmScript;
 import com.asofterspace.cdm.CdmScript2Activity;
 import com.asofterspace.cdm.exceptions.AttemptingEmfException;
@@ -41,6 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
 
@@ -275,7 +277,7 @@ public class ScriptTab {
 			JButton mapBtn = new JButton("Map to Current Script");
 			mapBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (CdmCtrl.addScriptToActivityMapping(script, activity)) {
+					if (CdmCtrl.addScriptToActivityMapping(script, activity) != null) {
 						// set the current script to changed, display this in the GUI, and update the info and mappings tabs
 						mappingsOfThisScriptChanged();
 						
@@ -309,7 +311,6 @@ public class ScriptTab {
 				showAddActivityDialog(addMappingDialog);
 			}
 		});
-		createNewActBtn.setEnabled(false);
 		buttonRow.add(createNewActBtn);
 
 		JButton cancelButton = new JButton("Cancel");
@@ -331,15 +332,151 @@ public class ScriptTab {
 	
 	private void showAddActivityDialog(JDialog parentDialog) {
 	
-		// TODO - open a new dialog to ask about the properties of the new activity (name, location in MCM tree, ...)
+		// open a new dialog to ask about the properties of the new activity (name, location in MCM tree, ...)
 
-		// TODO - create new Activity as well as its definition (if possible - that is, if the mce in which
-		// the activity lies has an associated mce definition in which the activity's definition can be hosted)
+		// Create the window
+		JDialog createActivityDialog = new JDialog(gui.getMainWindow(), "Create Activity", true);
+		createActivityDialog.setLayout(new GridBagLayout());
+		createActivityDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-		// TODO - map the new activity to the script
+		// Populate the window
+		JLabel explanationLabel = new JLabel();
+		explanationLabel.setText("Enter the name of the new activity:");
+		createActivityDialog.add(explanationLabel, new Arrangement(0, 0, 1.0, 0.0));
 
-		// TODO - if the mapping has happened (but not if cancel was pressed), dispose of the parent dialog too
-		parentDialog.dispose();
+		createActivityDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 1, 1.0, 0.0));
+
+		JTextField newActivityName = new JTextField();
+		newActivityName.setText(script.getName());
+		createActivityDialog.add(newActivityName, new Arrangement(0, 2, 1.0, 0.0));
+
+		createActivityDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 3, 1.0, 0.0));
+
+		JLabel explanationLabelAlias = new JLabel();
+		explanationLabelAlias.setText("Enter the alias of the new activity - or leave this empty:");
+		createActivityDialog.add(explanationLabelAlias, new Arrangement(0, 4, 1.0, 0.0));
+
+		createActivityDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 5, 1.0, 0.0));
+
+		JTextField newActivityAlias = new JTextField();
+		newActivityAlias.setText("");
+		createActivityDialog.add(newActivityAlias, new Arrangement(0, 6, 1.0, 0.0));
+
+		createActivityDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 7, 1.0, 0.0));
+
+		// TODO :: also ask for parameters of the activity (right now, we just always create activities without parameters)
+		
+		JPanel mcesPanel = new JPanel();
+		mcesPanel.setLayout(new BoxLayout(mcesPanel, BoxLayout.Y_AXIS));
+		mcesPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		// show all the existing mces
+		// TODO :: add a way to filter, maybe sort, etc.
+
+		List<CdmMonitoringControlElement> mces = CdmCtrl.getMonitoringControlElements();
+
+		boolean first = true;
+
+		// TODO :: display this in some sort of tree view instead!
+		
+		for (CdmMonitoringControlElement mce : mces) {
+
+			if (!first) {
+				mcesPanel.add(Box.createRigidArea(new Dimension(8, 8)));
+			}
+			first = false;
+
+			JPanel mcePanel = new JPanel();
+			mcePanel.setLayout(new BoxLayout(mcePanel, BoxLayout.Y_AXIS));
+			mcePanel.setBorder(new CompoundBorder(
+				BorderFactory.createLineBorder(Color.gray),
+				BorderFactory.createEmptyBorder(8, 8, 8, 8)
+			));
+
+			JLabel nameLabel = new JLabel("Name: " + mce.getName());
+			GuiUtils.makeWide(nameLabel);
+			mcePanel.add(nameLabel);
+			mcePanel.add(Box.createRigidArea(new Dimension(8, 8)));
+
+			JLabel pathLabel = new JLabel("MCM Path: " + mce.getPath());
+			GuiUtils.makeWide(pathLabel);
+			mcePanel.add(pathLabel);
+			mcePanel.add(Box.createRigidArea(new Dimension(8, 8)));
+
+			JPanel buttonRow = new JPanel();
+			GridLayout buttonRowLayout = new GridLayout(1, 1);
+			buttonRowLayout.setHgap(8);
+			buttonRow.setLayout(buttonRowLayout);
+			mcePanel.add(buttonRow);
+
+			JButton createActAsAspectBtn = new JButton("Create Activity as Aspect of this Element");
+			createActAsAspectBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+
+					// create new Activity
+					CdmActivity activity = CdmCtrl.addActivity(newActivityName.getText(), newActivityAlias.getText(), mce);
+					
+					// TODO - also add a definition for the new activity (if possible - that is, if the mce in which
+					// the activity lies has an associated mce definition in which the activity's definition can be hosted)
+					
+					// map the new activity to the script
+					if (CdmCtrl.addScriptToActivityMapping(script, activity) != null) {
+						// set the current script to changed, display this in the GUI, and update the info and mappings tabs
+						mappingsOfThisScriptChanged();
+						
+						createActivityDialog.dispose();
+						parentDialog.dispose();
+					} else {
+						JOptionPane.showMessageDialog(gui.getMainWindow(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			});
+			buttonRow.add(createActAsAspectBtn);
+
+			GuiUtils.makeWide(mcePanel);
+
+			mcesPanel.add(mcePanel);
+		}
+
+		JScrollPane mcesScroller = new JScrollPane(mcesPanel);
+		createActivityDialog.add(mcesScroller, new Arrangement(0, 8, 1.0, 1.0));
+
+		createActivityDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 9, 1.0, 0.0));
+
+		JPanel buttonRow = new JPanel();
+		GridLayout buttonRowLayout = new GridLayout(1, 1);
+		buttonRowLayout.setHgap(8);
+		buttonRow.setLayout(buttonRowLayout);
+		createActivityDialog.add(buttonRow, new Arrangement(0, 10, 1.0, 0.0));
+
+		// TODO :: enable adding new MCEs, just like we are adding new activities
+
+		/*
+		JButton createNewActBtn = new JButton("Create New Element");
+		createNewActBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				showAddActivityDialog(createActivityDialog);
+			}
+		});
+		createNewActBtn.setEnabled(false);
+		buttonRow.add(createNewActBtn);
+		*/
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createActivityDialog.dispose();
+			}
+		});
+		buttonRow.add(cancelButton);
+
+		// Set the preferred size of the dialog
+		int width = 500;
+		int height = 600;
+		createActivityDialog.setSize(width, height);
+		createActivityDialog.setPreferredSize(new Dimension(width, height));
+
+		GuiUtils.centerAndShowWindow(createActivityDialog);
 	}
 
 	private void reloadInfoData() {

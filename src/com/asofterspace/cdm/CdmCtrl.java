@@ -26,6 +26,8 @@ public class CdmCtrl {
 	public static final String ASS_CDM_NAMESPACE = ASS_CDM_NAMESPACE_ROOT + "ConfigurationTracking/";
 
 	public static final String DEFAULT_NAMESPACE = "DefaultNamespace";
+	
+	public static final String MCM_PATH_DELIMITER = ".";
 
 	// has a CDM been loaded, like, at all?
 	private static boolean cdmLoaded = false;
@@ -34,6 +36,7 @@ public class CdmCtrl {
 	private static List<CdmFile> fileList = new ArrayList<>();
 
 	// our model of the CDM (intended more for external-ish use)
+	private static List<CdmMonitoringControlElement> mces;
 	private static List<CdmScript> scripts;
 	private static List<CdmFile> scriptToActivityMappingCIs;
 	private static List<CdmScript2Activity> scriptToActivityMappings;
@@ -52,6 +55,7 @@ public class CdmCtrl {
 		cdmLoaded = false;
 
 		fileList = new ArrayList<>();
+		mces = new ArrayList<>();
 		scripts = new ArrayList<>();
 		scriptToActivityMappingCIs = new ArrayList<>();
 		scriptToActivityMappings = new ArrayList<>();
@@ -201,6 +205,7 @@ public class CdmCtrl {
 
 			case "configurationcontrol:McmCI":
 				activities.addAll(cdmFile.getActivities());
+				mces.addAll(cdmFile.getMonitoringControlElements());
 				break;
 		}
 	}
@@ -247,6 +252,13 @@ public class CdmCtrl {
 		}
 
 		return fileList.get(0).getCdmVersion();
+	}
+
+	public static List<CdmMonitoringControlElement> getMonitoringControlElements() {
+		if (!cdmLoaded) {
+			return new ArrayList<>();
+		}
+		return mces;
 	}
 
 	public static List<CdmScript> getScripts() {
@@ -329,61 +341,27 @@ public class CdmCtrl {
 		return verdict;
 	}
 
-	public static boolean addScriptToActivityMapping(CdmScript script, CdmActivity activity) {
+	public static CdmActivity addActivity(String newActivityName, String newActivityAlias, CdmMonitoringControlElement mceContainingThis) {
+
+		// TODO :: ensure that the name is not yet taken
+
+		CdmActivity createdActivity = mceContainingThis.addActivity(newActivityName, newActivityAlias);
+		
+		// append the resulting new mapping to the internal list of mappings of the CdmCtrl
+		activities.add(createdActivity);
+
+		return createdActivity;
+	}
+
+	public static CdmScript2Activity addScriptToActivityMapping(CdmScript script, CdmActivity activity) {
 
 		// first of all, get all script to activity mapping CIs
 		List<CdmFile> scriptToActivityMapperCis = CdmCtrl.getScriptToActivityMappingCIs();
 
 		// if there are none, create a new one
 		if (scriptToActivityMapperCis.size() < 1) {
-
-			String newCiBaseName = "ScriptToActivity";
-			String newCiName = newCiBaseName;
-			int i = 1;
-			File newFileLocation;
-
-			while (true) {
-				newFileLocation = new File(CdmCtrl.getLastLoadedDirectory(), "Resource_" + newCiName + ".cdm");
-
-				// check that the newCiName (+ .cdm) is not already the file name of some other CDM file!
-				if (!newFileLocation.exists()) {
-					break;
-				}
-
-				i++;
-
-				// try Resource_ScriptToActivity2.cdm, Resource_ScriptToActivity3.cdm, ...
-				newCiName = newCiBaseName + i;
-			}
-
-			// add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
-			String newCiContent =
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-				"<configurationcontrol:Script2ActivityMapperCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + CdmCtrl.getCdmVersion() + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
-				"</configurationcontrol:Script2ActivityMapperCI>";
-
-			File tmpCi = new File("tmpfile.tmp");
-			tmpCi.setContent(newCiContent);
-			tmpCi.save();
-
-			try {
-				CdmFile newCdmFile = CdmCtrl.loadCdmFile(tmpCi);
-
-				scriptToActivityMapperCis = CdmCtrl.getScriptToActivityMappingCIs();
-
-				if (scriptToActivityMapperCis.size() != 1) {
-					return false;
-				}
-
-				newCdmFile.setFilelocation(newFileLocation);
-
-				tmpCi.delete();
-
-				// add the new script to activity mapper CI to the Manifest file
-				// TODO
-
-			} catch (AttemptingEmfException | CdmLoadingException e2) {
-				return false;
+			if (!addScriptToActivityCI()) {
+				return null;
 			}
 		}
 
@@ -442,6 +420,64 @@ public class CdmCtrl {
 		// append the resulting new mapping to the internal list of mappings of the CdmCtrl
 		scriptToActivityMappings.add(createdMapping);
 
+		return createdMapping;
+	}
+	
+	/**
+	 * Tries to add a new script to activity CI
+	 * Returns true if successful, false otherwise
+	 */
+	public static boolean addScriptToActivityCI() {
+
+		String newCiBaseName = "ScriptToActivity";
+		String newCiName = newCiBaseName;
+		int i = 1;
+		File newFileLocation;
+
+		while (true) {
+			newFileLocation = new File(CdmCtrl.getLastLoadedDirectory(), "Resource_" + newCiName + ".cdm");
+
+			// check that the newCiName (+ .cdm) is not already the file name of some other CDM file!
+			if (!newFileLocation.exists()) {
+				break;
+			}
+
+			i++;
+
+			// try Resource_ScriptToActivity2.cdm, Resource_ScriptToActivity3.cdm, ...
+			newCiName = newCiBaseName + i;
+		}
+
+		// add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
+		String newCiContent =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<configurationcontrol:Script2ActivityMapperCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + CdmCtrl.getCdmVersion() + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
+			"</configurationcontrol:Script2ActivityMapperCI>";
+
+		File tmpCi = new File("tmpfile.tmp");
+		tmpCi.setContent(newCiContent);
+		tmpCi.save();
+
+		try {
+			CdmFile newCdmFile = CdmCtrl.loadCdmFile(tmpCi);
+
+			List<CdmFile> scriptToActivityMapperCis = CdmCtrl.getScriptToActivityMappingCIs();
+
+			if (scriptToActivityMapperCis.size() != 1) {
+				return false;
+			}
+
+			newCdmFile.setFilelocation(newFileLocation);
+
+			tmpCi.delete();
+
+			// add the new script to activity mapper CI to the Manifest file
+			// TODO
+
+		} catch (AttemptingEmfException | CdmLoadingException e2) {
+			return false;
+		}
+		
 		return true;
 	}
 

@@ -35,7 +35,7 @@ public class CdmFile extends XmlFile {
 		super(regularFile);
 
 		Node root = getRoot();
-		
+
 		if (root != null) {
 			ciType = root.getNodeName();
 		}
@@ -43,6 +43,36 @@ public class CdmFile extends XmlFile {
 
 	public String getCiType() {
 		return ciType;
+	}
+
+	/**
+	 * Get all the monitoring control elements defined in this CDM file, NOT their definitions!
+	 * (this does not check if this even is an McmCI - you should check it first, to not search through others forever ^^)
+	 */
+	public List<CdmMonitoringControlElement> getMonitoringControlElements() {
+
+		List<CdmMonitoringControlElement> results = new ArrayList<>();
+
+		if (deleted) {
+			return results;
+		}
+
+		NodeList elements = getRoot().getChildNodes();
+
+		int len = elements.getLength();
+
+		for (int i = 0; i < len; i++) {
+			try {
+				Node mce = elements.item(i);
+				if ("monitoringControlElement".equals(mce.getNodeName())) {
+					results.add(new CdmMonitoringControlElement(this, mce));
+				}
+			} catch (NullPointerException e) {
+				System.err.println("ERROR: The " + Utils.th(i) + " child node in " + getFilename() + " does not have a properly assigned attribute and will be ignored!");
+			}
+		}
+
+		return results;
 	}
 
 	/**
@@ -133,12 +163,12 @@ public class CdmFile extends XmlFile {
 		newMapping.appendChild(newMappedScript);
 
 		getRoot().appendChild(newMapping);
-		
+
 		return new CdmScript2Activity(this, newMapping);
 	}
 
 	/**
-	 * Get all the activities defined in this CDM file
+	 * Get all the activities defined in this CDM file, NOT their definitions defined in mce definitions!
 	 * (this does not check if this even is an McmCI - you should check it first, to not search through others forever ^^)
 	 */
 	public List<CdmActivity> getActivities() {

@@ -30,6 +30,9 @@ emf
 # other local files
 other
 
+# temporary files
+*.tmp
+
 # sourcefile list
 src/sourcefiles.list
 

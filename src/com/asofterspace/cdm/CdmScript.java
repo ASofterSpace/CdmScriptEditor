@@ -8,52 +8,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class CdmScript {
+public class CdmScript extends CdmNode {
 
-	private CdmFile parent;
-	
-	private Node thisNode;
-	
-	private String name;
-	
-	private String namespace;
-	
-	private String id;
-	
 	private String content;
 	
 
 	public CdmScript(CdmFile parent, Node scriptNode) {
 	
-		NamedNodeMap attributes = scriptNode.getAttributes();
+		super(parent, scriptNode);
 
-		this.parent = parent;
-		
-		this.thisNode = scriptNode;
-		
-		this.name = attributes.getNamedItem("name").getNodeValue();
-		
-		this.namespace = attributes.getNamedItem("namespace").getNodeValue();
-		
-		this.id = attributes.getNamedItem("xmi:id").getNodeValue();
-		
-		this.content = attributes.getNamedItem("scriptContent").getNodeValue();
-	}
-	
-	public CdmFile getParent() {
-		return parent;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public String getNamespace() {
-		return namespace;
-	}
-	
-	public String getId() {
-		return id;
+		this.content = getValue("scriptContent");
 	}
 	
 	public String getSourceCode() {
@@ -74,22 +38,7 @@ public class CdmScript {
 		
 		content = scriptContent;
 	}
-	
-	public void setName(String newName) {
-	
-		NamedNodeMap scriptNodeAttributes = thisNode.getAttributes();
-		
-		Node scriptNameNode = scriptNodeAttributes.getNamedItem("name");
-		
-		if (scriptNameNode == null) {
-			return;
-		}
-		
-		scriptNameNode.setNodeValue(newName);
-		
-		name = newName;
-	}
-	
+
 	/**
 	 * Get all script2Activity mappings associated with this particular script - there could be several
 	 * mappings mapping to this script!
@@ -139,7 +88,7 @@ public class CdmScript {
 		}
 		
 		// delete the script itself from the parent file
-		parent.getRoot().removeChild(thisNode);
+		super.delete();
 
 		// check if there are still elements left now, and if not, delete the entire parent file
 		NodeList elements = parent.getRoot().getChildNodes();

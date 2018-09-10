@@ -148,6 +148,10 @@ public class GUI implements Runnable {
 
 		JMenuBar menu = new JMenuBar();
 
+		// TODO :: add undo / redo (for basically any action, but first of all of course for the editor)
+
+		// TODO :: add conversion tool between zip and xml, later on xml and emf binary, and finally even different cdm versions!
+
 		JMenu file = new JMenu("File");
 		menu.add(file);
 		newCdm = new JMenuItem("Create Empty CDM");
@@ -366,62 +370,7 @@ public class GUI implements Runnable {
 		renameCurScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-				// figure out which script tab is currently open (show error if none is open)
-				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no script can be renamed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				// open a dialog in which the new name is to be entered (pre-filled with the current name)
-
-				// Create the window
-				JDialog renameDialog = new JDialog(mainWindow, "Rename Script", true);
-				GridLayout renameDialogLayout = new GridLayout(3, 1);
-				renameDialogLayout.setVgap(8);
-				renameDialog.setLayout(renameDialogLayout);
-				renameDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-				// Populate the window
-				JLabel explanationLabel = new JLabel();
-				explanationLabel.setText("Please enter the new name of the script file:");
-				renameDialog.add(explanationLabel);
-
-				JTextField newScriptName = new JTextField();
-				newScriptName.setText(currentlyShownTab.getName());
-				renameDialog.add(newScriptName);
-
-				JPanel buttonRow = new JPanel();
-				GridLayout buttonRowLayout = new GridLayout(1, 2);
-				buttonRowLayout.setHgap(8);
-				buttonRow.setLayout(buttonRowLayout);
-				renameDialog.add(buttonRow);
-
-				JButton okButton = new JButton("OK");
-				okButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						if (renameCurrentScript(newScriptName.getText().trim())) {
-							renameDialog.dispose();
-						}
-					}
-				});
-				buttonRow.add(okButton);
-
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						renameDialog.dispose();
-					}
-				});
-				buttonRow.add(cancelButton);
-
-				// Set the preferred size of the dialog
-				int width = 350;
-				int height = 160;
-				renameDialog.setSize(width, height);
-				renameDialog.setPreferredSize(new Dimension(width, height));
-
-				GuiUtils.centerAndShowWindow(renameDialog);
+				openRenameCurrentScriptDialog();
 			}
 		});
 		file.add(renameCurScriptFile);
@@ -429,63 +378,7 @@ public class GUI implements Runnable {
 		deleteCurScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-				// figure out which script tab is currently open (show error if none is open)
-				if (currentlyShownTab == null) {
-					JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no script can be deleted - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				// open a dialog to confirm that the script should be deleted
-
-				// Create the window
-				String deleteScript = currentlyShownTab.getName();
-				JDialog deleteDialog = new JDialog(mainWindow, "Delete " + deleteScript, true);
-				GridLayout deleteDialogLayout = new GridLayout(3, 1);
-				deleteDialogLayout.setVgap(8);
-				deleteDialog.setLayout(deleteDialogLayout);
-				deleteDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-				// Populate the window
-				JLabel explanationLabel = new JLabel();
-				explanationLabel.setText("Do you really want to delete the script:");
-				deleteDialog.add(explanationLabel);
-
-				JLabel scriptNameLabel = new JLabel();
-				scriptNameLabel.setText(deleteScript);
-				deleteDialog.add(scriptNameLabel);
-
-				JPanel buttonRow = new JPanel();
-				GridLayout buttonRowLayout = new GridLayout(1, 2);
-				buttonRowLayout.setHgap(8);
-				buttonRow.setLayout(buttonRowLayout);
-				deleteDialog.add(buttonRow);
-
-				JButton deleteButton = new JButton("Delete");
-				deleteButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						if (deleteCurrentScript()) {
-							deleteDialog.dispose();
-						}
-					}
-				});
-				buttonRow.add(deleteButton);
-
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						deleteDialog.dispose();
-					}
-				});
-				buttonRow.add(cancelButton);
-
-				// Set the preferred size of the dialog
-				int width = 300;
-				int height = 160;
-				deleteDialog.setSize(width, height);
-				deleteDialog.setPreferredSize(new Dimension(width, height));
-
-				GuiUtils.centerAndShowWindow(deleteDialog);
+				openDeleteCurrentScriptDialog();
 			}
 		});
 		file.add(deleteCurScriptFile);
@@ -1094,6 +987,65 @@ public class GUI implements Runnable {
 		return true;
 	}
 
+	private void openRenameCurrentScriptDialog() {
+
+		// figure out which script tab is currently open (show error if none is open)
+		if (currentlyShownTab == null) {
+			JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no script can be renamed - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		// open a dialog in which the new name is to be entered (pre-filled with the current name)
+
+		// Create the window
+		JDialog renameDialog = new JDialog(mainWindow, "Rename Script", true);
+		GridLayout renameDialogLayout = new GridLayout(3, 1);
+		renameDialogLayout.setVgap(8);
+		renameDialog.setLayout(renameDialogLayout);
+		renameDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		// Populate the window
+		JLabel explanationLabel = new JLabel();
+		explanationLabel.setText("Please enter the new name of the script file:");
+		renameDialog.add(explanationLabel);
+
+		JTextField newScriptName = new JTextField();
+		newScriptName.setText(currentlyShownTab.getName());
+		renameDialog.add(newScriptName);
+
+		JPanel buttonRow = new JPanel();
+		GridLayout buttonRowLayout = new GridLayout(1, 2);
+		buttonRowLayout.setHgap(8);
+		buttonRow.setLayout(buttonRowLayout);
+		renameDialog.add(buttonRow);
+
+		JButton okButton = new JButton("OK");
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (renameCurrentScript(newScriptName.getText().trim())) {
+					renameDialog.dispose();
+				}
+			}
+		});
+		buttonRow.add(okButton);
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				renameDialog.dispose();
+			}
+		});
+		buttonRow.add(cancelButton);
+
+		// Set the preferred size of the dialog
+		int width = 350;
+		int height = 160;
+		renameDialog.setSize(width, height);
+		renameDialog.setPreferredSize(new Dimension(width, height));
+
+		GuiUtils.centerAndShowWindow(renameDialog);
+	}
+	
 	/**
 	 * Rename the currently opened script to the name newScriptStr
 	 * @return true if something happened and the dialog should be closed, false if it should stay open
@@ -1134,6 +1086,66 @@ public class GUI implements Runnable {
 		regenerateScriptList();
 
 		return true;
+	}
+	
+	private void openDeleteCurrentScriptDialog() {
+
+		// figure out which script tab is currently open (show error if none is open)
+		if (currentlyShownTab == null) {
+			JOptionPane.showMessageDialog(mainWindow, "No script has been selected, so no script can be deleted - sorry!", "Sorry", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		// open a dialog to confirm that the script should be deleted
+
+		// Create the window
+		String deleteScript = currentlyShownTab.getName();
+		JDialog deleteDialog = new JDialog(mainWindow, "Delete " + deleteScript, true);
+		GridLayout deleteDialogLayout = new GridLayout(3, 1);
+		deleteDialogLayout.setVgap(8);
+		deleteDialog.setLayout(deleteDialogLayout);
+		deleteDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		// Populate the window
+		JLabel explanationLabel = new JLabel();
+		explanationLabel.setText("Do you really want to delete the script:");
+		deleteDialog.add(explanationLabel);
+
+		JLabel scriptNameLabel = new JLabel();
+		scriptNameLabel.setText(deleteScript);
+		deleteDialog.add(scriptNameLabel);
+
+		JPanel buttonRow = new JPanel();
+		GridLayout buttonRowLayout = new GridLayout(1, 2);
+		buttonRowLayout.setHgap(8);
+		buttonRow.setLayout(buttonRowLayout);
+		deleteDialog.add(buttonRow);
+
+		JButton deleteButton = new JButton("Delete");
+		deleteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (deleteCurrentScript()) {
+					deleteDialog.dispose();
+				}
+			}
+		});
+		buttonRow.add(deleteButton);
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				deleteDialog.dispose();
+			}
+		});
+		buttonRow.add(cancelButton);
+
+		// Set the preferred size of the dialog
+		int width = 300;
+		int height = 160;
+		deleteDialog.setSize(width, height);
+		deleteDialog.setPreferredSize(new Dimension(width, height));
+
+		GuiUtils.centerAndShowWindow(deleteDialog);
 	}
 
 	/**
