@@ -198,126 +198,7 @@ public class ScriptTab {
 		mappingsAddBtn = new JButton("Add Mapping");
 		mappingsAddBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				// Create the window
-				JDialog addMappingDialog = new JDialog(gui.getMainWindow(), "Add Mapping to " + script.getName(), true);
-				addMappingDialog.setLayout(new GridBagLayout());
-				addMappingDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-				// Populate the window
-				JLabel explanationLabel = new JLabel();
-				explanationLabel.setText("You can create a mapping by selecting one of the existing activities:");
-				addMappingDialog.add(explanationLabel, new Arrangement(0, 0, 1.0, 0.0));
-
-				addMappingDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 1, 1.0, 0.0));
-
-				JPanel activitiesPanel = new JPanel();
-				activitiesPanel.setLayout(new BoxLayout(activitiesPanel, BoxLayout.Y_AXIS));
-				activitiesPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-				// show all the existing activities
-				// TODO :: add a way to filter, maybe sort, etc.
-
-				List<CdmActivity> activities = CdmCtrl.getActivities();
-
-				boolean first = true;
-
-				for (CdmActivity activity : activities) {
-
-					if (!first) {
-						activitiesPanel.add(Box.createRigidArea(new Dimension(8, 8)));
-					}
-					first = false;
-
-					JPanel actPanel = new JPanel();
-					actPanel.setLayout(new BoxLayout(actPanel, BoxLayout.Y_AXIS));
-					actPanel.setBorder(new CompoundBorder(
-						BorderFactory.createLineBorder(Color.gray),
-						BorderFactory.createEmptyBorder(8, 8, 8, 8)
-					));
-
-					JLabel nameLabel = new JLabel("Name: " + activity.getName());
-					GuiUtils.makeWide(nameLabel);
-					actPanel.add(nameLabel);
-					actPanel.add(Box.createRigidArea(new Dimension(8, 8)));
-
-					String alias = activity.getAlias();
-					if (alias == null) {
-						alias = "(none)";
-					}
-					JLabel aliasLabel = new JLabel("Alias: " + alias);
-					GuiUtils.makeWide(aliasLabel);
-					actPanel.add(aliasLabel);
-					actPanel.add(Box.createRigidArea(new Dimension(8, 8)));
-
-					JPanel buttonRow = new JPanel();
-					GridLayout buttonRowLayout = new GridLayout(1, 1);
-					buttonRowLayout.setHgap(8);
-					buttonRow.setLayout(buttonRowLayout);
-					actPanel.add(buttonRow);
-
-					JButton mapBtn = new JButton("Map to Current Script");
-					mapBtn.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							if (CdmCtrl.addScriptToActivityMapping(script, activity)) {
-								// set the current script to changed, display this in the GUI, and update the info and mappings tabs
-								mappingsOfThisScriptChanged();
-								
-								addMappingDialog.dispose();
-							} else {
-								JOptionPane.showMessageDialog(gui.getMainWindow(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
-							}
-						}
-					});
-					buttonRow.add(mapBtn);
-
-					GuiUtils.makeWide(actPanel);
-
-					activitiesPanel.add(actPanel);
-				}
-
-				JScrollPane activitiesScroller = new JScrollPane(activitiesPanel);
-				addMappingDialog.add(activitiesScroller, new Arrangement(0, 2, 1.0, 1.0));
-
-				addMappingDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 3, 1.0, 0.0));
-
-				JPanel buttonRow = new JPanel();
-				GridLayout buttonRowLayout = new GridLayout(1, 3);
-				buttonRowLayout.setHgap(8);
-				buttonRow.setLayout(buttonRowLayout);
-				addMappingDialog.add(buttonRow, new Arrangement(0, 4, 1.0, 0.0));
-
-				JButton createNewActBtn = new JButton("Create New Activity");
-				createNewActBtn.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						// TODO - open a new dialog to ask about the properties of the new activity (name, location in MCM tree, ...)
-
-						// TODO - create new Activity
-
-						// TODO - map the new activity to the script
-
-						// TODO - if the mapping has happened (but not if cancel was pressed), dispose of the parent dialog too
-						addMappingDialog.dispose();
-					}
-				});
-				createNewActBtn.setEnabled(false);
-				buttonRow.add(createNewActBtn);
-
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						addMappingDialog.dispose();
-					}
-				});
-				buttonRow.add(cancelButton);
-
-				// Set the preferred size of the dialog
-				int width = 500;
-				int height = 600;
-				addMappingDialog.setSize(width, height);
-				addMappingDialog.setPreferredSize(new Dimension(width, height));
-
-				GuiUtils.centerAndShowWindow(addMappingDialog);
+				showAddMappingDialog();
 			}
 		});
 		GuiUtils.makeWide(mappingsAddBtn);
@@ -330,6 +211,135 @@ public class ScriptTab {
 		visualPanel.add(scriptMappings, new Arrangement(0, 3, 1.0, 1.0));
 
 		visualPanel.revalidate();
+	}
+	
+	private void showAddMappingDialog() {
+	
+		// Create the window
+		JDialog addMappingDialog = new JDialog(gui.getMainWindow(), "Add Mapping to " + script.getName(), true);
+		addMappingDialog.setLayout(new GridBagLayout());
+		addMappingDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		// Populate the window
+		JLabel explanationLabel = new JLabel();
+		explanationLabel.setText("You can create a mapping by selecting one of the existing activities:");
+		addMappingDialog.add(explanationLabel, new Arrangement(0, 0, 1.0, 0.0));
+
+		addMappingDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 1, 1.0, 0.0));
+
+		JPanel activitiesPanel = new JPanel();
+		activitiesPanel.setLayout(new BoxLayout(activitiesPanel, BoxLayout.Y_AXIS));
+		activitiesPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		// show all the existing activities
+		// TODO :: add a way to filter, maybe sort, etc.
+
+		List<CdmActivity> activities = CdmCtrl.getActivities();
+
+		boolean first = true;
+
+		for (CdmActivity activity : activities) {
+
+			if (!first) {
+				activitiesPanel.add(Box.createRigidArea(new Dimension(8, 8)));
+			}
+			first = false;
+
+			JPanel actPanel = new JPanel();
+			actPanel.setLayout(new BoxLayout(actPanel, BoxLayout.Y_AXIS));
+			actPanel.setBorder(new CompoundBorder(
+				BorderFactory.createLineBorder(Color.gray),
+				BorderFactory.createEmptyBorder(8, 8, 8, 8)
+			));
+
+			JLabel nameLabel = new JLabel("Name: " + activity.getName());
+			GuiUtils.makeWide(nameLabel);
+			actPanel.add(nameLabel);
+			actPanel.add(Box.createRigidArea(new Dimension(8, 8)));
+
+			String alias = activity.getAlias();
+			if (alias == null) {
+				alias = "(none)";
+			}
+			JLabel aliasLabel = new JLabel("Alias: " + alias);
+			GuiUtils.makeWide(aliasLabel);
+			actPanel.add(aliasLabel);
+			actPanel.add(Box.createRigidArea(new Dimension(8, 8)));
+
+			JPanel buttonRow = new JPanel();
+			GridLayout buttonRowLayout = new GridLayout(1, 1);
+			buttonRowLayout.setHgap(8);
+			buttonRow.setLayout(buttonRowLayout);
+			actPanel.add(buttonRow);
+
+			JButton mapBtn = new JButton("Map to Current Script");
+			mapBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (CdmCtrl.addScriptToActivityMapping(script, activity)) {
+						// set the current script to changed, display this in the GUI, and update the info and mappings tabs
+						mappingsOfThisScriptChanged();
+						
+						addMappingDialog.dispose();
+					} else {
+						JOptionPane.showMessageDialog(gui.getMainWindow(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			});
+			buttonRow.add(mapBtn);
+
+			GuiUtils.makeWide(actPanel);
+
+			activitiesPanel.add(actPanel);
+		}
+
+		JScrollPane activitiesScroller = new JScrollPane(activitiesPanel);
+		addMappingDialog.add(activitiesScroller, new Arrangement(0, 2, 1.0, 1.0));
+
+		addMappingDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 3, 1.0, 0.0));
+
+		JPanel buttonRow = new JPanel();
+		GridLayout buttonRowLayout = new GridLayout(1, 3);
+		buttonRowLayout.setHgap(8);
+		buttonRow.setLayout(buttonRowLayout);
+		addMappingDialog.add(buttonRow, new Arrangement(0, 4, 1.0, 0.0));
+
+		JButton createNewActBtn = new JButton("Create New Activity");
+		createNewActBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				showAddActivityDialog(addMappingDialog);
+			}
+		});
+		createNewActBtn.setEnabled(false);
+		buttonRow.add(createNewActBtn);
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				addMappingDialog.dispose();
+			}
+		});
+		buttonRow.add(cancelButton);
+
+		// Set the preferred size of the dialog
+		int width = 500;
+		int height = 600;
+		addMappingDialog.setSize(width, height);
+		addMappingDialog.setPreferredSize(new Dimension(width, height));
+
+		GuiUtils.centerAndShowWindow(addMappingDialog);
+	}
+	
+	private void showAddActivityDialog(JDialog parentDialog) {
+	
+		// TODO - open a new dialog to ask about the properties of the new activity (name, location in MCM tree, ...)
+
+		// TODO - create new Activity as well as its definition (if possible - that is, if the mce in which
+		// the activity lies has an associated mce definition in which the activity's definition can be hosted)
+
+		// TODO - map the new activity to the script
+
+		// TODO - if the mapping has happened (but not if cancel was pressed), dispose of the parent dialog too
+		parentDialog.dispose();
 	}
 
 	private void reloadInfoData() {

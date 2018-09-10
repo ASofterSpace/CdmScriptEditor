@@ -832,6 +832,8 @@ public class GUI implements Runnable {
 					activeCdmPicker = new JFileChooser();
 				}
 
+				// TODO :: also allow opening a CDM zipfile
+
 				activeCdmPicker.setDialogTitle("Open a CDM working directory");
 				activeCdmPicker.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -846,7 +848,7 @@ public class GUI implements Runnable {
 						// load the CDM files
 						configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
 						Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
-					
+
 						new Thread(new Runnable() {
 							@Override
 							public void run() {
@@ -1269,7 +1271,7 @@ public class GUI implements Runnable {
 		scriptTabs = new ArrayList<>();
 		scriptListComponent.setListData(strScripts);
 		currentlyShownTab = null;
-		
+
 		mainPanelRight.repaint();
 	}
 
@@ -1421,7 +1423,7 @@ public class GUI implements Runnable {
 			}
 		}
 	}
-	
+
 	public JFrame getMainWindow() {
 		return mainWindow;
 	}
