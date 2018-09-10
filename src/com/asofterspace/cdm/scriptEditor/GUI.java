@@ -50,6 +50,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 
 public class GUI implements Runnable {
@@ -796,13 +797,22 @@ public class GUI implements Runnable {
 		// immediately open the newly created CDM using the CdmCtrl, just as if the open dialog had been called
 		clearAllScriptTabs();
 
-		try {
-			CdmCtrl.loadCdmDirectory(cdmDir);
-		} catch (AttemptingEmfException | CdmLoadingException e) {
-			JOptionPane.showMessageDialog(mainWindow, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
-		}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					CdmCtrl.loadCdmDirectory(cdmDir);
+				} catch (AttemptingEmfException | CdmLoadingException e) {
+					JOptionPane.showMessageDialog(mainWindow, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+				}
 
-		reloadAllScriptTabs();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						reloadAllScriptTabs();
+					}
+				});
+			}
+		}).start();
 
 		return true;
 	}
@@ -833,17 +843,26 @@ public class GUI implements Runnable {
 
 						clearAllScriptTabs();
 
-						try {
-							// load the CDM files
-							configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
-							Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
-							CdmCtrl.loadCdmDirectory(cdmDir);
+						// load the CDM files
+						configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
+						Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
+					
+						new Thread(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									CdmCtrl.loadCdmDirectory(cdmDir);
+								} catch (AttemptingEmfException | CdmLoadingException e) {
+									JOptionPane.showMessageDialog(mainWindow, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+								}
 
-						} catch (AttemptingEmfException | CdmLoadingException e) {
-							JOptionPane.showMessageDialog(mainWindow, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
-						}
-
-						reloadAllScriptTabs();
+								SwingUtilities.invokeLater(new Runnable() {
+									public void run() {
+										reloadAllScriptTabs();
+									}
+								});
+							}
+						}).start();
 
 						break;
 
@@ -1250,6 +1269,8 @@ public class GUI implements Runnable {
 		scriptTabs = new ArrayList<>();
 		scriptListComponent.setListData(strScripts);
 		currentlyShownTab = null;
+		
+		mainPanelRight.repaint();
 	}
 
 	private void reloadAllScriptTabs() {

@@ -2,6 +2,7 @@ package com.asofterspace.cdm;
 
 import com.asofterspace.cdm.exceptions.AttemptingEmfException;
 import com.asofterspace.cdm.exceptions.CdmLoadingException;
+import com.asofterspace.toolbox.gui.ProgressDialog;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.XmlMode;
@@ -41,9 +42,12 @@ public class CdmCtrl {
 	private static Directory lastLoadedDirectory;
 
 
+	// call this on a different thread please, as it can take forever
+	// (and the updating of the progress bar only works if this is on a different thread!)
 	public static void loadCdmDirectory(Directory cdmDir) throws AttemptingEmfException, CdmLoadingException {
 
-		// TODO :: add a progress bar (which will especially be helpful when the CDM contains no scripts, so the main view stays empty after loading a CDM!)
+		// add a progress bar (which is especially helpful when the CDM contains no scripts, so the main view stays empty after loading a CDM!)
+		ProgressDialog progress = new ProgressDialog("Loading the CDM directory...");
 	
 		cdmLoaded = false;
 
@@ -55,22 +59,33 @@ public class CdmCtrl {
 
 		List<File> cdmFiles = cdmDir.getAllFiles(true);
 
-		for (File cdmFile : cdmFiles) {
-			if (cdmFile.getFilename().endsWith(".cdm")) {
-				loadAnotherCdmFile(cdmFile);
+		double i = 0;
+		double len = cdmFiles.size();
+		
+		try {
+		
+			if (len <= 0) {
+				throw new CdmLoadingException("The directory " + cdmDir + " does not seem to contain any .cdm files at all.");
 			}
+
+			for (File cdmFile : cdmFiles) {
+				if (cdmFile.getFilename().endsWith(".cdm")) {
+					loadAnotherCdmFile(cdmFile);
+					i++;
+					progress.setProgress(i / len);
+				}
+			}
+
+			lastLoadedDirectory = cdmDir;
+
+			// reload the model once, after all the CDM files have been loaded
+			reloadModel();
+
+			cdmLoaded = true;
+		
+		} finally {
+			progress.done();
 		}
-
-		if (fileList.size() <= 0) {
-			throw new CdmLoadingException("The directory " + cdmDir + " does not seem to contain any .cdm files at all.");
-		}
-
-		lastLoadedDirectory = cdmDir;
-
-		// reload the model once, after all the CDM files have been loaded
-		reloadModel();
-
-		cdmLoaded = true;
 	}
 
 	public static CdmFile loadCdmFile(File cdmFile) throws AttemptingEmfException, CdmLoadingException {
