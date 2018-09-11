@@ -170,7 +170,7 @@ public class GUI implements Runnable {
 
 						// Create the window
 						JDialog newCdmDialog = new JDialog(mainWindow, "Create New CDM", true);
-						GridLayout newCdmDialogLayout = new GridLayout(5, 1);
+						GridLayout newCdmDialogLayout = new GridLayout(6, 1);
 						newCdmDialogLayout.setVgap(8);
 						newCdmDialog.setLayout(newCdmDialogLayout);
 						newCdmDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -194,16 +194,38 @@ public class GUI implements Runnable {
 						// TODO
 
 						JLabel explanationLabelCdmVersion = new JLabel();
-						explanationLabelCdmVersion.setText("Please enter the CDM version that should be used, e.g. 1.13.0bd1 or 1.14.0b:");
+						explanationLabelCdmVersion.setText("Please enter the CDM version that should be used:");
 						newCdmDialog.add(explanationLabelCdmVersion);
 
-						// store the various versions that have been entered before in the configuration,
-						// and offer a dropdown of them all
-						// TODO
+						// TODO :: store the various versions that have been entered before in the configuration,
+						// and offer them in the dropdown
 
-						JTextField newCdmVersion = new JTextField();
-						newCdmVersion.setText(CdmCtrl.getCdmVersion());
+						String[] versions = { "1.14.0b", "1.13.0bd1" };
+						
+						// if the currently used CDM version is none of the default ones, also offer that one
+						String curVersion = CdmCtrl.getCdmVersion();
+						if ((curVersion != null) && !"".equals(curVersion)) {
+							boolean versionFound = false;
+							for (String version : versions) {
+								if (curVersion.equals(version)) {
+									versionFound = true;
+									break;
+								}
+							}
+							if (!versionFound) {
+								String[] newVersions = { curVersion, "1.14.0b", "1.13.0bd1" };
+								versions = newVersions;
+							}
+						}
+				
+						JComboBox<String> newCdmVersion = new JComboBox<>(versions);
+						newCdmVersion.setSelectedIndex(0);
+						newCdmVersion.setEditable(true);
 						newCdmDialog.add(newCdmVersion);
+
+						JLabel explanationLabelAfterCdmVersion = new JLabel();
+						explanationLabelAfterCdmVersion.setText("(Any CDM version between 1.12 and 1.14 should be supported.)");
+						newCdmDialog.add(explanationLabelAfterCdmVersion);
 
 						JPanel buttonRow = new JPanel();
 						GridLayout buttonRowLayout = new GridLayout(1, 2);
@@ -214,7 +236,7 @@ public class GUI implements Runnable {
 						JButton okButton = new JButton("OK");
 						okButton.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
-								if (createNewCdm(newCdmPath.getText().trim(), newCdmVersion.getText().trim())) {
+								if (createNewCdm(newCdmPath.getText().trim(), newCdmVersion.getSelectedItem().toString().trim())) {
 									newCdmDialog.dispose();
 								}
 							}
@@ -231,7 +253,7 @@ public class GUI implements Runnable {
 
 						// Set the preferred size of the dialog
 						int width = 550;
-						int height = 220;
+						int height = 250;
 						newCdmDialog.setSize(width, height);
 						newCdmDialog.setPreferredSize(new Dimension(width, height));
 
@@ -686,7 +708,7 @@ public class GUI implements Runnable {
 		String sapDefinitionUuid = Utils.generateEcoreUUID();
 		String resourceMcmContent =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:McmCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:checkandcondition=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/CheckAndCondition/" + newCdmVersion + "\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + newCdmVersion + "\" xmlns:mcmchecks=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/MCMChecks/1.13.0bd1\" xmlns:mcmimplementationitems=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MCMImplementationItems/1.13.0bd1\" xmlns:monitoringcontrolcommon=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/1.13.0bd1\" xmlns:monitoringcontrolmodel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/1.13.0bd1\" xmlns:qudv.conceptualmodel_extModel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "core/qudv/conceptualmodel/1.5\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" onlineRevisionIdentifier=\"0\" name=\"" + newCiName + "CI\">\n" +
+			"<configurationcontrol:McmCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:checkandcondition=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/CheckAndCondition/" + newCdmVersion + "\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + newCdmVersion + "\" xmlns:mcmchecks=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/MCMChecks/" + newCdmVersion + "\" xmlns:mcmimplementationitems=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MCMImplementationItems/" + newCdmVersion + "\" xmlns:monitoringcontrolcommon=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/" + newCdmVersion + "\" xmlns:monitoringcontrolmodel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/" + newCdmVersion + "\" xmlns:qudv.conceptualmodel_extModel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "core/qudv/conceptualmodel/1.5\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" onlineRevisionIdentifier=\"0\" name=\"" + newCiName + "CI\">\n" +
 			"  <monitoringControlElement xmi:id=\"" + Utils.generateEcoreUUID() + "\" name=\"mcmRoot\" subElements=\"\" defaultRoute=\"" + routeUuid + "\" definition=\"" + mcmRootDefinitionUuid + "\" defaultServiceAccessPoint=\"" + sapUuid + "\">\n" +
 			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:Route\" xmi:id=\"" + routeUuid + "\" name=\"DefaultRoute\" baseElement=\"" + routeDefinitionUuid + "\" hasPredictedValue=\"false\" routeName=\"DefaultRoute\" routeID=\"1\" routeType=\"" + routeTypeUuid + "\"/>\n" +
 			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:RouteType\" xmi:id=\"" + routeTypeUuid + "\" name=\"DefaultRouteType\" baseElement=\"" + routeTypeDefinitionUuid + "\" hasPredictedValue=\"false\" routeIDType=\"1\"/>\n" +
