@@ -1,3 +1,8 @@
+IF NOT EXIST ..\Toolbox-Java\ (
+	echo "It look like you did not yet get the Toolbox-Java - please do so (and put it as a folder next to the CDM Script Editor folder.)"
+	EXIT
+)
+
 cd src\com\asofterspace
 
 rd /s /q toolbox

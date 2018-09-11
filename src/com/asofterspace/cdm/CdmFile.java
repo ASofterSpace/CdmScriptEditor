@@ -19,10 +19,6 @@ import org.w3c.dom.NodeList;
  */
 public class CdmFile extends XmlFile {
 
-	// this prefix is in the MIDDLE of the version string, a PREFIX to the actual version;
-	// but preceded by whatever nonsense the CDM-writing-application wrote into it!
-	private final static String CDM_VERSION_PREFIX = "/ConfigurationTracking/";
-
 	private String ciType;
 
 	private boolean deleted = false;
@@ -217,11 +213,38 @@ public class CdmFile extends XmlFile {
 			NamedNodeMap scriptAttributes = root.getAttributes();
 			String cdmVersion = scriptAttributes.getNamedItem("xmlns:configurationcontrol").getNodeValue();
 
-			if (cdmVersion.contains(CDM_VERSION_PREFIX)) {
-				cdmVersion = cdmVersion.substring(cdmVersion.indexOf(CDM_VERSION_PREFIX) + CDM_VERSION_PREFIX.length());
+			String searchFor = "/" + CdmCtrl.CDM_NAMESPACE_MIDDLE;
+			
+			if (cdmVersion.contains(searchFor)) {
+				cdmVersion = cdmVersion.substring(cdmVersion.indexOf(searchFor) + searchFor.length());
 			}
 
 			return cdmVersion;
+
+		} catch (NullPointerException e) {
+
+			return null;
+		}
+	}
+
+	/**
+	 * Get the CDM version prefix that this CDM file belongs to, or null if none can be identified.
+	 */
+	public String getCdmVersionPrefix() {
+
+		try {
+			Node root = getRoot();
+
+			NamedNodeMap scriptAttributes = root.getAttributes();
+			String cdmVersionPrefix = scriptAttributes.getNamedItem("xmlns:configurationcontrol").getNodeValue();
+
+			String searchFor = "/" + CdmCtrl.CDM_NAMESPACE_MIDDLE;
+			
+			if (cdmVersionPrefix.contains(searchFor)) {
+				cdmVersionPrefix = cdmVersionPrefix.substring(0, cdmVersionPrefix.indexOf(searchFor) + 1);
+			}
+
+			return cdmVersionPrefix;
 
 		} catch (NullPointerException e) {
 

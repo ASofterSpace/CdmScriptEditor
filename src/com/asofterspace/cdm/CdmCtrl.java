@@ -23,8 +23,9 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 public class CdmCtrl {
 
-	public static final String ASS_CDM_NAMESPACE_ROOT = "http://www.asofterspace.com/";
-	public static final String ASS_CDM_NAMESPACE = ASS_CDM_NAMESPACE_ROOT + "ConfigurationTracking/";
+	public static final String CDM_NAMESPACE_MIDDLE = "ConfigurationTracking/";
+	// public static final String ASS_CDM_NAMESPACE_ROOT = "http://www.asofterspace.com/";
+	// public static final String ASS_CDM_NAMESPACE = ASS_CDM_NAMESPACE_ROOT + "ConfigurationTracking/";
 
 	public static final String DEFAULT_NAMESPACE = "DefaultNamespace";
 	
@@ -255,6 +256,15 @@ public class CdmCtrl {
 		return fileList.get(0).getCdmVersion();
 	}
 
+	public static String getCdmVersionPrefix() {
+
+		if (fileList.size() <= 0) {
+			return "";
+		}
+
+		return fileList.get(0).getCdmVersionPrefix();
+	}
+
 	public static List<CdmMonitoringControlElement> getMonitoringControlElements() {
 		if (!cdmLoaded) {
 			return new ArrayList<>();
@@ -316,6 +326,7 @@ public class CdmCtrl {
 		List<CdmFile> cdmFiles = CdmCtrl.getCdmFiles();
 		List<String> cdmVersionsFound = new ArrayList<>();
 
+		// TODO :: also check that the version prefixes are all the same?
 		for (CdmFile file : cdmFiles) {
 			String curVersion = file.getCdmVersion();
 			if (!cdmVersionsFound.contains(curVersion)) {
@@ -428,6 +439,10 @@ public class CdmCtrl {
 		return createdMapping;
 	}
 	
+	public static String getXMLNS() {
+		return "xmlns:configurationcontrol=\"" + getCdmVersionPrefix() + CDM_NAMESPACE_MIDDLE + getCdmVersion() + "\"";
+	}
+	
 	/**
 	 * Tries to add a new script to activity CI
 	 * Returns true if successful, false otherwise
@@ -456,7 +471,7 @@ public class CdmCtrl {
 		// add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
 		String newCiContent =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:Script2ActivityMapperCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + CdmCtrl.getCdmVersion() + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
+			"<configurationcontrol:Script2ActivityMapperCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" " + CdmCtrl.getXMLNS() + " xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
 			"</configurationcontrol:Script2ActivityMapperCI>";
 
 		File tmpCi = new File("tmpfile.tmp");

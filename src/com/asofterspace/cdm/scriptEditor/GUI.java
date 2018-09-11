@@ -200,7 +200,13 @@ public class GUI implements Runnable {
 						// TODO :: store the various versions that have been entered before in the configuration,
 						// and offer them in the dropdown
 
-						String[] versions = { "1.14.0b", "1.13.0bd1" };
+						// known versions:
+						// http://www.scopeset.de/ConfigurationTracking/1.12
+						// http://www.esa.int/dme/ConfigurationTracking/1.12.1
+						// http://www.esa.int/ConfigurationTracking/1.13.0bd1
+						// http://www.esa.int/dme/ConfigurationTracking/1.14.0b
+						String[] versions = { "1.14.0b", "1.13.0bd1", "1.12.1", "1.12" };
+						String[] versionPrefixes = { "http://www.esa.int/dme/", "http://www.esa.int/", "http://www.esa.int/dme/", "http://www.scopeset.de/" };
 						
 						// if the currently used CDM version is none of the default ones, also offer that one
 						String curVersion = CdmCtrl.getCdmVersion();
@@ -213,10 +219,18 @@ public class GUI implements Runnable {
 								}
 							}
 							if (!versionFound) {
-								String[] newVersions = { curVersion, "1.14.0b", "1.13.0bd1" };
+								String[] newVersions = new String[versions.length + 1];
+								String[] newVersionPrefixes = new String[versionPrefixes.length + 1];
+								newVersions[0] = curVersion;
+								versionPrefixes[0] = CdmCtrl.getCdmVersionPrefix();
+								System.arraycopy(versions, 0, newVersions, 1, versions.length);
+								System.arraycopy(versionPrefixes, 0, newVersionPrefixes, 1, versionPrefixes.length);
 								versions = newVersions;
+								versionPrefixes = newVersionPrefixes;
 							}
 						}
+						
+						final String[] versionPrefixesFinal = versionPrefixes;
 				
 						JComboBox<String> newCdmVersion = new JComboBox<>(versions);
 						newCdmVersion.setSelectedIndex(0);
@@ -224,7 +238,7 @@ public class GUI implements Runnable {
 						newCdmDialog.add(newCdmVersion);
 
 						JLabel explanationLabelAfterCdmVersion = new JLabel();
-						explanationLabelAfterCdmVersion.setText("(Any CDM version between 1.12 and 1.14 should be supported.)");
+						explanationLabelAfterCdmVersion.setText("(CDM versions that are not in the dropdown might not be working.)");
 						newCdmDialog.add(explanationLabelAfterCdmVersion);
 
 						JPanel buttonRow = new JPanel();
@@ -236,7 +250,16 @@ public class GUI implements Runnable {
 						JButton okButton = new JButton("OK");
 						okButton.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
-								if (createNewCdm(newCdmPath.getText().trim(), newCdmVersion.getSelectedItem().toString().trim())) {
+								String version = newCdmVersion.getSelectedItem().toString().trim();
+								int i = newCdmVersion.getSelectedIndex();
+								String versionPrefix;
+								if (i < 0) {
+									// this seems to be a reasonable default in case of a user-provided CDM version...
+									versionPrefix = "http://www.esa.int/dme/";
+								} else {
+									versionPrefix = versionPrefixesFinal[i];
+								}
+								if (createNewCdm(newCdmPath.getText().trim(), version, versionPrefix)) {
 									newCdmDialog.dispose();
 								}
 							}
@@ -670,7 +693,7 @@ public class GUI implements Runnable {
 		GroovyCode.setFontSize(currentFontSize);
 	}
 
-	private boolean createNewCdm(String newCdmPath, String newCdmVersion) {
+	private boolean createNewCdm(String newCdmPath, String newCdmVersion, String newCdmVersionPrefix) {
 
 		if ("".equals(newCdmPath)) {
 			JOptionPane.showMessageDialog(mainWindow, "Please enter a CDM path to create the new CDM files!", "CDM Path Missing", JOptionPane.ERROR_MESSAGE);
@@ -708,7 +731,7 @@ public class GUI implements Runnable {
 		String sapDefinitionUuid = Utils.generateEcoreUUID();
 		String resourceMcmContent =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:McmCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:checkandcondition=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/CheckAndCondition/" + newCdmVersion + "\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + newCdmVersion + "\" xmlns:mcmchecks=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/MCMChecks/" + newCdmVersion + "\" xmlns:mcmimplementationitems=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MCMImplementationItems/" + newCdmVersion + "\" xmlns:monitoringcontrolcommon=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlCommon/" + newCdmVersion + "\" xmlns:monitoringcontrolmodel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "MonitoringControl/MonitoringControlModel/" + newCdmVersion + "\" xmlns:qudv.conceptualmodel_extModel=\"" + CdmCtrl.ASS_CDM_NAMESPACE_ROOT + "core/qudv/conceptualmodel/1.5\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" onlineRevisionIdentifier=\"0\" name=\"" + newCiName + "CI\">\n" +
+			"<configurationcontrol:McmCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:checkandcondition=\"" + newCdmVersionPrefix + "MonitoringControl/MonitoringControlCommon/CheckAndCondition/" + newCdmVersion + "\" xmlns:configurationcontrol=\"" + newCdmVersionPrefix + CdmCtrl.CDM_NAMESPACE_MIDDLE + newCdmVersion + "\" xmlns:mcmchecks=\"" + newCdmVersionPrefix + "MonitoringControl/MonitoringControlModel/MCMChecks/" + newCdmVersion + "\" xmlns:mcmimplementationitems=\"" + newCdmVersionPrefix + "MonitoringControl/MCMImplementationItems/" + newCdmVersion + "\" xmlns:monitoringcontrolcommon=\"" + newCdmVersionPrefix + "MonitoringControl/MonitoringControlCommon/" + newCdmVersion + "\" xmlns:monitoringcontrolmodel=\"" + newCdmVersionPrefix + "MonitoringControl/MonitoringControlModel/" + newCdmVersion + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" onlineRevisionIdentifier=\"0\" name=\"" + newCiName + "CI\">\n" +
 			"  <monitoringControlElement xmi:id=\"" + Utils.generateEcoreUUID() + "\" name=\"mcmRoot\" subElements=\"\" defaultRoute=\"" + routeUuid + "\" definition=\"" + mcmRootDefinitionUuid + "\" defaultServiceAccessPoint=\"" + sapUuid + "\">\n" +
 			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:Route\" xmi:id=\"" + routeUuid + "\" name=\"DefaultRoute\" baseElement=\"" + routeDefinitionUuid + "\" hasPredictedValue=\"false\" routeName=\"DefaultRoute\" routeID=\"1\" routeType=\"" + routeTypeUuid + "\"/>\n" +
 			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:RouteType\" xmi:id=\"" + routeTypeUuid + "\" name=\"DefaultRouteType\" baseElement=\"" + routeTypeDefinitionUuid + "\" hasPredictedValue=\"false\" routeIDType=\"1\"/>\n" +
@@ -927,7 +950,7 @@ public class GUI implements Runnable {
 		// add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
 		String scriptCiContent =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:configurationcontrol=\"" + CdmCtrl.ASS_CDM_NAMESPACE + CdmCtrl.getCdmVersion() + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
+			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" " + CdmCtrl.getXMLNS() + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
 			"  <script name=\"" + newScriptName + "\" namespace=\"" + newNamespace + "\" scriptContent=\"\" xmi:id=\"" + Utils.generateEcoreUUID() + "\"/>\n" +
 			"</configurationcontrol:ScriptCI>";
 
