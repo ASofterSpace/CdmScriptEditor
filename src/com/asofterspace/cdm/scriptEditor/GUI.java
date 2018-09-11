@@ -37,6 +37,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -69,6 +70,9 @@ public class GUI implements Runnable {
 	private final static String CONFIG_KEY_EDITOR_FONT_SIZE = "editorFontSize";
 	private final static String CONFIG_VAL_SCHEME_LIGHT = "groovyLight";
 	private final static String CONFIG_VAL_SCHEME_DARK = "groovyDark";
+	
+	private final static String SCRIPT_TEMPLATE_NONE = "(none)";
+	private final static String SCRIPT_TEMPLATE_DEFAULT = "Default Template";
 
 	// on the left hand side, we add this string to indicate that the script has changed
 	private final static String CHANGE_INDICATOR = " *";
@@ -282,7 +286,7 @@ public class GUI implements Runnable {
 
 				// Create the window
 				JDialog addDialog = new JDialog(mainWindow, "Add Script", true);
-				GridLayout addDialogLayout = new GridLayout(7, 1);
+				GridLayout addDialogLayout = new GridLayout(9, 1);
 				addDialogLayout.setVgap(8);
 				addDialog.setLayout(addDialogLayout);
 				addDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -296,8 +300,17 @@ public class GUI implements Runnable {
 				newScriptName.setText("DoSomething");
 				addDialog.add(newScriptName);
 
+				JLabel explanationLabelNamespace = new JLabel();
+				explanationLabelNamespace.setText("Please enter the namespace of the new script:");
+				addDialog.add(explanationLabelNamespace);
+
+				// TODO :: remember the last namespace choice and read it from the configuration
+				JTextField newScriptNamespace = new JTextField();
+				newScriptNamespace.setText(CdmCtrl.DEFAULT_NAMESPACE);
+				addDialog.add(newScriptNamespace);
+
 				JLabel explanationLabelCI = new JLabel();
-				explanationLabelCI.setText("Please enter the name of the new script CI containing it:");
+				explanationLabelCI.setText("Please enter the name of the new script CI containing the new script:");
 				addDialog.add(explanationLabelCI);
 
 				JTextField newCiName = new JTextField();
@@ -320,14 +333,15 @@ public class GUI implements Runnable {
 					}
 				});
 
-				JLabel explanationLabelNamespace = new JLabel();
-				explanationLabelNamespace.setText("Please enter the namespace of the new script:");
-				addDialog.add(explanationLabelNamespace);
+				JLabel explanationLabelTemplate = new JLabel();
+				explanationLabelTemplate.setText("Please select a template for the new script:");
+				addDialog.add(explanationLabelTemplate);
 
-				// TODO :: remember the last namespace choice and read it from the configuration
-				JTextField newScriptNamespace = new JTextField();
-				newScriptNamespace.setText(CdmCtrl.DEFAULT_NAMESPACE);
-				addDialog.add(newScriptNamespace);
+				// TODO :: add more templates, e.g. one for scripts using parameters
+				String[] templates = { SCRIPT_TEMPLATE_NONE, SCRIPT_TEMPLATE_DEFAULT };
+				JComboBox<String> newScriptTemplate = new JComboBox<>(templates);
+				newScriptTemplate.setSelectedIndex(1);
+				addDialog.add(newScriptTemplate);
 
 				// also let the user immediately associate an activity with this script?
 				// TODO
@@ -341,7 +355,12 @@ public class GUI implements Runnable {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						if (addScript(newScriptName.getText().trim(), newCiName.getText().trim(), newScriptNamespace.getText().trim())) {
+						if (addScript(
+							newScriptName.getText().trim(),
+							newCiName.getText().trim(),
+							newScriptNamespace.getText().trim(),
+							newScriptTemplate.getSelectedItem().toString()
+						)) {
 							addDialog.dispose();
 						}
 					}
@@ -358,7 +377,7 @@ public class GUI implements Runnable {
 
 				// Set the preferred size of the dialog
 				int width = 450;
-				int height = 280;
+				int height = 340;
 				addDialog.setSize(width, height);
 				addDialog.setPreferredSize(new Dimension(width, height));
 
@@ -873,7 +892,7 @@ public class GUI implements Runnable {
 		}
 	}
 
-	private boolean addScript(String newScriptName, String newCiName, String newNamespace) {
+	private boolean addScript(String newScriptName, String newCiName, String newNamespace, String newTemplate) {
 
 		File newFileLocation = new File(CdmCtrl.getLastLoadedDirectory(), newCiName + ".cdm");
 
@@ -919,56 +938,60 @@ public class GUI implements Runnable {
 
 			currentlyShownTab.setChanged(true);
 
-			String newScriptTemplate = "package scripts;\n" +
-				"\n" +
-				"import org.osgi.framework.BundleContext;\n" +
-				"import org.osgi.framework.Filter;\n" +
-				"import org.osgi.framework.FrameworkUtil;\n" +
-				"import org.osgi.framework.ServiceReference;\n" +
-				"\n" +
-				"import esa.egscc.kernel.api.commonDataTypes.exceptions.EgsccException;\n" +
-				"import esa.egscc.kernel.infrastructure.componentframework.core.EgsccBundleContext;\n" +
-				"import esa.egscc.kernel.infrastructure.componentframework.core.EgsccFrameworkUtil;\n" +
-				"\n" +
-				"\n" +
-				"/**\n" +
-				" * " + newScriptName + " script\n" +
-				" *\n" +
-				" * Created with the A Softer Space CDM Script Editor\n" +
-				" *\n" +
-				" * @author \n" +
-				" */\n" +
-				"public class " + newScriptName + " {\n" +
-				"\n" +
-				"	private static EgsccBundleContext context;\n" +
-				"\n" +
-				"\n" +
-				"	public static main(args) {\n" +
-				"		println \"The " + newScriptName + " script has been called!\"\n" +
-				"	}\n" +
-				"\n" +
-				"	private static <T> T getService(Class<T> serviceToGet, String filter) {\n" +
-				"\n" +
-				"		if (context == null) {\n" +
-				"			context = EgsccFrameworkUtil.getEgsccBundleContext();\n" +
-				"		}\n" +
-				"\n" +
-				"		if (filterString == null) {\n" +
-				"			return context.getService(serviceToGet);\n" +
-				"		} else {\n" +
-				"			Filter serviceFilter = FrameworkUtil.createFilter(filter);\n" +
-				"			Collection<ServiceReference<T>> refs = context.getServiceReferences(serviceToGet, serviceFilter);\n" +
-				"			if (refs.size() < 1) {\n" +
-				"				return null;\n" +
-				"			}\n" +
-				"			return context.getService(refs.getAt(0));\n" +
-				"		}\n" +
-				"	}\n" +
-				"}";
+			String newScriptTemplate = "";
+
+			switch (newTemplate) {
+				case SCRIPT_TEMPLATE_DEFAULT:
+					newScriptTemplate = "package scripts;\n" +
+						"\n" +
+						"import org.osgi.framework.BundleContext;\n" +
+						"import org.osgi.framework.Filter;\n" +
+						"import org.osgi.framework.FrameworkUtil;\n" +
+						"import org.osgi.framework.ServiceReference;\n" +
+						"\n" +
+						"import esa.egscc.kernel.api.commonDataTypes.exceptions.EgsccException;\n" +
+						"import esa.egscc.kernel.infrastructure.componentframework.core.EgsccBundleContext;\n" +
+						"import esa.egscc.kernel.infrastructure.componentframework.core.EgsccFrameworkUtil;\n" +
+						"\n" +
+						"\n" +
+						"/**\n" +
+						" * " + newScriptName + " script\n" +
+						" *\n" +
+						" * Created with the A Softer Space CDM Script Editor\n" +
+						" *\n" +
+						" * @author \n" +
+						" */\n" +
+						"public class " + newScriptName + " {\n" +
+						"\n" +
+						"	private static EgsccBundleContext context;\n" +
+						"\n" +
+						"\n" +
+						"	public static main(args) {\n" +
+						"		println \"The " + newScriptName + " script has been called!\"\n" +
+						"	}\n" +
+						"\n" +
+						"	private static <T> T getService(Class<T> serviceToGet, String filter) {\n" +
+						"\n" +
+						"		if (context == null) {\n" +
+						"			context = EgsccFrameworkUtil.getEgsccBundleContext();\n" +
+						"		}\n" +
+						"\n" +
+						"		if (filterString == null) {\n" +
+						"			return context.getService(serviceToGet);\n" +
+						"		} else {\n" +
+						"			Filter serviceFilter = FrameworkUtil.createFilter(filter);\n" +
+						"			Collection<ServiceReference<T>> refs = context.getServiceReferences(serviceToGet, serviceFilter);\n" +
+						"			if (refs.size() < 1) {\n" +
+						"				return null;\n" +
+						"			}\n" +
+						"			return context.getService(refs.getAt(0));\n" +
+						"		}\n" +
+						"	}\n" +
+						"}";
+					break;
+			}
 
 			// by default, load up a nice script template
-			// TODO :: create several templates and let the user select one (or none) when adding a script!
-			// (e.g. templates could be: none, regular script, script with arguments - to see how arguments work, check the IR4 scripts! THEY ARE WONKY!)
 			currentlyShownTab.setScriptEditorContent(newScriptTemplate);
 
 			// add the new script to the GUI
