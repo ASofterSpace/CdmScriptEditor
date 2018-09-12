@@ -1,5 +1,5 @@
 IF NOT EXIST ..\Toolbox-Java\ (
-	echo "It look like you did not yet get the Toolbox-Java - please do so (and put it as a folder next to the CDM Script Editor folder.)"
+	echo "It looks like you did not yet get the Toolbox-Java project - please do so (and put it as a folder next to the CDM Script Editor folder.)"
 	EXIT
 )
 
@@ -30,7 +30,6 @@ copy "..\Toolbox-Java\src\com\asofterspace\toolbox\web\*.*" "src\com\asofterspac
 rd /s /q bin
 
 md bin
-md emf
 
 cd src
 

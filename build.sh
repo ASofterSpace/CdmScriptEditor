@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [[ ! -d ..\Toolbox-Java ]]
-	echo "It look like you did not yet get the Toolbox-Java - please do so (and put it as a folder next to the CDM Script Editor folder.)"
-	EXIT
-)
+if [[ ! -d ../Toolbox-Java ]]; then
+	echo "It looks like you did not yet get the Toolbox-Java project - please do so (and put it as a folder next to the CDM Script Editor folder.)"
+	exit
+fi
 
 cd src/com/asofterspace
 
@@ -32,7 +32,6 @@ cp ../Toolbox-Java/src/com/asofterspace/toolbox/web/*.* src/com/asofterspace/too
 rm -rf bin
 
 mkdir bin
-mkdir emf
 
 cd src
 

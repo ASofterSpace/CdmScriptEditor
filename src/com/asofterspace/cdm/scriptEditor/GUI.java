@@ -950,7 +950,7 @@ public class GUI implements Runnable {
 		// add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
 		String scriptCiContent =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" " + CdmCtrl.getXMLNS() + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
+			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" " + CdmCtrl.getXMLNS() + " xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
 			"  <script name=\"" + newScriptName + "\" namespace=\"" + newNamespace + "\" scriptContent=\"\" xmi:id=\"" + Utils.generateEcoreUUID() + "\"/>\n" +
 			"</configurationcontrol:ScriptCI>";
 
