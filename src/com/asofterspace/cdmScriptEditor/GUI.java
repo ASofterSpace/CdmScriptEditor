@@ -170,7 +170,7 @@ public class GUI implements Runnable {
 
 						// Create the window
 						JDialog newCdmDialog = new JDialog(mainWindow, "Create New CDM", true);
-						GridLayout newCdmDialogLayout = new GridLayout(6, 1);
+						GridLayout newCdmDialogLayout = new GridLayout(8, 1);
 						newCdmDialogLayout.setVgap(8);
 						newCdmDialog.setLayout(newCdmDialogLayout);
 						newCdmDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -205,8 +205,9 @@ public class GUI implements Runnable {
 						// http://www.esa.int/dme/ConfigurationTracking/1.12.1
 						// http://www.esa.int/ConfigurationTracking/1.13.0bd1
 						// http://www.esa.int/dme/ConfigurationTracking/1.14.0b
-						String[] versions = { "1.14.0b", "1.13.0bd1", "1.12.1", "1.12" };
-						String[] versionPrefixes = { "http://www.esa.int/dme/", "http://www.esa.int/", "http://www.esa.int/dme/", "http://www.scopeset.de/" };
+						// http://www.esa.int/egscc/ConfigurationTracking/1.14.0
+						String[] versions = { "1.14.0", "1.14.0b", "1.13.0bd1", "1.12.1", "1.12" };
+						String[] versionPrefixes = { "http://www.esa.int/egscc/", "http://www.esa.int/dme/", "http://www.esa.int/", "http://www.esa.int/dme/", "http://www.scopeset.de/" };
 						
 						// if the currently used CDM version is none of the default ones, also offer that one
 						String curVersion = CdmCtrl.getCdmVersion();
@@ -237,18 +238,20 @@ public class GUI implements Runnable {
 						newCdmVersion.setEditable(true);
 						newCdmDialog.add(newCdmVersion);
 
-						JLabel explanationLabelAfterCdmVersion = new JLabel();
-						explanationLabelAfterCdmVersion.setText("(CDM versions that are not in the dropdown might not be working.)");
-						newCdmDialog.add(explanationLabelAfterCdmVersion);
+						JLabel explanationLabelCdmVersionPrefix = new JLabel();
+						explanationLabelCdmVersionPrefix.setText("If needed, you can manually override the CDM version prefix:");
+						newCdmDialog.add(explanationLabelCdmVersionPrefix);
 
-						JPanel buttonRow = new JPanel();
-						GridLayout buttonRowLayout = new GridLayout(1, 2);
-						buttonRowLayout.setHgap(8);
-						buttonRow.setLayout(buttonRowLayout);
-						newCdmDialog.add(buttonRow);
+						JTextField newCdmVersionPrefix = new JTextField();
+						newCdmVersionPrefix.setText(versionPrefixesFinal[0]);
+						newCdmDialog.add(newCdmVersionPrefix);
 
-						JButton okButton = new JButton("OK");
-						okButton.addActionListener(new ActionListener() {
+						JLabel explanationLabelAfterCdmVersionPrefix = new JLabel();
+						explanationLabelAfterCdmVersionPrefix.setText("(As this is based on the CDM version, usually just leave the default.)");
+						newCdmDialog.add(explanationLabelAfterCdmVersionPrefix);
+
+						// on select in newCdmVersion, adjust newCdmVersionPrefix
+						newCdmVersion.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
 								String version = newCdmVersion.getSelectedItem().toString().trim();
 								int i = newCdmVersion.getSelectedIndex();
@@ -259,6 +262,21 @@ public class GUI implements Runnable {
 								} else {
 									versionPrefix = versionPrefixesFinal[i];
 								}
+								newCdmVersionPrefix.setText(versionPrefix);
+							}
+						});
+						
+						JPanel buttonRow = new JPanel();
+						GridLayout buttonRowLayout = new GridLayout(1, 2);
+						buttonRowLayout.setHgap(8);
+						buttonRow.setLayout(buttonRowLayout);
+						newCdmDialog.add(buttonRow);
+
+						JButton okButton = new JButton("OK");
+						okButton.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								String version = newCdmVersion.getSelectedItem().toString().trim();
+								String versionPrefix = newCdmVersionPrefix.getText().trim();
 								if (createNewCdm(newCdmPath.getText().trim(), version, versionPrefix)) {
 									newCdmDialog.dispose();
 								}
@@ -276,7 +294,7 @@ public class GUI implements Runnable {
 
 						// Set the preferred size of the dialog
 						int width = 550;
-						int height = 250;
+						int height = 320;
 						newCdmDialog.setSize(width, height);
 						newCdmDialog.setPreferredSize(new Dimension(width, height));
 
