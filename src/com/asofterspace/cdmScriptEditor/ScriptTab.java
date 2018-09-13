@@ -1,13 +1,13 @@
-package com.asofterspace.cdm.scriptEditor;
+package com.asofterspace.cdmScriptEditor;
 
-import com.asofterspace.cdm.CdmActivity;
-import com.asofterspace.cdm.CdmCtrl;
-import com.asofterspace.cdm.CdmFile;
-import com.asofterspace.cdm.CdmMonitoringControlElement;
-import com.asofterspace.cdm.CdmScript;
-import com.asofterspace.cdm.CdmScript2Activity;
-import com.asofterspace.cdm.exceptions.AttemptingEmfException;
-import com.asofterspace.cdm.exceptions.CdmLoadingException;
+import com.asofterspace.toolbox.cdm.CdmActivity;
+import com.asofterspace.toolbox.cdm.CdmCtrl;
+import com.asofterspace.toolbox.cdm.CdmFile;
+import com.asofterspace.toolbox.cdm.CdmMonitoringControlElement;
+import com.asofterspace.toolbox.cdm.CdmScript;
+import com.asofterspace.toolbox.cdm.CdmScript2Activity;
+import com.asofterspace.toolbox.cdm.exceptions.AttemptingEmfException;
+import com.asofterspace.toolbox.cdm.exceptions.CdmLoadingException;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
