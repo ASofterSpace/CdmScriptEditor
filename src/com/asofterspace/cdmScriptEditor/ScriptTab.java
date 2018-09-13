@@ -507,6 +507,9 @@ public class ScriptTab {
 		if ("".equals(activityMappingsStr)) {
 			activityMappingsStr = "(none)\n";
 		}
+		
+		String cdmVersion = script.getParent().getCdmVersion();
+		String cdmPrefix = script.getParent().getCdmVersionPrefix();
 
 		scriptInfoText.setText(
 			"Script Name: " + script.getName() + "\n" +
@@ -516,7 +519,10 @@ public class ScriptTab {
 			"CI Path: " + script.getParent().getFilename() + "\n\n" +
 			"Associated Activity Mappings:\n" +
 			activityMappingsStr + "\n" +
-			"CDM Version: " + script.getParent().getCdmVersion()
+			"CDM Version: " + cdmVersion + "\n" +
+			"CDM Version Prefix: " + cdmPrefix + "\n" +
+			"CDM compatible with EGS-CC release: " + CdmCtrl.getCompatWithEGSCCstr(cdmVersion, cdmPrefix) + "\n" +
+			"CDM compatible with RTF Framework CDM editor version: " + CdmCtrl.getCompatWithMCDEstr(cdmVersion, cdmPrefix)
 		);
 	}
 

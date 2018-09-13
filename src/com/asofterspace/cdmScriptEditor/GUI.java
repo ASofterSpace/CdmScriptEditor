@@ -181,16 +181,11 @@ public class GUI extends MainWindow {
 
 						// TODO :: store the various versions that have been entered before in the configuration,
 						// and offer them in the dropdown
-
-						// known versions:
-						// http://www.scopeset.de/ConfigurationTracking/1.12
-						// http://www.esa.int/dme/ConfigurationTracking/1.12.1
-						// http://www.esa.int/ConfigurationTracking/1.13.0bd1
-						// http://www.esa.int/dme/ConfigurationTracking/1.14.0b
-						// http://www.esa.int/egscc/ConfigurationTracking/1.14.0
-						String[] versions = { "1.14.0", "1.14.0b", "1.13.0bd1", "1.12.1", "1.12" };
-						String[] versionPrefixes = { "http://www.esa.int/egscc/", "http://www.esa.int/dme/", "http://www.esa.int/", "http://www.esa.int/dme/", "http://www.scopeset.de/" };
 						
+						// make copies of the arrays such that we can insert elements without confusing the backend ;)
+						List<String> versions = new ArrayList<>(CdmCtrl.getKnownCdmVersions());
+						List<String> versionPrefixes = new ArrayList<>(CdmCtrl.getKnownCdmPrefixes());
+
 						// if the currently used CDM version is none of the default ones, also offer that one
 						String curVersion = CdmCtrl.getCdmVersion();
 						if ((curVersion != null) && !"".equals(curVersion)) {
@@ -202,20 +197,15 @@ public class GUI extends MainWindow {
 								}
 							}
 							if (!versionFound) {
-								String[] newVersions = new String[versions.length + 1];
-								String[] newVersionPrefixes = new String[versionPrefixes.length + 1];
-								newVersions[0] = curVersion;
-								versionPrefixes[0] = CdmCtrl.getCdmVersionPrefix();
-								System.arraycopy(versions, 0, newVersions, 1, versions.length);
-								System.arraycopy(versionPrefixes, 0, newVersionPrefixes, 1, versionPrefixes.length);
-								versions = newVersions;
-								versionPrefixes = newVersionPrefixes;
+								versions.add(0, curVersion);
+								versionPrefixes.add(0, CdmCtrl.getCdmVersionPrefix());
 							}
 						}
 						
-						final String[] versionPrefixesFinal = versionPrefixes;
+						final String[] versionsArr = versions.toArray(new String[0]);
+						final String[] versionPrefixesArr = versionPrefixes.toArray(new String[0]);
 				
-						JComboBox<String> newCdmVersion = new JComboBox<>(versions);
+						JComboBox<String> newCdmVersion = new JComboBox<>(versionsArr);
 						newCdmVersion.setSelectedIndex(0);
 						newCdmVersion.setEditable(true);
 						newCdmDialog.add(newCdmVersion);
@@ -225,7 +215,7 @@ public class GUI extends MainWindow {
 						newCdmDialog.add(explanationLabelCdmVersionPrefix);
 
 						JTextField newCdmVersionPrefix = new JTextField();
-						newCdmVersionPrefix.setText(versionPrefixesFinal[0]);
+						newCdmVersionPrefix.setText(versionPrefixesArr[0]);
 						newCdmDialog.add(newCdmVersionPrefix);
 
 						JLabel explanationLabelAfterCdmVersionPrefix = new JLabel();
@@ -242,7 +232,7 @@ public class GUI extends MainWindow {
 									// this seems to be a reasonable default in case of a user-provided CDM version...
 									versionPrefix = "http://www.esa.int/dme/";
 								} else {
-									versionPrefix = versionPrefixesFinal[i];
+									versionPrefix = versionPrefixesArr[i];
 								}
 								newCdmVersionPrefix.setText(versionPrefix);
 							}
