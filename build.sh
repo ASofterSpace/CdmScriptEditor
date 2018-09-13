@@ -44,3 +44,5 @@ cd src
 find . -name "*.java" > sourcefiles.list
 
 javac -cp "../emf/*" -d ../bin @sourcefiles.list
+
+cd ..

@@ -13,8 +13,11 @@ import com.asofterspace.toolbox.io.XmlMode;
 import com.asofterspace.toolbox.gui.Arrangement;
 import com.asofterspace.toolbox.gui.GuiUtils;
 import com.asofterspace.toolbox.gui.MainWindow;
+import com.asofterspace.toolbox.gui.ProgressDialog;
 import com.asofterspace.toolbox.Utils;
 import com.asofterspace.toolbox.utils.Callback;
+import com.asofterspace.toolbox.utils.ProgressIndicator;
+import com.asofterspace.toolbox.utils.NoOpProgressIndicator;
 import com.asofterspace.toolbox.web.JSON;
 
 import java.awt.BorderLayout;
@@ -755,7 +758,10 @@ public class GUI extends MainWindow {
 			@Override
 			public void run() {
 				try {
-					CdmCtrl.loadCdmDirectory(cdmDir);
+					// we are just opening one, two short files... this should take less than a second and displaying
+					// a progress bar would only confuse everyone!
+					ProgressIndicator noProgress = new NoOpProgressIndicator();
+					CdmCtrl.loadCdmDirectory(cdmDir, noProgress);
 				} catch (AttemptingEmfException | CdmLoadingException e) {
 					JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 				}
@@ -808,7 +814,10 @@ public class GUI extends MainWindow {
 							@Override
 							public void run() {
 								try {
-									CdmCtrl.loadCdmDirectory(cdmDir);
+									// add a progress bar (which is especially helpful when the CDM contains no scripts
+									// so the main view stays empty after loading a CDM!)
+									ProgressDialog progress = new ProgressDialog("Loading the CDM directory...");
+									CdmCtrl.loadCdmDirectory(cdmDir, progress);
 								} catch (AttemptingEmfException | CdmLoadingException e) {
 									JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 								}

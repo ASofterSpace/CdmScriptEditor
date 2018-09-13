@@ -43,4 +43,6 @@ dir /s /B *.java > sourcefiles.list
 
 javac -cp "../emf/*" -d ../bin @sourcefiles.list
 
+cd ..
+
 pause
