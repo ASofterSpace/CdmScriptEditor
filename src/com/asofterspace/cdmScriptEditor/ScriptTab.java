@@ -218,7 +218,7 @@ public class ScriptTab {
 	private void showAddMappingDialog() {
 	
 		// Create the window
-		JDialog addMappingDialog = new JDialog(gui.getMainWindow(), "Add Mapping to " + script.getName(), true);
+		JDialog addMappingDialog = new JDialog(gui.getMainFrame(), "Add Mapping to " + script.getName(), true);
 		addMappingDialog.setLayout(new GridBagLayout());
 		addMappingDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
@@ -283,7 +283,7 @@ public class ScriptTab {
 						
 						addMappingDialog.dispose();
 					} else {
-						JOptionPane.showMessageDialog(gui.getMainWindow(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(gui.getMainFrame(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			});
@@ -335,7 +335,7 @@ public class ScriptTab {
 		// open a new dialog to ask about the properties of the new activity (name, location in MCM tree, ...)
 
 		// Create the window
-		JDialog createActivityDialog = new JDialog(gui.getMainWindow(), "Create Activity", true);
+		JDialog createActivityDialog = new JDialog(gui.getMainFrame(), "Create Activity", true);
 		createActivityDialog.setLayout(new GridBagLayout());
 		createActivityDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
@@ -427,7 +427,7 @@ public class ScriptTab {
 						createActivityDialog.dispose();
 						parentDialog.dispose();
 					} else {
-						JOptionPane.showMessageDialog(gui.getMainWindow(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(gui.getMainFrame(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			});
