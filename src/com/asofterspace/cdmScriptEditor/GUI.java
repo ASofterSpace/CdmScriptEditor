@@ -832,12 +832,23 @@ public class GUI extends MainWindow {
 
 	private void validateCdm() {
 
-		StringBuilder result = new StringBuilder();
+		List<String> result = new ArrayList<>();
 
-		if (CdmCtrl.isCdmValid(result)) {
-			JOptionPane.showMessageDialog(mainFrame, "As far as scripts are concerned, the CDM seems valid! :)", "Valid", JOptionPane.INFORMATION_MESSAGE);
+		int validity = CdmCtrl.checkValidity(result);
+		
+		if (validity == 0) {
+			JOptionPane.showMessageDialog(mainFrame, "The CDM looks valid! :)", "Valid", JOptionPane.INFORMATION_MESSAGE);
 		} else {
-			JOptionPane.showMessageDialog(mainFrame, "Problems with the CDM have been found:\n\n" + result.toString(), "Invalid", JOptionPane.WARNING_MESSAGE);
+			StringBuilder dialogContent = new StringBuilder();
+			if (validity == 1) {
+				dialogContent.append("One problem has been found:\n\n");
+			} else {
+				dialogContent.append(validity + " problems have been found:\n\n");
+			}
+			for (String resultLine : result) {
+				dialogContent.append(resultLine + "\n");
+			}
+			JOptionPane.showMessageDialog(mainFrame, dialogContent.toString(), "Invalid", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
@@ -850,7 +861,7 @@ public class GUI extends MainWindow {
 
 		// TODO :: add validation step here, in which we validate that all scripts are assigned to activities, and if they are not,
 		// then we ask the user explicitly whether we should really save the scripts in the current state or not
-		// (for this, we can call CdmCtrl.isCdmValid())
+		// (for this, we can call CdmCtrl.checkValidity())
 
 		// apply all changes, such that the current source code editor contents are actually stored in the CDM file objects
 		for (ScriptTab scriptTab : scriptTabs) {
