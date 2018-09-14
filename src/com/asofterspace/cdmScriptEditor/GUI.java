@@ -293,6 +293,7 @@ public class GUI extends MainWindow {
 			}
 		});
 		file.add(validateCdm);
+		// TODO :: add Convert CDM menu item
 		saveCdm = new JMenuItem("Save CDM");
 		saveCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 		saveCdm.addActionListener(new ActionListener() {
