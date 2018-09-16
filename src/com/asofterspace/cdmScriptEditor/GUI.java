@@ -17,7 +17,6 @@ import com.asofterspace.toolbox.gui.ProgressDialog;
 import com.asofterspace.toolbox.Utils;
 import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.utils.ProgressIndicator;
-import com.asofterspace.toolbox.utils.NoOpProgressIndicator;
 import com.asofterspace.toolbox.web.JSON;
 
 import java.awt.BorderLayout;
@@ -70,7 +69,7 @@ public class GUI extends MainWindow {
 	private final static String CONFIG_KEY_EDITOR_FONT_SIZE = "editorFontSize";
 	private final static String CONFIG_VAL_SCHEME_LIGHT = "groovyLight";
 	private final static String CONFIG_VAL_SCHEME_DARK = "groovyDark";
-	
+
 	private final static String SCRIPT_TEMPLATE_NONE = "(none)";
 	private final static String SCRIPT_TEMPLATE_DEFAULT = "Default Template";
 
@@ -80,6 +79,7 @@ public class GUI extends MainWindow {
 	private JMenuItem newCdm;
 	private JMenuItem openCdm;
 	private JMenuItem validateCdm;
+	private JMenuItem convertCdm;
 	private JMenuItem saveCdm;
 	private JMenuItem saveCdmAs;
 	private JMenuItem addScriptFile;
@@ -126,7 +126,7 @@ public class GUI extends MainWindow {
 		refreshTitleBar();
 
 		reEnableDisableMenuItems();
-		
+
 		super.show();
 	}
 
@@ -136,8 +136,6 @@ public class GUI extends MainWindow {
 
 		// TODO :: add undo / redo (for basically any action, but first of all of course for the editor)
 
-		// TODO :: add conversion tool between zip and xml, later on xml and emf binary, and finally even different cdm versions!
-
 		JMenu file = new JMenu("File");
 		menu.add(file);
 		newCdm = new JMenuItem("Create Empty CDM");
@@ -145,134 +143,7 @@ public class GUI extends MainWindow {
 		newCdm.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ifAllowedToLeaveCurrentCDM(new Callback() {
-					public void call() {
-						// show dialog in which the user can select the path to the new CDM, the CDM format (XML / EMF) and the CDM version
-						// (offer several presets or also a free-text-field, in each case going for CdmCtrl.ASS_CDM_NAMESPACE + version)
-
-						// Create the window
-						JDialog newCdmDialog = new JDialog(mainFrame, "Create New CDM", true);
-						GridLayout newCdmDialogLayout = new GridLayout(8, 1);
-						newCdmDialogLayout.setVgap(8);
-						newCdmDialog.setLayout(newCdmDialogLayout);
-						newCdmDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-						// Populate the window
-						JLabel explanationLabel = new JLabel();
-						explanationLabel.setText("Please enter the working directory in which the new CDM shall be stored:");
-						newCdmDialog.add(explanationLabel);
-
-						// next to the path edit field, there is a small button with three dots, clicking upon which opens a directory picker dialog
-						// TODO
-
-						JTextField newCdmPath = new JTextField();
-						String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
-						if (lastDirectory != null) {
-							newCdmPath.setText(lastDirectory);
-						}
-						newCdmDialog.add(newCdmPath);
-
-						// enable the user to choose between creating an XML and an EMF binary CDM
-						// TODO
-
-						JLabel explanationLabelCdmVersion = new JLabel();
-						explanationLabelCdmVersion.setText("Please enter the CDM version that should be used:");
-						newCdmDialog.add(explanationLabelCdmVersion);
-
-						// TODO :: store the various versions that have been entered before in the configuration,
-						// and offer them in the dropdown
-						
-						// make copies of the arrays such that we can insert elements without confusing the backend ;)
-						List<String> versions = new ArrayList<>(CdmCtrl.getKnownCdmVersions());
-						List<String> versionPrefixes = new ArrayList<>(CdmCtrl.getKnownCdmPrefixes());
-
-						// if the currently used CDM version is none of the default ones, also offer that one
-						String curVersion = CdmCtrl.getCdmVersion();
-						if ((curVersion != null) && !"".equals(curVersion)) {
-							boolean versionFound = false;
-							for (String version : versions) {
-								if (curVersion.equals(version)) {
-									versionFound = true;
-									break;
-								}
-							}
-							if (!versionFound) {
-								versions.add(0, curVersion);
-								versionPrefixes.add(0, CdmCtrl.getCdmVersionPrefix());
-							}
-						}
-						
-						final String[] versionsArr = versions.toArray(new String[0]);
-						final String[] versionPrefixesArr = versionPrefixes.toArray(new String[0]);
-				
-						JComboBox<String> newCdmVersion = new JComboBox<>(versionsArr);
-						newCdmVersion.setSelectedIndex(0);
-						newCdmVersion.setEditable(true);
-						newCdmDialog.add(newCdmVersion);
-
-						JLabel explanationLabelCdmVersionPrefix = new JLabel();
-						explanationLabelCdmVersionPrefix.setText("If needed, you can manually override the CDM version prefix:");
-						newCdmDialog.add(explanationLabelCdmVersionPrefix);
-
-						JTextField newCdmVersionPrefix = new JTextField();
-						newCdmVersionPrefix.setText(versionPrefixesArr[0]);
-						newCdmDialog.add(newCdmVersionPrefix);
-
-						JLabel explanationLabelAfterCdmVersionPrefix = new JLabel();
-						explanationLabelAfterCdmVersionPrefix.setText("(As this is based on the CDM version, usually just leave the default.)");
-						newCdmDialog.add(explanationLabelAfterCdmVersionPrefix);
-
-						// on select in newCdmVersion, adjust newCdmVersionPrefix
-						newCdmVersion.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								String version = newCdmVersion.getSelectedItem().toString().trim();
-								int i = newCdmVersion.getSelectedIndex();
-								String versionPrefix;
-								if (i < 0) {
-									// this seems to be a reasonable default in case of a user-provided CDM version...
-									versionPrefix = "http://www.esa.int/dme/";
-								} else {
-									versionPrefix = versionPrefixesArr[i];
-								}
-								newCdmVersionPrefix.setText(versionPrefix);
-							}
-						});
-						
-						JPanel buttonRow = new JPanel();
-						GridLayout buttonRowLayout = new GridLayout(1, 2);
-						buttonRowLayout.setHgap(8);
-						buttonRow.setLayout(buttonRowLayout);
-						newCdmDialog.add(buttonRow);
-
-						JButton okButton = new JButton("OK");
-						okButton.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								String version = newCdmVersion.getSelectedItem().toString().trim();
-								String versionPrefix = newCdmVersionPrefix.getText().trim();
-								if (createNewCdm(newCdmPath.getText().trim(), version, versionPrefix)) {
-									newCdmDialog.dispose();
-								}
-							}
-						});
-						buttonRow.add(okButton);
-
-						JButton cancelButton = new JButton("Cancel");
-						cancelButton.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								newCdmDialog.dispose();
-							}
-						});
-						buttonRow.add(cancelButton);
-
-						// Set the preferred size of the dialog
-						int width = 550;
-						int height = 320;
-						newCdmDialog.setSize(width, height);
-						newCdmDialog.setPreferredSize(new Dimension(width, height));
-
-						GuiUtils.centerAndShowWindow(newCdmDialog);
-					}
-				});
+				createNewCdm();
 			}
 		});
 		file.add(newCdm);
@@ -293,7 +164,15 @@ public class GUI extends MainWindow {
 			}
 		});
 		file.add(validateCdm);
-		// TODO :: add Convert CDM menu item
+		convertCdm = new JMenuItem("Convert CDM");
+		convertCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+		convertCdm.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				convertCdm();
+			}
+		});
+		file.add(convertCdm);
 		saveCdm = new JMenuItem("Save CDM");
 		saveCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 		saveCdm.addActionListener(new ActionListener() {
@@ -684,88 +563,157 @@ public class GUI extends MainWindow {
 		GroovyCode.setFontSize(currentFontSize);
 	}
 
-	private boolean createNewCdm(String newCdmPath, String newCdmVersion, String newCdmVersionPrefix) {
+	private void createNewCdm() {
+		ifAllowedToLeaveCurrentCDM(new Callback() {
+			public void call() {
+				// show dialog in which the user can select the path to the new CDM, the CDM format (XML / EMF) and the CDM version
+				// (offer several presets or also a free-text-field, in each case going for CdmCtrl.ASS_CDM_NAMESPACE + version)
 
-		if ("".equals(newCdmPath)) {
-			JOptionPane.showMessageDialog(mainFrame, "Please enter a CDM path to create the new CDM files!", "CDM Path Missing", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
+				// Create the window
+				JDialog newCdmDialog = new JDialog(mainFrame, "Create New CDM", true);
+				GridLayout newCdmDialogLayout = new GridLayout(10, 1);
+				newCdmDialogLayout.setVgap(8);
+				newCdmDialog.setLayout(newCdmDialogLayout);
+				newCdmDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-		if ("".equals(newCdmVersion)) {
-			JOptionPane.showMessageDialog(mainFrame, "Please enter a CDM version to create the new CDM files!", "CDM Version Missing", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
+				// Populate the window
+				JLabel explanationLabel = new JLabel();
+				explanationLabel.setText("Please enter the working directory in which the new CDM shall be stored:");
+				newCdmDialog.add(explanationLabel);
 
-		configuration.set(CONFIG_KEY_LAST_DIRECTORY, newCdmPath);
-		Directory cdmDir = new Directory(newCdmPath);
+				// next to the path edit field, there is a small button with three dots, clicking upon which opens a directory picker dialog
+				// TODO
 
-		// if the new directory does not yet exist, then we have to create it...
-		if (!cdmDir.exists()) {
-			cdmDir.create();
-		}
+				JTextField newCdmPath = new JTextField();
+				String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
+				if (lastDirectory != null) {
+					newCdmPath.setText(lastDirectory);
+				}
+				newCdmDialog.add(newCdmPath);
 
-		// complain if the directory is not empty
-		Boolean isEmpty = cdmDir.isEmpty();
-		if ((isEmpty == null) || !isEmpty) {
-			JOptionPane.showMessageDialog(mainFrame, "The specified directory is not empty - please create the new CDM in an empty directory!", "Directory Not Empty", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
+				JLabel explanationLabelTemplate = new JLabel();
+				explanationLabelTemplate.setText("Please select the template to be used for the new CDM:");
+				newCdmDialog.add(explanationLabelTemplate);
 
-		// now create just the ResourceMcm.cdm file in XML format with one root node (mcmRoot)
-		String newCiName = "Mcm";
-		String routeUuid = Utils.generateEcoreUUID();
-		String routeTypeUuid = Utils.generateEcoreUUID();
-		String sapUuid = Utils.generateEcoreUUID();
-		String mcmRootDefinitionUuid = Utils.generateEcoreUUID();
-		String routeDefinitionUuid = Utils.generateEcoreUUID();
-		String routeTypeDefinitionUuid = Utils.generateEcoreUUID();
-		String sapDefinitionUuid = Utils.generateEcoreUUID();
-		String resourceMcmContent =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:McmCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:checkandcondition=\"" + newCdmVersionPrefix + "MonitoringControl/MonitoringControlCommon/CheckAndCondition/" + newCdmVersion + "\" xmlns:configurationcontrol=\"" + newCdmVersionPrefix + CdmCtrl.CDM_NAMESPACE_MIDDLE + newCdmVersion + "\" xmlns:mcmchecks=\"" + newCdmVersionPrefix + "MonitoringControl/MonitoringControlModel/MCMChecks/" + newCdmVersion + "\" xmlns:mcmimplementationitems=\"" + newCdmVersionPrefix + "MonitoringControl/MCMImplementationItems/" + newCdmVersion + "\" xmlns:monitoringcontrolcommon=\"" + newCdmVersionPrefix + "MonitoringControl/MonitoringControlCommon/" + newCdmVersion + "\" xmlns:monitoringcontrolmodel=\"" + newCdmVersionPrefix + "MonitoringControl/MonitoringControlModel/" + newCdmVersion + "\" xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" onlineRevisionIdentifier=\"0\" name=\"" + newCiName + "CI\">\n" +
-			"  <monitoringControlElement xmi:id=\"" + Utils.generateEcoreUUID() + "\" name=\"mcmRoot\" subElements=\"\" defaultRoute=\"" + routeUuid + "\" definition=\"" + mcmRootDefinitionUuid + "\" defaultServiceAccessPoint=\"" + sapUuid + "\">\n" +
-			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:Route\" xmi:id=\"" + routeUuid + "\" name=\"DefaultRoute\" baseElement=\"" + routeDefinitionUuid + "\" hasPredictedValue=\"false\" routeName=\"DefaultRoute\" routeID=\"1\" routeType=\"" + routeTypeUuid + "\"/>\n" +
-			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:RouteType\" xmi:id=\"" + routeTypeUuid + "\" name=\"DefaultRouteType\" baseElement=\"" + routeTypeDefinitionUuid + "\" hasPredictedValue=\"false\" routeIDType=\"1\"/>\n" +
-			"    <monitoringControlElementAspects xsi:type=\"mcmimplementationitems:ServiceAccessPoint\" xmi:id=\"" + sapUuid + "\" name=\"13\" baseElement=\"" + sapDefinitionUuid + "\" hasPredictedValue=\"false\" validRoutes=\"" + routeUuid + "\"/>\n" +
-			"  </monitoringControlElement>\n" +
-			"  <monitoringControlElementDefinition xmi:id=\"" + mcmRootDefinitionUuid + "\" name=\"mcmRoot_Definition\" subElements=\"\">\n" +
-			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:Route\" xmi:id=\"" + routeDefinitionUuid + "\" name=\"DefaultRoute\" hasPredictedValue=\"false\" routeName=\"DefaultRouteDef\" routeID=\"1\" routeType=\"" + routeTypeDefinitionUuid + "\"/>\n" +
-			"    <monitoringControlElementAspects xsi:type=\"monitoringcontrolmodel:RouteType\" xmi:id=\"" + routeTypeDefinitionUuid + "\" name=\"DefaultRouteTypeDef\" hasPredictedValue=\"false\" routeIDType=\"1\"/>\n" +
-			"    <monitoringControlElementAspects xsi:type=\"mcmimplementationitems:ServiceAccessPoint\" xmi:id=\"" + sapDefinitionUuid + "\" name=\"13\" hasPredictedValue=\"false\" validRoutes=\"" + routeDefinitionUuid + "\" />\n" +
-			"  </monitoringControlElementDefinition>\n" +
-			"</configurationcontrol:McmCI>";
+				final String[] templatesArr = CdmCtrl.getTemplates().toArray(new String[0]);
 
-		File mcmCi = new File(cdmDir, "Resource_" + newCiName + ".cdm");
-		mcmCi.setContent(resourceMcmContent);
-		mcmCi.save();
+				JComboBox<String> newCdmTemplate = new JComboBox<>(templatesArr);
+				newCdmTemplate.setSelectedIndex(0);
+				newCdmTemplate.setEditable(false);
+				newCdmDialog.add(newCdmTemplate);
 
-		// also create the Manifest file
-		// TODO
+				// enable the user to choose between creating an XML and an EMF binary CDM
+				// TODO
 
-		// immediately open the newly created CDM using the CdmCtrl, just as if the open dialog had been called
-		clearAllScriptTabs();
+				JLabel explanationLabelCdmVersion = new JLabel();
+				explanationLabelCdmVersion.setText("Please enter the CDM version that should be used:");
+				newCdmDialog.add(explanationLabelCdmVersion);
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// we are just opening one, two short files... this should take less than a second and displaying
-					// a progress bar would only confuse everyone!
-					ProgressIndicator noProgress = new NoOpProgressIndicator();
-					CdmCtrl.loadCdmDirectory(cdmDir, noProgress);
-				} catch (AttemptingEmfException | CdmLoadingException e) {
-					JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+				// TODO :: store the various versions that have been entered before in the configuration,
+				// and offer them in the dropdown
+
+				// make copies of the arrays such that we can insert elements without confusing the backend ;)
+				List<String> versions = new ArrayList<>(CdmCtrl.getKnownCdmVersions());
+				List<String> versionPrefixes = new ArrayList<>(CdmCtrl.getKnownCdmPrefixes());
+
+				// if the currently used CDM version is none of the default ones, also offer that one
+				String curVersion = CdmCtrl.getCdmVersion();
+				if ((curVersion != null) && !"".equals(curVersion)) {
+					boolean versionFound = false;
+					for (String version : versions) {
+						if (curVersion.equals(version)) {
+							versionFound = true;
+							break;
+						}
+					}
+					if (!versionFound) {
+						versions.add(0, curVersion);
+						versionPrefixes.add(0, CdmCtrl.getCdmVersionPrefix());
+					}
 				}
 
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						reloadAllScriptTabs();
+				final String[] versionsArr = versions.toArray(new String[0]);
+				final String[] versionPrefixesArr = versionPrefixes.toArray(new String[0]);
+
+				JComboBox<String> newCdmVersion = new JComboBox<>(versionsArr);
+				newCdmVersion.setSelectedIndex(0);
+				newCdmVersion.setEditable(true);
+				newCdmDialog.add(newCdmVersion);
+
+				JLabel explanationLabelCdmVersionPrefix = new JLabel();
+				explanationLabelCdmVersionPrefix.setText("If needed, you can manually override the CDM version prefix:");
+				newCdmDialog.add(explanationLabelCdmVersionPrefix);
+
+				JTextField newCdmVersionPrefix = new JTextField();
+				newCdmVersionPrefix.setText(versionPrefixesArr[0]);
+				newCdmDialog.add(newCdmVersionPrefix);
+
+				JLabel explanationLabelAfterCdmVersionPrefix = new JLabel();
+				explanationLabelAfterCdmVersionPrefix.setText("(As this is based on the CDM version, usually just leave the default.)");
+				newCdmDialog.add(explanationLabelAfterCdmVersionPrefix);
+
+				// on select in newCdmVersion, adjust newCdmVersionPrefix
+				newCdmVersion.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						String version = newCdmVersion.getSelectedItem().toString().trim();
+						int i = newCdmVersion.getSelectedIndex();
+						String versionPrefix;
+						if (i < 0) {
+							// this seems to be a reasonable default in case of a user-provided CDM version...
+							versionPrefix = CdmCtrl.REASONABLE_DEFAULT_CDM_PREFIX;
+						} else {
+							versionPrefix = versionPrefixesArr[i];
+						}
+						newCdmVersionPrefix.setText(versionPrefix);
 					}
 				});
-			}
-		}).start();
 
-		return true;
+				JPanel buttonRow = new JPanel();
+				GridLayout buttonRowLayout = new GridLayout(1, 2);
+				buttonRowLayout.setHgap(8);
+				buttonRow.setLayout(buttonRowLayout);
+				newCdmDialog.add(buttonRow);
+
+				JButton okButton = new JButton("OK");
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						String cdmPath = newCdmPath.getText().trim();
+						String version = newCdmVersion.getSelectedItem().toString().trim();
+						String versionPrefix = newCdmVersionPrefix.getText().trim();
+						String template = newCdmTemplate.getSelectedItem().toString().trim();
+
+						configuration.set(CONFIG_KEY_LAST_DIRECTORY, cdmPath);
+
+						try {
+							if (CdmCtrl.createNewCdm(cdmPath, version, versionPrefix, template)) {
+								clearAllScriptTabs();
+								newCdmDialog.dispose();
+								reloadAllScriptTabs();
+							}
+						} catch (AttemptingEmfException | CdmLoadingException e2) {
+							JOptionPane.showMessageDialog(mainFrame, e2.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				});
+				buttonRow.add(okButton);
+
+				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						newCdmDialog.dispose();
+					}
+				});
+				buttonRow.add(cancelButton);
+
+				// Set the preferred size of the dialog
+				int width = 550;
+				int height = 370;
+				newCdmDialog.setSize(width, height);
+				newCdmDialog.setPreferredSize(new Dimension(width, height));
+
+				GuiUtils.centerAndShowWindow(newCdmDialog);
+			}
+		});
 	}
 
 	private void openCdmDirectory() {
@@ -836,7 +784,7 @@ public class GUI extends MainWindow {
 		List<String> result = new ArrayList<>();
 
 		int validity = CdmCtrl.checkValidity(result);
-		
+
 		if (validity == 0) {
 			JOptionPane.showMessageDialog(mainFrame, "The CDM looks valid! :)", "Valid", JOptionPane.INFORMATION_MESSAGE);
 		} else {
@@ -851,6 +799,108 @@ public class GUI extends MainWindow {
 			}
 			JOptionPane.showMessageDialog(mainFrame, dialogContent.toString(), "Invalid", JOptionPane.WARNING_MESSAGE);
 		}
+	}
+
+	public void convertCdm() {
+
+		// Create the window
+		JDialog convertCdmDialog = new JDialog(mainFrame, "Convert CDM", true);
+		GridLayout convertCdmDialogLayout = new GridLayout(6, 1);
+		convertCdmDialogLayout.setVgap(8);
+		convertCdmDialog.setLayout(convertCdmDialogLayout);
+		convertCdmDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		// Populate the window
+		JLabel explanationLabel = new JLabel();
+		explanationLabel.setText("Please enter the new CDM version to which you want to convert:");
+		convertCdmDialog.add(explanationLabel);
+
+		// TODO :: store the various versions that have been entered before in the configuration,
+		// and offer them in the dropdown (coordinate also with createNewCdm())
+
+		final String[] versionsArr = CdmCtrl.getKnownCdmVersions().toArray(new String[0]);
+		final String[] versionPrefixesArr = CdmCtrl.getKnownCdmPrefixes().toArray(new String[0]);
+
+		JComboBox<String> newCdmVersion = new JComboBox<>(versionsArr);
+		newCdmVersion.setSelectedIndex(0);
+		newCdmVersion.setEditable(true);
+		convertCdmDialog.add(newCdmVersion);
+
+		JLabel explanationLabelCdmVersionPrefix = new JLabel();
+		explanationLabelCdmVersionPrefix.setText("If needed, you can manually override the CDM version prefix:");
+		convertCdmDialog.add(explanationLabelCdmVersionPrefix);
+
+		JTextField newCdmVersionPrefix = new JTextField();
+		newCdmVersionPrefix.setText(versionPrefixesArr[0]);
+		convertCdmDialog.add(newCdmVersionPrefix);
+
+		JLabel explanationLabelAfterCdmVersionPrefix = new JLabel();
+		explanationLabelAfterCdmVersionPrefix.setText("(As this is based on the CDM version, usually just leave the default.)");
+		convertCdmDialog.add(explanationLabelAfterCdmVersionPrefix);
+
+		// on select in newCdmVersion, adjust newCdmVersionPrefix
+		newCdmVersion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String version = newCdmVersion.getSelectedItem().toString().trim();
+				int i = newCdmVersion.getSelectedIndex();
+				String versionPrefix;
+				if (i < 0) {
+					// this seems to be a reasonable default in case of a user-provided CDM version...
+					versionPrefix = CdmCtrl.REASONABLE_DEFAULT_CDM_PREFIX;
+				} else {
+					versionPrefix = versionPrefixesArr[i];
+				}
+				newCdmVersionPrefix.setText(versionPrefix);
+			}
+		});
+
+		JPanel buttonRow = new JPanel();
+		GridLayout buttonRowLayout = new GridLayout(1, 2);
+		buttonRowLayout.setHgap(8);
+		buttonRow.setLayout(buttonRowLayout);
+		convertCdmDialog.add(buttonRow);
+
+		JButton okButton = new JButton("OK");
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				String version = newCdmVersion.getSelectedItem().toString().trim();
+				String versionPrefix = newCdmVersionPrefix.getText().trim();
+
+				// TODO :: actually check if the version and versionPrefix fields have been filled
+				// maybe throw an exception otherwise in the convertTo function? or just check here?)
+
+				CdmCtrl.convertTo(version, versionPrefix);
+
+				convertCdmDialog.dispose();
+
+				// apply changed marker to all scripts (a conversion changes everything, alright? ^^)
+				// TODO :: we could, in theory, keep track of which scripts actually did change and only
+				// apply changed markers to those... but seriously, frakk it xD
+				for (ScriptTab tab : scriptTabs) {
+					tab.setChanged(true);
+				}
+
+				regenerateScriptList();
+			}
+		});
+		buttonRow.add(okButton);
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				convertCdmDialog.dispose();
+			}
+		});
+		buttonRow.add(cancelButton);
+
+		// Set the preferred size of the dialog
+		int width = 550;
+		int height = 270;
+		convertCdmDialog.setSize(width, height);
+		convertCdmDialog.setPreferredSize(new Dimension(width, height));
+
+		GuiUtils.centerAndShowWindow(convertCdmDialog);
 	}
 
 	private void prepareToSave() {
@@ -1122,7 +1172,7 @@ public class GUI extends MainWindow {
 
 		GuiUtils.centerAndShowWindow(renameDialog);
 	}
-	
+
 	/**
 	 * Rename the currently opened script to the name newScriptStr
 	 * @return true if something happened and the dialog should be closed, false if it should stay open
@@ -1164,7 +1214,7 @@ public class GUI extends MainWindow {
 
 		return true;
 	}
-	
+
 	private void openDeleteCurrentScriptDialog() {
 
 		// figure out which script tab is currently open (show error if none is open)
@@ -1332,6 +1382,7 @@ public class GUI extends MainWindow {
 
 		// enabled and disable menu items according to the state of the application
 		validateCdm.setEnabled(cdmLoaded);
+		convertCdm.setEnabled(cdmLoaded);
 		saveCdm.setEnabled(cdmLoaded);
 		saveCdmAs.setEnabled(cdmLoaded);
 		addScriptFile.setEnabled(cdmLoaded);
