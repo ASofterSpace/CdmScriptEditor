@@ -21,7 +21,7 @@ build.bat
 Or under Linux:
 
 ```
-build.sh
+./build.sh
 ```
 
 ## Run
@@ -35,7 +35,7 @@ run.bat
 Or under Linux:
 
 ```
-run.sh
+./run.sh
 ```
 
 ## License
