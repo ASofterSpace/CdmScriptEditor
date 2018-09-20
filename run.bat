@@ -1,1 +1,1 @@
-java -classpath "bin;emf/*" -Xms16m -Xmx1024m com.asofterspace.cdmScriptEditor.Main
+java -classpath "bin;emf/*" -Xms16m -Xmx4096m com.asofterspace.cdmScriptEditor.Main
