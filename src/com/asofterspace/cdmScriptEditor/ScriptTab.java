@@ -73,7 +73,7 @@ public class ScriptTab {
 	private JButton mappingsAddBtn;
 
 
-	public ScriptTab(JPanel parentPanel, CdmScript script, GUI gui) {
+	public ScriptTab(JPanel parentPanel, CdmScript script, final GUI gui) {
 
 		this.parent = parentPanel;
 
@@ -218,7 +218,7 @@ public class ScriptTab {
 	private void showAddMappingDialog() {
 	
 		// Create the window
-		JDialog addMappingDialog = new JDialog(gui.getMainFrame(), "Add Mapping to " + script.getName(), true);
+		final JDialog addMappingDialog = new JDialog(gui.getMainFrame(), "Add Mapping to " + script.getName(), true);
 		addMappingDialog.setLayout(new GridBagLayout());
 		addMappingDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
@@ -240,7 +240,7 @@ public class ScriptTab {
 
 		boolean first = true;
 
-		for (CdmActivity activity : activities) {
+		for (final CdmActivity activity : activities) {
 
 			if (!first) {
 				activitiesPanel.add(Box.createRigidArea(new Dimension(8, 8)));
@@ -330,12 +330,12 @@ public class ScriptTab {
 		GuiUtils.centerAndShowWindow(addMappingDialog);
 	}
 	
-	private void showAddActivityDialog(JDialog parentDialog) {
+	private void showAddActivityDialog(final JDialog parentDialog) {
 	
 		// open a new dialog to ask about the properties of the new activity (name, location in MCM tree, ...)
 
 		// Create the window
-		JDialog createActivityDialog = new JDialog(gui.getMainFrame(), "Create Activity", true);
+		final JDialog createActivityDialog = new JDialog(gui.getMainFrame(), "Create Activity", true);
 		createActivityDialog.setLayout(new GridBagLayout());
 		createActivityDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
@@ -346,7 +346,7 @@ public class ScriptTab {
 
 		createActivityDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 1, 1.0, 0.0));
 
-		JTextField newActivityName = new JTextField();
+		final JTextField newActivityName = new JTextField();
 		newActivityName.setText(script.getName());
 		createActivityDialog.add(newActivityName, new Arrangement(0, 2, 1.0, 0.0));
 
@@ -358,7 +358,7 @@ public class ScriptTab {
 
 		createActivityDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 5, 1.0, 0.0));
 
-		JTextField newActivityAlias = new JTextField();
+		final JTextField newActivityAlias = new JTextField();
 		newActivityAlias.setText("");
 		createActivityDialog.add(newActivityAlias, new Arrangement(0, 6, 1.0, 0.0));
 
@@ -379,7 +379,7 @@ public class ScriptTab {
 
 		// TODO :: display this in some sort of tree view instead!
 		
-		for (CdmMonitoringControlElement mce : mces) {
+		for (final CdmMonitoringControlElement mce : mces) {
 
 			if (!first) {
 				mcesPanel.add(Box.createRigidArea(new Dimension(8, 8)));
@@ -533,7 +533,7 @@ public class ScriptTab {
 		List<CdmScript2Activity> mappings = script.getAssociatedScript2Activities();
 
 		// show the actual mappings
-		for (CdmScript2Activity mapping : mappings) {
+		for (final CdmScript2Activity mapping : mappings) {
 
 			JPanel mapPanel = new JPanel();
 			mapPanel.setLayout(new BoxLayout(mapPanel, BoxLayout.Y_AXIS));

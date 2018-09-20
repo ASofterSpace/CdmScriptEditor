@@ -15,6 +15,7 @@ cd cdm
 md exceptions
 cd ..
 md codeeditor
+md coders
 md configuration
 md io
 md gui
@@ -27,6 +28,7 @@ copy "..\Toolbox-Java\src\com\asofterspace\toolbox\*.java" "src\com\asofterspace
 copy "..\Toolbox-Java\src\com\asofterspace\toolbox\cdm\*.*" "src\com\asofterspace\toolbox\cdm"
 copy "..\Toolbox-Java\src\com\asofterspace\toolbox\cdm\exceptions\*.*" "src\com\asofterspace\toolbox\cdm\exceptions"
 copy "..\Toolbox-Java\src\com\asofterspace\toolbox\codeeditor\*.*" "src\com\asofterspace\toolbox\codeeditor"
+copy "..\Toolbox-Java\src\com\asofterspace\toolbox\coders\*.*" "src\com\asofterspace\toolbox\coders"
 copy "..\Toolbox-Java\src\com\asofterspace\toolbox\configuration\*.*" "src\com\asofterspace\toolbox\configuration"
 copy "..\Toolbox-Java\src\com\asofterspace\toolbox\io\*.*" "src\com\asofterspace\toolbox\io"
 copy "..\Toolbox-Java\src\com\asofterspace\toolbox\gui\*.*" "src\com\asofterspace\toolbox\gui"
@@ -41,7 +43,7 @@ cd src
 
 dir /s /B *.java > sourcefiles.list
 
-javac -cp "../emf/*" -d ../bin @sourcefiles.list
+javac -encoding utf8 -cp "../emf/*" -d ../bin @sourcefiles.list
 
 cd ..
 

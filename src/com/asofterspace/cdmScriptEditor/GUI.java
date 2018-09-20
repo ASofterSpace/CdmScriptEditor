@@ -6,6 +6,7 @@ import com.asofterspace.toolbox.cdm.CdmScript;
 import com.asofterspace.toolbox.cdm.exceptions.AttemptingEmfException;
 import com.asofterspace.toolbox.cdm.exceptions.CdmLoadingException;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
+import com.asofterspace.toolbox.coders.UuidEncoderDecoder;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
@@ -200,7 +201,7 @@ public class GUI extends MainWindow {
 				// open a dialog in which the name of the new script can be entered
 
 				// Create the window
-				JDialog addDialog = new JDialog(mainFrame, "Add Script", true);
+				final JDialog addDialog = new JDialog(mainFrame, "Add Script", true);
 				GridLayout addDialogLayout = new GridLayout(9, 1);
 				addDialogLayout.setVgap(8);
 				addDialog.setLayout(addDialogLayout);
@@ -211,7 +212,7 @@ public class GUI extends MainWindow {
 				explanationLabel.setText("Please enter the name of the new script file:");
 				addDialog.add(explanationLabel);
 
-				JTextField newScriptName = new JTextField();
+				final JTextField newScriptName = new JTextField();
 				newScriptName.setText("DoSomething");
 				addDialog.add(newScriptName);
 
@@ -220,7 +221,7 @@ public class GUI extends MainWindow {
 				addDialog.add(explanationLabelNamespace);
 
 				// TODO :: remember the last namespace choice and read it from the configuration
-				JTextField newScriptNamespace = new JTextField();
+				final JTextField newScriptNamespace = new JTextField();
 				newScriptNamespace.setText(CdmCtrl.DEFAULT_NAMESPACE);
 				addDialog.add(newScriptNamespace);
 
@@ -228,7 +229,7 @@ public class GUI extends MainWindow {
 				explanationLabelCI.setText("Please enter the name of the new script CI containing the new script:");
 				addDialog.add(explanationLabelCI);
 
-				JTextField newCiName = new JTextField();
+				final JTextField newCiName = new JTextField();
 				newCiName.setText("DoSomethingScript");
 				addDialog.add(newCiName);
 
@@ -254,7 +255,7 @@ public class GUI extends MainWindow {
 
 				// TODO :: add more templates, e.g. one for scripts using parameters
 				String[] templates = { SCRIPT_TEMPLATE_NONE, SCRIPT_TEMPLATE_DEFAULT };
-				JComboBox<String> newScriptTemplate = new JComboBox<>(templates);
+				final JComboBox<String> newScriptTemplate = new JComboBox<>(templates);
 				newScriptTemplate.setSelectedIndex(1);
 				addDialog.add(newScriptTemplate);
 
@@ -570,7 +571,7 @@ public class GUI extends MainWindow {
 				// (offer several presets or also a free-text-field, in each case going for CdmCtrl.ASS_CDM_NAMESPACE + version)
 
 				// Create the window
-				JDialog newCdmDialog = new JDialog(mainFrame, "Create New CDM", true);
+				final JDialog newCdmDialog = new JDialog(mainFrame, "Create New CDM", true);
 				GridLayout newCdmDialogLayout = new GridLayout(10, 1);
 				newCdmDialogLayout.setVgap(8);
 				newCdmDialog.setLayout(newCdmDialogLayout);
@@ -584,7 +585,7 @@ public class GUI extends MainWindow {
 				// next to the path edit field, there is a small button with three dots, clicking upon which opens a directory picker dialog
 				// TODO
 
-				JTextField newCdmPath = new JTextField();
+				final JTextField newCdmPath = new JTextField();
 				String lastDirectory = configuration.getValue(CONFIG_KEY_LAST_DIRECTORY);
 				if (lastDirectory != null) {
 					newCdmPath.setText(lastDirectory);
@@ -597,7 +598,7 @@ public class GUI extends MainWindow {
 
 				final String[] templatesArr = CdmCtrl.getTemplates().toArray(new String[0]);
 
-				JComboBox<String> newCdmTemplate = new JComboBox<>(templatesArr);
+				final JComboBox<String> newCdmTemplate = new JComboBox<>(templatesArr);
 				newCdmTemplate.setSelectedIndex(0);
 				newCdmTemplate.setEditable(false);
 				newCdmDialog.add(newCdmTemplate);
@@ -635,7 +636,7 @@ public class GUI extends MainWindow {
 				final String[] versionsArr = versions.toArray(new String[0]);
 				final String[] versionPrefixesArr = versionPrefixes.toArray(new String[0]);
 
-				JComboBox<String> newCdmVersion = new JComboBox<>(versionsArr);
+				final JComboBox<String> newCdmVersion = new JComboBox<>(versionsArr);
 				newCdmVersion.setSelectedIndex(0);
 				newCdmVersion.setEditable(true);
 				newCdmDialog.add(newCdmVersion);
@@ -644,7 +645,7 @@ public class GUI extends MainWindow {
 				explanationLabelCdmVersionPrefix.setText("If needed, you can manually override the CDM version prefix:");
 				newCdmDialog.add(explanationLabelCdmVersionPrefix);
 
-				JTextField newCdmVersionPrefix = new JTextField();
+				final JTextField newCdmVersionPrefix = new JTextField();
 				newCdmVersionPrefix.setText(versionPrefixesArr[0]);
 				newCdmDialog.add(newCdmVersionPrefix);
 
@@ -747,7 +748,7 @@ public class GUI extends MainWindow {
 
 						// load the CDM files
 						configuration.set(CONFIG_KEY_LAST_DIRECTORY, activeCdmPicker.getCurrentDirectory().getAbsolutePath());
-						Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
+						final Directory cdmDir = new Directory(activeCdmPicker.getSelectedFile());
 
 						new Thread(new Runnable() {
 							@Override
@@ -804,7 +805,7 @@ public class GUI extends MainWindow {
 	public void convertCdm() {
 
 		// Create the window
-		JDialog convertCdmDialog = new JDialog(mainFrame, "Convert CDM", true);
+		final JDialog convertCdmDialog = new JDialog(mainFrame, "Convert CDM", true);
 		GridLayout convertCdmDialogLayout = new GridLayout(6, 1);
 		convertCdmDialogLayout.setVgap(8);
 		convertCdmDialog.setLayout(convertCdmDialogLayout);
@@ -821,7 +822,7 @@ public class GUI extends MainWindow {
 		final String[] versionsArr = CdmCtrl.getKnownCdmVersions().toArray(new String[0]);
 		final String[] versionPrefixesArr = CdmCtrl.getKnownCdmPrefixes().toArray(new String[0]);
 
-		JComboBox<String> newCdmVersion = new JComboBox<>(versionsArr);
+		final JComboBox<String> newCdmVersion = new JComboBox<>(versionsArr);
 		newCdmVersion.setSelectedIndex(0);
 		newCdmVersion.setEditable(true);
 		convertCdmDialog.add(newCdmVersion);
@@ -830,7 +831,7 @@ public class GUI extends MainWindow {
 		explanationLabelCdmVersionPrefix.setText("If needed, you can manually override the CDM version prefix:");
 		convertCdmDialog.add(explanationLabelCdmVersionPrefix);
 
-		JTextField newCdmVersionPrefix = new JTextField();
+		final JTextField newCdmVersionPrefix = new JTextField();
 		newCdmVersionPrefix.setText(versionPrefixesArr[0]);
 		convertCdmDialog.add(newCdmVersionPrefix);
 
@@ -1008,8 +1009,8 @@ public class GUI extends MainWindow {
 		// add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
 		String scriptCiContent =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" " + CdmCtrl.getXMLNS() + " xmi:id=\"" + Utils.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
-			"  <script name=\"" + newScriptName + "\" namespace=\"" + newNamespace + "\" scriptContent=\"\" xmi:id=\"" + Utils.generateEcoreUUID() + "\"/>\n" +
+			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" " + CdmCtrl.getXMLNS() + " xmi:id=\"" + UuidEncoderDecoder.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
+			"  <script name=\"" + newScriptName + "\" namespace=\"" + newNamespace + "\" scriptContent=\"\" xmi:id=\"" + UuidEncoderDecoder.generateEcoreUUID() + "\"/>\n" +
 			"</configurationcontrol:ScriptCI>";
 
 		File tmpCi = new File("tmpfile.tmp");
@@ -1125,7 +1126,7 @@ public class GUI extends MainWindow {
 		// open a dialog in which the new name is to be entered (pre-filled with the current name)
 
 		// Create the window
-		JDialog renameDialog = new JDialog(mainFrame, "Rename Script", true);
+		final JDialog renameDialog = new JDialog(mainFrame, "Rename Script", true);
 		GridLayout renameDialogLayout = new GridLayout(3, 1);
 		renameDialogLayout.setVgap(8);
 		renameDialog.setLayout(renameDialogLayout);
@@ -1136,7 +1137,7 @@ public class GUI extends MainWindow {
 		explanationLabel.setText("Please enter the new name of the script file:");
 		renameDialog.add(explanationLabel);
 
-		JTextField newScriptName = new JTextField();
+		final JTextField newScriptName = new JTextField();
 		newScriptName.setText(currentlyShownTab.getName());
 		renameDialog.add(newScriptName);
 
@@ -1227,7 +1228,7 @@ public class GUI extends MainWindow {
 
 		// Create the window
 		String deleteScript = currentlyShownTab.getName();
-		JDialog deleteDialog = new JDialog(mainFrame, "Delete " + deleteScript, true);
+		final JDialog deleteDialog = new JDialog(mainFrame, "Delete " + deleteScript, true);
 		GridLayout deleteDialogLayout = new GridLayout(3, 1);
 		deleteDialogLayout.setVgap(8);
 		deleteDialog.setLayout(deleteDialogLayout);
@@ -1439,7 +1440,7 @@ public class GUI extends MainWindow {
 	 * and if yes ask the user if we want to save first, proceed, or cancel
 	 * return true if we saved or proceed anyway, and false if we cancel
 	 */
-	private void ifAllowedToLeaveCurrentCDM(Callback proceedWithThisIfAllowed) {
+	private void ifAllowedToLeaveCurrentCDM(final Callback proceedWithThisIfAllowed) {
 
 		// check all scripts; if any have been changed, ask first before closing!
 		boolean noneHaveBeenChanged = true;
@@ -1460,7 +1461,7 @@ public class GUI extends MainWindow {
 		// okay, something has been changed, so we now want to ask the user about what to do...
 
 		// Create the window
-		JDialog whatToDoDialog = new JDialog(mainFrame, "What to do?", true);
+		final JDialog whatToDoDialog = new JDialog(mainFrame, "What to do?", true);
 		GridLayout whatToDoDialogLayout = new GridLayout(2, 1);
 		whatToDoDialogLayout.setVgap(8);
 		whatToDoDialog.setLayout(whatToDoDialogLayout);

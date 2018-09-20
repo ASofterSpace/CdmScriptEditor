@@ -2,7 +2,7 @@
 
 **Class:** EGS-CC Tools
 
-**Language:** Java
+**Language:** Java 7
 
 **Platform:** Windows / Linux
 
