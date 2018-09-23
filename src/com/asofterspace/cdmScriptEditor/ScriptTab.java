@@ -28,7 +28,7 @@ import java.awt.GridLayout;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.CompoundBorder;
@@ -236,7 +236,7 @@ public class ScriptTab {
 		// show all the existing activities
 		// TODO :: add a way to filter, maybe sort, etc.
 
-		List<CdmActivity> activities = CdmCtrl.getActivities();
+		Set<CdmActivity> activities = CdmCtrl.getActivities();
 
 		boolean first = true;
 
@@ -373,7 +373,7 @@ public class ScriptTab {
 		// show all the existing mces
 		// TODO :: add a way to filter, maybe sort, etc.
 
-		List<CdmMonitoringControlElement> mces = CdmCtrl.getMonitoringControlElements();
+		Set<CdmMonitoringControlElement> mces = CdmCtrl.getMonitoringControlElements();
 
 		boolean first = true;
 
@@ -493,7 +493,7 @@ public class ScriptTab {
 
 		StringBuilder activityMappings = new StringBuilder();
 
-		List<CdmScript2Activity> mappings = script.getAssociatedScript2Activities();
+		Set<CdmScript2Activity> mappings = script.getAssociatedScript2Activities();
 
 		int i = 1;
 
@@ -530,7 +530,7 @@ public class ScriptTab {
 
 		mappingsPanel.removeAll();
 
-		List<CdmScript2Activity> mappings = script.getAssociatedScript2Activities();
+		Set<CdmScript2Activity> mappings = script.getAssociatedScript2Activities();
 
 		// show the actual mappings
 		for (final CdmScript2Activity mapping : mappings) {

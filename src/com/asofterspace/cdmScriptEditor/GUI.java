@@ -32,7 +32,9 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.event.DocumentEvent;
@@ -1017,12 +1019,17 @@ public class GUI extends MainWindow {
 		tmpCi.setContent(scriptCiContent);
 		tmpCi.save();
 
+		// keep track of which scripts there were before loading somesuch... (making a shallow copy!)
+		Set<CdmScript> scriptsBefore = new HashSet<>(CdmCtrl.getScripts());
+		
 		try {
-			CdmFile newCdmFile = CdmCtrl.loadCdmFile(tmpCi);
+			CdmFile newCdmFile = CdmCtrl.loadAnotherCdmFile(tmpCi);
 
-			List<CdmScript> scripts = newCdmFile.getScripts();
+			Set<CdmScript> scriptsAfter = new HashSet<>(CdmCtrl.getScripts());
+			
+			scriptsAfter.removeAll(scriptsBefore);
 
-			if (scripts.size() != 1) {
+			if (scriptsAfter.size() != 1) {
 				JOptionPane.showMessageDialog(mainFrame, "Oops - while trying to create the new script, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
 				return true;
 			}
@@ -1038,7 +1045,7 @@ public class GUI extends MainWindow {
 			// TODO
 
 			// add a script tab for the new CDM script as currentlyShownTab
-			currentlyShownTab = new ScriptTab(mainPanelRight, scripts.get(0), this);
+			currentlyShownTab = new ScriptTab(mainPanelRight, scriptsAfter.iterator().next(), this);
 
 			currentlyShownTab.setChanged(true);
 
@@ -1419,10 +1426,10 @@ public class GUI extends MainWindow {
 	private void reloadAllScriptTabs() {
 
 		// update the script list on the left and load the new script tabs
-		List<CdmScript> scripts = CdmCtrl.getScripts();
 		scriptTabs = new ArrayList<>();
-		for (int i = 0; i < scripts.size(); i++) {
-			CdmScript script = scripts.get(i);
+		
+		Set<CdmScript> scripts = CdmCtrl.getScripts();
+		for (CdmScript script : scripts) {
 			scriptTabs.add(new ScriptTab(mainPanelRight, script, this));
 		}
 
