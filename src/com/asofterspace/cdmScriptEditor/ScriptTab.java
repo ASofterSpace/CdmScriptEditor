@@ -242,6 +242,11 @@ public class ScriptTab {
 
 		for (final CdmActivity activity : activities) {
 
+			// only show activity instances here
+			if (activity.isDefinition()) {
+				continue;
+			}
+			
 			if (!first) {
 				activitiesPanel.add(Box.createRigidArea(new Dimension(8, 8)));
 			}
