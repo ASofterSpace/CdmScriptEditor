@@ -26,6 +26,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.FlowLayout;
@@ -52,7 +53,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -88,6 +91,9 @@ public class GUI extends MainWindow {
 	private JMenuItem addScriptFile;
 	private JMenuItem renameCurScriptFile;
 	private JMenuItem deleteCurScriptFile;
+	private JMenuItem addScriptFilePopup;
+	private JMenuItem renameCurScriptFilePopup;
+	private JMenuItem deleteCurScriptFilePopup;
 	private JCheckBoxMenuItem showScriptFileInfo;
 	private JCheckBoxMenuItem manageActMaps;
 	private JMenuItem close;
@@ -99,6 +105,7 @@ public class GUI extends MainWindow {
 
 	private ConfigFile configuration;
 	private JList<String> scriptListComponent;
+	private JPopupMenu scriptListPopup;
 	private String[] strScripts;
 
 
@@ -120,6 +127,9 @@ public class GUI extends MainWindow {
 
 		// Add content to the window
 		createMenu(mainFrame);
+
+		createPopupMenu(mainFrame);
+
 		createMainPanel(mainFrame);
 
 		// TODO :: show an extra panel in the middle that lets a user either create a new empty CDM, or open a CDM directory - instead of having to wobble through the menu in search of it all ^^
@@ -199,107 +209,7 @@ public class GUI extends MainWindow {
 		addScriptFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-				// open a dialog in which the name of the new script can be entered
-
-				// Create the window
-				final JDialog addDialog = new JDialog(mainFrame, "Add Script", true);
-				GridLayout addDialogLayout = new GridLayout(9, 1);
-				addDialogLayout.setVgap(8);
-				addDialog.setLayout(addDialogLayout);
-				addDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-				// Populate the window
-				JLabel explanationLabel = new JLabel();
-				explanationLabel.setText("Please enter the name of the new script file:");
-				addDialog.add(explanationLabel);
-
-				final JTextField newScriptName = new JTextField();
-				newScriptName.setText("DoSomething");
-				addDialog.add(newScriptName);
-
-				JLabel explanationLabelNamespace = new JLabel();
-				explanationLabelNamespace.setText("Please enter the namespace of the new script:");
-				addDialog.add(explanationLabelNamespace);
-
-				// TODO :: remember the last namespace choice and read it from the configuration
-				final JTextField newScriptNamespace = new JTextField();
-				newScriptNamespace.setText(CdmCtrl.DEFAULT_NAMESPACE);
-				addDialog.add(newScriptNamespace);
-
-				JLabel explanationLabelCI = new JLabel();
-				explanationLabelCI.setText("Please enter the name of the new script CI containing the new script:");
-				addDialog.add(explanationLabelCI);
-
-				final JTextField newCiName = new JTextField();
-				newCiName.setText("DoSomethingScript");
-				addDialog.add(newCiName);
-
-				// automatically write newScriptName + Script in the newCiName field whenever newScriptName is changed
-				newScriptName.getDocument().addDocumentListener(new DocumentListener() {
-					public void changedUpdate(DocumentEvent e) {
-						onchange();
-					}
-					public void removeUpdate(DocumentEvent e) {
-						onchange();
-					}
-					public void insertUpdate(DocumentEvent e) {
-						onchange();
-					}
-					public void onchange() {
-						newCiName.setText(newScriptName.getText() + "Script");
-					}
-				});
-
-				JLabel explanationLabelTemplate = new JLabel();
-				explanationLabelTemplate.setText("Please select a template for the new script:");
-				addDialog.add(explanationLabelTemplate);
-
-				// TODO :: add more templates, e.g. one for scripts using parameters
-				String[] templates = { SCRIPT_TEMPLATE_NONE, SCRIPT_TEMPLATE_DEFAULT };
-				final JComboBox<String> newScriptTemplate = new JComboBox<>(templates);
-				newScriptTemplate.setSelectedIndex(1);
-				addDialog.add(newScriptTemplate);
-
-				// also let the user immediately associate an activity with this script?
-				// TODO
-
-				JPanel buttonRow = new JPanel();
-				GridLayout buttonRowLayout = new GridLayout(1, 2);
-				buttonRowLayout.setHgap(8);
-				buttonRow.setLayout(buttonRowLayout);
-				addDialog.add(buttonRow);
-
-				JButton okButton = new JButton("OK");
-				okButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						if (addScript(
-							newScriptName.getText().trim(),
-							newCiName.getText().trim(),
-							newScriptNamespace.getText().trim(),
-							newScriptTemplate.getSelectedItem().toString()
-						)) {
-							addDialog.dispose();
-						}
-					}
-				});
-				buttonRow.add(okButton);
-
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						addDialog.dispose();
-					}
-				});
-				buttonRow.add(cancelButton);
-
-				// Set the preferred size of the dialog
-				int width = 450;
-				int height = 340;
-				addDialog.setSize(width, height);
-				addDialog.setPreferredSize(new Dimension(width, height));
-
-				GuiUtils.centerAndShowWindow(addDialog);
+				openAddNewScriptDialog();
 			}
 		});
 		file.add(addScriptFile);
@@ -453,6 +363,44 @@ public class GUI extends MainWindow {
 		return menu;
 	}
 
+	private JPopupMenu createPopupMenu(JFrame parent) {
+
+		scriptListPopup = new JPopupMenu();
+
+		addScriptFilePopup = new JMenuItem("Add New Script File");
+		addScriptFilePopup.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openAddNewScriptDialog();
+			}
+		});
+		scriptListPopup.add(addScriptFilePopup);
+		renameCurScriptFilePopup = new JMenuItem("Rename Current Script File");
+		renameCurScriptFilePopup.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openRenameCurrentScriptDialog();
+			}
+		});
+		scriptListPopup.add(renameCurScriptFilePopup);
+		deleteCurScriptFilePopup = new JMenuItem("Delete Current Script File");
+		deleteCurScriptFilePopup.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openDeleteCurrentScriptDialog();
+			}
+		});
+		scriptListPopup.add(deleteCurScriptFilePopup);
+
+		// don't do the following:
+		//   scriptListComponent.setComponentPopupMenu(popupMenu);
+		// instead manually show the popup when the right mouse key is pressed in the mouselistener
+		// for the script list, because that means that we can right click on an entry, select it immediately,
+		// and open the popup for exactly that entry
+
+		return scriptListPopup;
+	}
+
 	private JPanel createMainPanel(JFrame parent) {
 
 	    JPanel mainPanel = new JPanel();
@@ -469,10 +417,9 @@ public class GUI extends MainWindow {
 
 		String[] scriptList = new String[0];
 		scriptListComponent = new JList<String>(scriptList);
-		scriptListComponent.setPreferredSize(new Dimension(8, 8));
 		scriptTabs = new ArrayList<>();
 
-		MouseListener scriptListClickListener = new MouseListener() {
+		scriptListComponent.addMouseListener(new MouseListener() {
 
 			@Override
 		    public void mouseClicked(MouseEvent e) {
@@ -481,7 +428,7 @@ public class GUI extends MainWindow {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				showSelectedTab();
+				showPopupAndSelectedTab(e);
 			}
 
 			@Override
@@ -494,12 +441,45 @@ public class GUI extends MainWindow {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				showPopupAndSelectedTab(e);
+			}
+
+			private void showPopupAndSelectedTab(MouseEvent e) {
+			    if (e.isPopupTrigger()) {
+					scriptListComponent.setSelectedIndex(scriptListComponent.locationToIndex(e.getPoint()));
+					scriptListPopup.show(scriptListComponent, e.getX(), e.getY());
+				}
+
 				showSelectedTab();
 			}
-		};
-		scriptListComponent.addMouseListener(scriptListClickListener);
+		});
 
-		mainPanel.add(scriptListComponent, new Arrangement(0, 0, 0.2, 1.0));
+        scriptListComponent.addKeyListener(new KeyListener() {
+		
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				switch (e.getKeyCode()) { 
+					case KeyEvent.VK_UP:
+					case KeyEvent.VK_DOWN:
+						showSelectedTab();
+						break;
+				}
+			}
+		});
+		
+		JScrollPane scriptListScroller = new JScrollPane(scriptListComponent);
+		scriptListScroller.setPreferredSize(new Dimension(8, 8));
+		scriptListScroller.setBorder(BorderFactory.createEmptyBorder());
+
+		mainPanel.add(scriptListScroller, new Arrangement(0, 0, 0.2, 1.0));
 
 		mainPanel.add(gapPanel, new Arrangement(1, 0, 0.0, 0.0));
 
@@ -998,6 +978,110 @@ public class GUI extends MainWindow {
 		}
 	}
 
+	private void openAddNewScriptDialog() {
+
+		// open a dialog in which the name of the new script can be entered
+
+		// Create the window
+		final JDialog addDialog = new JDialog(mainFrame, "Add Script", true);
+		GridLayout addDialogLayout = new GridLayout(9, 1);
+		addDialogLayout.setVgap(8);
+		addDialog.setLayout(addDialogLayout);
+		addDialog.getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		// Populate the window
+		JLabel explanationLabel = new JLabel();
+		explanationLabel.setText("Please enter the name of the new script file:");
+		addDialog.add(explanationLabel);
+
+		final JTextField newScriptName = new JTextField();
+		newScriptName.setText("DoSomething");
+		addDialog.add(newScriptName);
+
+		JLabel explanationLabelNamespace = new JLabel();
+		explanationLabelNamespace.setText("Please enter the namespace of the new script:");
+		addDialog.add(explanationLabelNamespace);
+
+		// TODO :: remember the last namespace choice and read it from the configuration
+		final JTextField newScriptNamespace = new JTextField();
+		newScriptNamespace.setText(CdmCtrl.DEFAULT_NAMESPACE);
+		addDialog.add(newScriptNamespace);
+
+		JLabel explanationLabelCI = new JLabel();
+		explanationLabelCI.setText("Please enter the name of the new script CI containing the new script:");
+		addDialog.add(explanationLabelCI);
+
+		final JTextField newCiName = new JTextField();
+		newCiName.setText("DoSomethingScript");
+		addDialog.add(newCiName);
+
+		// automatically write newScriptName + Script in the newCiName field whenever newScriptName is changed
+		newScriptName.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				onchange();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				onchange();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				onchange();
+			}
+			public void onchange() {
+				newCiName.setText(newScriptName.getText() + "Script");
+			}
+		});
+
+		JLabel explanationLabelTemplate = new JLabel();
+		explanationLabelTemplate.setText("Please select a template for the new script:");
+		addDialog.add(explanationLabelTemplate);
+
+		// TODO :: add more templates, e.g. one for scripts using parameters
+		String[] templates = { SCRIPT_TEMPLATE_NONE, SCRIPT_TEMPLATE_DEFAULT };
+		final JComboBox<String> newScriptTemplate = new JComboBox<>(templates);
+		newScriptTemplate.setSelectedIndex(1);
+		addDialog.add(newScriptTemplate);
+
+		// also let the user immediately associate an activity with this script?
+		// TODO
+
+		JPanel buttonRow = new JPanel();
+		GridLayout buttonRowLayout = new GridLayout(1, 2);
+		buttonRowLayout.setHgap(8);
+		buttonRow.setLayout(buttonRowLayout);
+		addDialog.add(buttonRow);
+
+		JButton okButton = new JButton("OK");
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (addScript(
+					newScriptName.getText().trim(),
+					newCiName.getText().trim(),
+					newScriptNamespace.getText().trim(),
+					newScriptTemplate.getSelectedItem().toString()
+				)) {
+					addDialog.dispose();
+				}
+			}
+		});
+		buttonRow.add(okButton);
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				addDialog.dispose();
+			}
+		});
+		buttonRow.add(cancelButton);
+
+		// Set the preferred size of the dialog
+		int width = 450;
+		int height = 340;
+		addDialog.setSize(width, height);
+		addDialog.setPreferredSize(new Dimension(width, height));
+
+		GuiUtils.centerAndShowWindow(addDialog);
+	}
+
 	private boolean addScript(String newScriptName, String newCiName, String newNamespace, String newTemplate) {
 
 		File newFileLocation = new File(CdmCtrl.getLastLoadedDirectory(), newCiName + ".cdm");
@@ -1021,12 +1105,12 @@ public class GUI extends MainWindow {
 
 		// keep track of which scripts there were before loading somesuch... (making a shallow copy!)
 		Set<CdmScript> scriptsBefore = new HashSet<>(CdmCtrl.getScripts());
-		
+
 		try {
 			CdmFile newCdmFile = CdmCtrl.loadAnotherCdmFile(tmpCi);
 
 			Set<CdmScript> scriptsAfter = new HashSet<>(CdmCtrl.getScripts());
-			
+
 			scriptsAfter.removeAll(scriptsBefore);
 
 			if (scriptsAfter.size() != 1) {
@@ -1394,8 +1478,11 @@ public class GUI extends MainWindow {
 		saveCdm.setEnabled(cdmLoaded);
 		saveCdmAs.setEnabled(cdmLoaded);
 		addScriptFile.setEnabled(cdmLoaded);
+		addScriptFilePopup.setEnabled(cdmLoaded);
 		renameCurScriptFile.setEnabled(scriptIsSelected);
+		renameCurScriptFilePopup.setEnabled(scriptIsSelected);
 		deleteCurScriptFile.setEnabled(scriptIsSelected);
+		deleteCurScriptFilePopup.setEnabled(scriptIsSelected);
 	}
 
 	private void refreshTitleBar() {
@@ -1427,7 +1514,7 @@ public class GUI extends MainWindow {
 
 		// update the script list on the left and load the new script tabs
 		scriptTabs = new ArrayList<>();
-		
+
 		Set<CdmScript> scripts = CdmCtrl.getScripts();
 		for (CdmScript script : scripts) {
 			scriptTabs.add(new ScriptTab(mainPanelRight, script, this));
