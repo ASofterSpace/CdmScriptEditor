@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.JTree;
 
 
 public class ScriptTab {
@@ -371,85 +372,27 @@ public class ScriptTab {
 
 		// TODO :: also ask for parameters of the activity (right now, we just always create activities without parameters)
 		
-		JPanel mcesPanel = new JPanel();
-		mcesPanel.setLayout(new BoxLayout(mcesPanel, BoxLayout.Y_AXIS));
-		mcesPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
 		// show all the existing mces
 		// TODO :: add a way to filter, maybe sort, etc.
 
-		Set<CdmMonitoringControlElement> mces = CdmCtrl.getMonitoringControlElements();
-
-		boolean first = true;
-
-		// TODO :: display this in some sort of tree view instead!
 		
-		for (final CdmMonitoringControlElement mce : mces) {
+		final JTree mcmTree;
 
-			if (!first) {
-				mcesPanel.add(Box.createRigidArea(new Dimension(8, 8)));
-			}
-			first = false;
-
-			JPanel mcePanel = new JPanel();
-			mcePanel.setLayout(new BoxLayout(mcePanel, BoxLayout.Y_AXIS));
-			mcePanel.setBorder(new CompoundBorder(
-				BorderFactory.createLineBorder(Color.gray),
-				BorderFactory.createEmptyBorder(8, 8, 8, 8)
-			));
-
-			JLabel nameLabel = new JLabel("Name: " + mce.getName());
-			GuiUtils.makeWide(nameLabel);
-			mcePanel.add(nameLabel);
-			mcePanel.add(Box.createRigidArea(new Dimension(8, 8)));
-
-			JLabel pathLabel = new JLabel("MCM Path: " + mce.getPath());
-			GuiUtils.makeWide(pathLabel);
-			mcePanel.add(pathLabel);
-			mcePanel.add(Box.createRigidArea(new Dimension(8, 8)));
-
-			JPanel buttonRow = new JPanel();
-			GridLayout buttonRowLayout = new GridLayout(1, 1);
-			buttonRowLayout.setHgap(8);
-			buttonRow.setLayout(buttonRowLayout);
-			mcePanel.add(buttonRow);
-
-			JButton createActAsAspectBtn = new JButton("Create Activity as Aspect of this Element");
-			createActAsAspectBtn.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-
-					// create new Activity
-					CdmActivity activity = CdmCtrl.addActivity(newActivityName.getText().trim(), newActivityAlias.getText().trim(), mce);
-					
-					// TODO - also add a definition for the new activity (if possible - that is, if the mce in which
-					// the activity lies has an associated mce definition in which the activity's definition can be hosted)
-					
-					// map the new activity to the script
-					if (CdmCtrl.addScriptToActivityMapping(script, activity) != null) {
-						// set the current script to changed, display this in the GUI, and update the info and mappings tabs
-						mappingsOfThisScriptChanged();
-						
-						createActivityDialog.dispose();
-						parentDialog.dispose();
-					} else {
-						JOptionPane.showMessageDialog(gui.getMainFrame(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			});
-			buttonRow.add(createActAsAspectBtn);
-
-			GuiUtils.makeWide(mcePanel);
-
-			mcesPanel.add(mcePanel);
+		CdmMonitoringControlElement treeRoot = CdmCtrl.getMcmTreeRoot();
+		
+		if (treeRoot == null) {
+			mcmTree = new JTree();
+		} else {
+			mcmTree = new JTree(treeRoot);
 		}
-
-		JScrollPane mcesScroller = new JScrollPane(mcesPanel);
-		createActivityDialog.add(mcesScroller, new Arrangement(0, 8, 1.0, 1.0));
+		
+		JScrollPane mcmTreeScroller = new JScrollPane(mcmTree);
+		createActivityDialog.add(mcmTreeScroller, new Arrangement(0, 8, 1.0, 1.0));
 
 		createActivityDialog.add(Box.createRigidArea(new Dimension(8, 8)), new Arrangement(0, 9, 1.0, 0.0));
 
 		JPanel buttonRow = new JPanel();
-		GridLayout buttonRowLayout = new GridLayout(1, 1);
+		GridLayout buttonRowLayout = new GridLayout(1, 2);
 		buttonRowLayout.setHgap(8);
 		buttonRow.setLayout(buttonRowLayout);
 		createActivityDialog.add(buttonRow, new Arrangement(0, 10, 1.0, 0.0));
@@ -466,6 +409,40 @@ public class ScriptTab {
 		createNewActBtn.setEnabled(false);
 		buttonRow.add(createNewActBtn);
 		*/
+
+		// the deletion of mappings happens here, optionally including the deletion of the mapped activity
+		JButton createActivityBtn = new JButton("Create Activity");
+		createActivityBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			
+				Object selectedElement = mcmTree.getLastSelectedPathComponent();
+				
+				if ((selectedElement == null) || !(selectedElement instanceof CdmMonitoringControlElement)) {
+					JOptionPane.showMessageDialog(gui.getMainFrame(), "Please select an M&C element from the MCM tree to create the activity as child of that element!", "Select Element", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				CdmMonitoringControlElement mce = (CdmMonitoringControlElement) selectedElement;
+		
+				// create new Activity
+				CdmActivity activity = CdmCtrl.addActivity(newActivityName.getText().trim(), newActivityAlias.getText().trim(), mce);
+				
+				// TODO - also add a definition for the new activity (if possible - that is, if the mce in which
+				// the activity lies has an associated mce definition in which the activity's definition can be hosted)
+				
+				// map the new activity to the script
+				if (CdmCtrl.addScriptToActivityMapping(script, activity) != null) {
+					// set the current script to changed, display this in the GUI, and update the info and mappings tabs
+					mappingsOfThisScriptChanged();
+					
+					createActivityDialog.dispose();
+					parentDialog.dispose();
+				} else {
+					JOptionPane.showMessageDialog(gui.getMainFrame(), "Oops - while trying to create the a new script to activity mapping CI, after creating it temporarily, it could not be found!", "Sorry", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		buttonRow.add(createActivityBtn);
 
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
@@ -487,7 +464,7 @@ public class ScriptTab {
 	private void reloadInfoData() {
 
 		String format = "(unknown)";
-		switch (script.getParent().getMode()) {
+		switch (script.getParentFile().getMode()) {
 			case XML_LOADED:
 				format = "XML";
 				break;
@@ -513,15 +490,15 @@ public class ScriptTab {
 			activityMappingsStr = "(none)\n";
 		}
 		
-		String cdmVersion = script.getParent().getCdmVersion();
-		String cdmPrefix = script.getParent().getCdmVersionPrefix();
+		String cdmVersion = script.getParentFile().getCdmVersion();
+		String cdmPrefix = script.getParentFile().getCdmVersionPrefix();
 
 		scriptInfoText.setText(
 			"Script Name: " + script.getName() + "\n" +
 			"Script Namespace: " + script.getNamespace() + "\n" +
 			"Script ID: " + script.getId() + "\n\n" +
 			"CI File Format: " + format + "\n" +
-			"CI Path: " + script.getParent().getFilename() + "\n\n" +
+			"CI Path: " + script.getParentFile().getFilename() + "\n\n" +
 			"Associated Activity Mappings:\n" +
 			activityMappingsStr + "\n" +
 			"CDM Version: " + cdmVersion + "\n" +
