@@ -1,16 +1,17 @@
 package com.asofterspace.cdmScriptEditor;
 
-import javax.swing.SwingUtilities;
-
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.Utils;
-import com.asofterspace.toolbox.web.JSON;
+import com.asofterspace.toolbox.io.JSON;
+
+import javax.swing.SwingUtilities;
+
 
 public class Main {
 
 	public final static String PROGRAM_TITLE = "CDM Script Editor";
-	public final static String VERSION_NUMBER = "0.1.1.4(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "26. August 2018 - 23. September 2018";
+	public final static String VERSION_NUMBER = "0.1.1.5(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "26. August 2018 - 25. September 2018";
 
 	public static void main(String[] args) {
 	

@@ -15,7 +15,6 @@ import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.gui.Arrangement;
 import com.asofterspace.toolbox.gui.GuiUtils;
 import com.asofterspace.toolbox.utils.Callback;
-import com.asofterspace.toolbox.web.JSON;
 
 import java.awt.Color;
 import java.awt.Component;

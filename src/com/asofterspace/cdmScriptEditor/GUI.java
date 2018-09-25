@@ -18,7 +18,6 @@ import com.asofterspace.toolbox.gui.ProgressDialog;
 import com.asofterspace.toolbox.Utils;
 import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.utils.ProgressIndicator;
-import com.asofterspace.toolbox.web.JSON;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
