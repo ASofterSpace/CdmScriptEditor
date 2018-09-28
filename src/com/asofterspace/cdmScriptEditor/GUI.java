@@ -62,6 +62,8 @@ import javax.swing.SwingUtilities;
 
 public class GUI extends MainWindow {
 
+	private CdmCtrl cdmCtrl;
+	
 	private JPanel mainPanelRight;
 	private JRadioButtonMenuItem lightScheme;
 	private JRadioButtonMenuItem darkScheme;
@@ -115,6 +117,8 @@ public class GUI extends MainWindow {
 		strScripts = new String[0];
 
 		scriptTabs = new ArrayList<>();
+		
+		cdmCtrl = new CdmCtrl();
 	}
 
 	@Override
@@ -599,7 +603,7 @@ public class GUI extends MainWindow {
 				List<String> versionPrefixes = new ArrayList<>(CdmCtrl.getKnownCdmPrefixes());
 
 				// if the currently used CDM version is none of the default ones, also offer that one
-				String curVersion = CdmCtrl.getCdmVersion();
+				String curVersion = cdmCtrl.getCdmVersion();
 				if ((curVersion != null) && !"".equals(curVersion)) {
 					boolean versionFound = false;
 					for (String version : versions) {
@@ -610,7 +614,7 @@ public class GUI extends MainWindow {
 					}
 					if (!versionFound) {
 						versions.add(0, curVersion);
-						versionPrefixes.add(0, CdmCtrl.getCdmVersionPrefix());
+						versionPrefixes.add(0, cdmCtrl.getCdmVersionPrefix());
 					}
 				}
 
@@ -667,7 +671,7 @@ public class GUI extends MainWindow {
 						configuration.set(CONFIG_KEY_LAST_DIRECTORY, cdmPath);
 
 						try {
-							if (CdmCtrl.createNewCdm(cdmPath, version, versionPrefix, template)) {
+							if (cdmCtrl.createNewCdm(cdmPath, version, versionPrefix, template)) {
 								clearAllScriptTabs();
 								newCdmDialog.dispose();
 								reloadAllScriptTabs();
@@ -738,7 +742,7 @@ public class GUI extends MainWindow {
 									// add a progress bar (which is especially helpful when the CDM contains no scripts
 									// so the main view stays empty after loading a CDM!)
 									ProgressDialog progress = new ProgressDialog("Loading the CDM directory...");
-									CdmCtrl.loadCdmDirectory(cdmDir, progress);
+									cdmCtrl.loadCdmDirectory(cdmDir, progress);
 								} catch (AttemptingEmfException | CdmLoadingException e) {
 									JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 								}
@@ -765,7 +769,7 @@ public class GUI extends MainWindow {
 
 		List<String> result = new ArrayList<>();
 
-		int validity = CdmCtrl.checkValidity(result);
+		int validity = cdmCtrl.checkValidity(result);
 
 		if (validity == 0) {
 			JOptionPane.showMessageDialog(mainFrame, "The CDM looks valid! :)", "Valid", JOptionPane.INFORMATION_MESSAGE);
@@ -852,7 +856,7 @@ public class GUI extends MainWindow {
 				// TODO :: actually check if the version and versionPrefix fields have been filled
 				// maybe throw an exception otherwise in the convertTo function? or just check here?)
 
-				CdmCtrl.convertTo(version, versionPrefix);
+				cdmCtrl.convertTo(version, versionPrefix);
 
 				convertCdmDialog.dispose();
 
@@ -887,7 +891,7 @@ public class GUI extends MainWindow {
 
 	private void prepareToSave() {
 
-		if (!CdmCtrl.hasCdmBeenLoaded()) {
+		if (!cdmCtrl.hasCdmBeenLoaded()) {
 			JOptionPane.showMessageDialog(mainFrame, "The CDM cannot be saved as no CDM has been opened.", "Sorry", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -910,7 +914,7 @@ public class GUI extends MainWindow {
 		prepareToSave();
 
 		// save all opened CDM files
-		CdmCtrl.save();
+		cdmCtrl.save();
 
 		JOptionPane.showMessageDialog(mainFrame, "The currently opened CDM files have been saved!", "CDM Saved", JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -956,7 +960,7 @@ public class GUI extends MainWindow {
 				prepareToSave();
 
 				// for all currently opened CDM files, save them relative to the new directory as they were in the previous one
-				CdmCtrl.saveTo(cdmDir);
+				cdmCtrl.saveTo(cdmDir);
 
 				// also copy over the Manifest file
 				// TODO
@@ -1084,7 +1088,7 @@ public class GUI extends MainWindow {
 	// TODO :: move main part of this to CdmCtrl!
 	private boolean addScript(String newScriptName, String newCiName, String newNamespace, String newTemplate) {
 
-		File newFileLocation = new File(CdmCtrl.getLastLoadedDirectory(), newCiName + ".cdm");
+		File newFileLocation = new File(cdmCtrl.getLastLoadedDirectory(), newCiName + ".cdm");
 
 		// check that the newCiName (+ .cdm) is not already the file name of some other CDM file!
 		if (newFileLocation.exists()) {
@@ -1095,7 +1099,7 @@ public class GUI extends MainWindow {
 		// add a script CI with one script with exactly this name - but do not save it on the hard disk just yet
 		String scriptCiContent =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" " + CdmCtrl.getXMLNS() + " xmi:id=\"" + UuidEncoderDecoder.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" isModified=\"false\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
+			"<configurationcontrol:ScriptCI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" " + cdmCtrl.getXMLNS() + " xmi:id=\"" + UuidEncoderDecoder.generateEcoreUUID() + "\" externalVersionLabel=\"Created by the " + Utils.getFullProgramIdentifier() + "\" isModified=\"false\" name=\"" + newCiName + "\" onlineRevisionIdentifier=\"0\">\n" +
 			"  <script name=\"" + newScriptName + "\" namespace=\"" + newNamespace + "\" scriptContent=\"\" xmi:id=\"" + UuidEncoderDecoder.generateEcoreUUID() + "\"/>\n" +
 			"</configurationcontrol:ScriptCI>";
 
@@ -1104,12 +1108,12 @@ public class GUI extends MainWindow {
 		tmpCi.save();
 
 		// keep track of which scripts there were before loading somesuch... (making a shallow copy!)
-		Set<CdmScript> scriptsBefore = new HashSet<>(CdmCtrl.getScripts());
+		Set<CdmScript> scriptsBefore = new HashSet<>(cdmCtrl.getScripts());
 
 		try {
-			CdmFile newCdmFile = CdmCtrl.loadAnotherCdmFile(tmpCi);
+			CdmFile newCdmFile = cdmCtrl.loadAnotherCdmFile(tmpCi);
 
-			Set<CdmScript> scriptsAfter = new HashSet<>(CdmCtrl.getScripts());
+			Set<CdmScript> scriptsAfter = new HashSet<>(cdmCtrl.getScripts());
 
 			scriptsAfter.removeAll(scriptsBefore);
 
@@ -1129,7 +1133,7 @@ public class GUI extends MainWindow {
 			// TODO
 
 			// add a script tab for the new CDM script as currentlyShownTab
-			currentlyShownTab = new ScriptTab(mainPanelRight, scriptsAfter.iterator().next(), this);
+			currentlyShownTab = new ScriptTab(mainPanelRight, scriptsAfter.iterator().next(), this, cdmCtrl);
 
 			currentlyShownTab.setChanged(true);
 
@@ -1466,7 +1470,7 @@ public class GUI extends MainWindow {
 	 */
 	private void reEnableDisableMenuItems() {
 
-		boolean cdmLoaded = CdmCtrl.hasCdmBeenLoaded();
+		boolean cdmLoaded = cdmCtrl.hasCdmBeenLoaded();
 
 		boolean scriptsExist = scriptTabs.size() > 0;
 
@@ -1487,7 +1491,7 @@ public class GUI extends MainWindow {
 
 	private void refreshTitleBar() {
 
-		Directory lastLoadedDir = CdmCtrl.getLastLoadedDirectory();
+		Directory lastLoadedDir = cdmCtrl.getLastLoadedDirectory();
 
 		if (lastLoadedDir == null) {
 			mainFrame.setTitle(Main.PROGRAM_TITLE);
@@ -1515,9 +1519,9 @@ public class GUI extends MainWindow {
 		// update the script list on the left and load the new script tabs
 		scriptTabs = new ArrayList<>();
 
-		Set<CdmScript> scripts = CdmCtrl.getScripts();
+		Set<CdmScript> scripts = cdmCtrl.getScripts();
 		for (CdmScript script : scripts) {
-			scriptTabs.add(new ScriptTab(mainPanelRight, script, this));
+			scriptTabs.add(new ScriptTab(mainPanelRight, script, this, cdmCtrl));
 		}
 
 		reScriptTabViews();

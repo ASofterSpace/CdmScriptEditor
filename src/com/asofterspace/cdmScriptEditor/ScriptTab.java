@@ -48,6 +48,8 @@ import javax.swing.JTree;
 
 public class ScriptTab {
 
+	private CdmCtrl cdmCtrl;
+
 	private JPanel parent;
 
 	private JPanel visualPanel;
@@ -73,14 +75,16 @@ public class ScriptTab {
 	private JButton mappingsAddBtn;
 
 
-	public ScriptTab(JPanel parentPanel, CdmScript script, final GUI gui) {
+	public ScriptTab(JPanel parentPanel, CdmScript script, final GUI gui, CdmCtrl cdmCtrl) {
 
 		this.parent = parentPanel;
 
 		this.script = script;
 
 		this.gui = gui;
-
+		
+		this.cdmCtrl = cdmCtrl;
+		
 		this.onChangeCallback = new Callback() {
 			public void call() {
 				if (!changed) {
@@ -236,7 +240,7 @@ public class ScriptTab {
 		// show all the existing activities
 		// TODO :: add a way to filter, maybe sort, etc.
 
-		Set<CdmActivity> activities = CdmCtrl.getActivities();
+		Set<CdmActivity> activities = cdmCtrl.getActivities();
 
 		boolean first = true;
 
@@ -282,7 +286,7 @@ public class ScriptTab {
 			JButton mapBtn = new JButton("Map to Current Script");
 			mapBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (CdmCtrl.addScriptToActivityMapping(script, activity) != null) {
+					if (cdmCtrl.addScriptToActivityMapping(script, activity) != null) {
 						// set the current script to changed, display this in the GUI, and update the info and mappings tabs
 						mappingsOfThisScriptChanged();
 						
@@ -377,7 +381,7 @@ public class ScriptTab {
 		
 		final JTree mcmTree;
 
-		CdmMonitoringControlElement treeRoot = CdmCtrl.getMcmTreeRoot();
+		CdmMonitoringControlElement treeRoot = cdmCtrl.getMcmTreeRoot();
 		
 		if (treeRoot == null) {
 			mcmTree = new JTree();
@@ -424,13 +428,13 @@ public class ScriptTab {
 				CdmMonitoringControlElement mce = (CdmMonitoringControlElement) selectedElement;
 		
 				// create new Activity
-				CdmActivity activity = CdmCtrl.addActivity(newActivityName.getText().trim(), newActivityAlias.getText().trim(), mce);
+				CdmActivity activity = cdmCtrl.addActivity(newActivityName.getText().trim(), newActivityAlias.getText().trim(), mce);
 				
 				// TODO - also add a definition for the new activity (if possible - that is, if the mce in which
 				// the activity lies has an associated mce definition in which the activity's definition can be hosted)
 				
 				// map the new activity to the script
-				if (CdmCtrl.addScriptToActivityMapping(script, activity) != null) {
+				if (cdmCtrl.addScriptToActivityMapping(script, activity) != null) {
 					// set the current script to changed, display this in the GUI, and update the info and mappings tabs
 					mappingsOfThisScriptChanged();
 					
