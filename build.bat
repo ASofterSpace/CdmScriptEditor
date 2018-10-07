@@ -43,7 +43,7 @@ cd src
 
 dir /s /B *.java > sourcefiles.list
 
-javac -encoding utf8 -cp "../emf/*" -d ../bin @sourcefiles.list
+javac -encoding utf8 -d ../bin @sourcefiles.list
 
 cd ..
 
