@@ -24,9 +24,6 @@ hs_err_pid*
 # bin directory
 bin
 
-# emf-related nonsense
-emf
-
 # other local files
 other
 
