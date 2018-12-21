@@ -107,6 +107,8 @@ public class ScriptTab {
 		tab.add(titleLabel, new Arrangement(0, 0, 1.0, 0.0));
 
 		sourceCodeEditor = new JTextPane() {
+			private final static long serialVersionUID = 1L;
+
 			public boolean getScrollableTracksViewportWidth() {
 				return getUI().getPreferredSize(this).width <= getParent().getSize().width;
 			}
@@ -117,6 +119,7 @@ public class ScriptTab {
 		JScrollPane sourceCodeScroller = new JScrollPane(sourceCodeEditor);
 		sourceCodeScroller.setPreferredSize(new Dimension(1, 1));
 		tab.add(sourceCodeScroller, new Arrangement(0, 1, 1.0, 0.8));
+		gui.configureCodeEditor(groovyCode);
 
 		parent.add(tab);
 
