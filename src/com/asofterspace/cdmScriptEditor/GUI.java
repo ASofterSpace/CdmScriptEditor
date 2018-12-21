@@ -256,7 +256,7 @@ public class GUI extends MainWindow {
 		lightScheme.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GroovyCode.setLightScheme();
+				GroovyCode.setLightSchemeForAllEditors();
 				lightScheme.setSelected(true);
 				darkScheme.setSelected(false);
 				configuration.set(CONFIG_KEY_EDITOR_SCHEME, CONFIG_VAL_SCHEME_LIGHT);
@@ -267,7 +267,7 @@ public class GUI extends MainWindow {
 		darkScheme.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GroovyCode.setDarkScheme();
+				GroovyCode.setDarkSchemeForAllEditors();
 				lightScheme.setSelected(false);
 				darkScheme.setSelected(true);
 				configuration.set(CONFIG_KEY_EDITOR_SCHEME, CONFIG_VAL_SCHEME_DARK);
@@ -280,7 +280,7 @@ public class GUI extends MainWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				currentFontSize++;
-				GroovyCode.setFontSize(currentFontSize);
+				GroovyCode.setFontSizeForAllEditors(currentFontSize);
 				configuration.set(CONFIG_KEY_EDITOR_FONT_SIZE, currentFontSize);
 			}
 		});
@@ -290,7 +290,7 @@ public class GUI extends MainWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				currentFontSize--;
-				GroovyCode.setFontSize(currentFontSize);
+				GroovyCode.setFontSizeForAllEditors(currentFontSize);
 				configuration.set(CONFIG_KEY_EDITOR_FONT_SIZE, currentFontSize);
 			}
 		});
@@ -495,7 +495,7 @@ public class GUI extends MainWindow {
 
 	private void showSelectedTab() {
 
-		String selectedItem = (String) scriptListComponent.getSelectedValue();
+		String selectedItem = scriptListComponent.getSelectedValue();
 
 		if (selectedItem == null) {
 			return;
@@ -527,13 +527,13 @@ public class GUI extends MainWindow {
 		if (editorScheme != null) {
 			switch (editorScheme) {
 				case CONFIG_VAL_SCHEME_LIGHT:
-					GroovyCode.setLightScheme();
+					GroovyCode.setLightSchemeForAllEditors();
 					lightScheme.setSelected(true);
 					darkScheme.setSelected(false);
 					break;
 
 				case CONFIG_VAL_SCHEME_DARK:
-					GroovyCode.setDarkScheme();
+					GroovyCode.setDarkSchemeForAllEditors();
 					lightScheme.setSelected(false);
 					darkScheme.setSelected(true);
 					break;
@@ -546,7 +546,26 @@ public class GUI extends MainWindow {
 			currentFontSize = configFontSize;
 		}
 
-		GroovyCode.setFontSize(currentFontSize);
+		GroovyCode.setFontSizeForAllEditors(currentFontSize);
+	}
+
+	void configureCodeEditor(GroovyCode code) {
+
+		String editorScheme = configuration.getValue(CONFIG_KEY_EDITOR_SCHEME);
+
+		if (editorScheme != null) {
+			switch (editorScheme) {
+				case CONFIG_VAL_SCHEME_LIGHT:
+					code.setLightScheme();
+					break;
+
+				case CONFIG_VAL_SCHEME_DARK:
+					code.setDarkScheme();
+					break;
+			}
+		}
+
+		code.setFontSize(currentFontSize);
 	}
 
 	private void createNewCdm() {
