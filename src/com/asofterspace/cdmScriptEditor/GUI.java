@@ -1,3 +1,7 @@
+/**
+ * Unlicensed code created by A Softer Space, 2019
+ * www.asofterspace.com/licenses/unlicense.txt
+ */
 package com.asofterspace.cdmScriptEditor;
 
 import com.asofterspace.toolbox.cdm.CdmCtrl;
@@ -10,6 +14,7 @@ import com.asofterspace.toolbox.coders.UuidEncoderDecoder;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
+import com.asofterspace.toolbox.io.SimpleFile;
 import com.asofterspace.toolbox.io.XmlMode;
 import com.asofterspace.toolbox.gui.Arrangement;
 import com.asofterspace.toolbox.gui.GuiUtils;
@@ -63,7 +68,7 @@ import javax.swing.SwingUtilities;
 public class GUI extends MainWindow {
 
 	private CdmCtrl cdmCtrl;
-	
+
 	private JPanel mainPanelRight;
 	private JRadioButtonMenuItem lightScheme;
 	private JRadioButtonMenuItem darkScheme;
@@ -117,7 +122,7 @@ public class GUI extends MainWindow {
 		strScripts = new String[0];
 
 		scriptTabs = new ArrayList<>();
-		
+
 		cdmCtrl = new CdmCtrl();
 	}
 
@@ -458,18 +463,18 @@ public class GUI extends MainWindow {
 		});
 
         scriptListComponent.addKeyListener(new KeyListener() {
-		
+
 			@Override
 			public void keyTyped(KeyEvent e) {
 			}
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 			}
-			
+
 			@Override
 			public void keyReleased(KeyEvent e) {
-				switch (e.getKeyCode()) { 
+				switch (e.getKeyCode()) {
 					case KeyEvent.VK_UP:
 					case KeyEvent.VK_DOWN:
 						showSelectedTab();
@@ -477,7 +482,7 @@ public class GUI extends MainWindow {
 				}
 			}
 		});
-		
+
 		JScrollPane scriptListScroller = new JScrollPane(scriptListComponent);
 		scriptListScroller.setPreferredSize(new Dimension(8, 8));
 		scriptListScroller.setBorder(BorderFactory.createEmptyBorder());
@@ -1122,7 +1127,7 @@ public class GUI extends MainWindow {
 			"  <script name=\"" + newScriptName + "\" namespace=\"" + newNamespace + "\" scriptContent=\"\" xmi:id=\"" + UuidEncoderDecoder.generateEcoreUUID() + "\"/>\n" +
 			"</configurationcontrol:ScriptCI>";
 
-		File tmpCi = new File("tmpfile.tmp");
+		SimpleFile tmpCi = new SimpleFile("tmpfile.tmp");
 		tmpCi.setContent(scriptCiContent);
 		tmpCi.save();
 
