@@ -186,7 +186,6 @@ public class GUI extends MainWindow {
 		});
 		file.add(validateCdm);
 		convertCdm = new JMenuItem("Convert CDM");
-		convertCdm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 		convertCdm.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
