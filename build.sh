@@ -17,6 +17,10 @@ cd cdm
 mkdir exceptions
 cd ..
 mkdir codeeditor
+cd codeeditor
+mkdir base
+mkdir utils
+cd ..
 mkdir coders
 mkdir configuration
 mkdir io
@@ -30,6 +34,8 @@ cp ../Toolbox-Java/src/com/asofterspace/toolbox/*.java src/com/asofterspace/tool
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/cdm/*.* src/com/asofterspace/toolbox/cdm
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/cdm/exceptions/*.* src/com/asofterspace/toolbox/cdm/exceptions
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/codeeditor/*.* src/com/asofterspace/toolbox/codeeditor
+cp ../Toolbox-Java/src/com/asofterspace/toolbox/codeeditor/base/*.* src/com/asofterspace/toolbox/codeeditor/base
+cp ../Toolbox-Java/src/com/asofterspace/toolbox/codeeditor/utils/*.* src/com/asofterspace/toolbox/codeeditor/utils
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/coders/*.* src/com/asofterspace/toolbox/coders
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/configuration/*.* src/com/asofterspace/toolbox/configuration
 cp ../Toolbox-Java/src/com/asofterspace/toolbox/io/*.* src/com/asofterspace/toolbox/io

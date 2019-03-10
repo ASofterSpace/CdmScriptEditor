@@ -12,17 +12,17 @@ import com.asofterspace.toolbox.cdm.exceptions.CdmLoadingException;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.coders.UuidEncoderDecoder;
 import com.asofterspace.toolbox.configuration.ConfigFile;
-import com.asofterspace.toolbox.io.Directory;
-import com.asofterspace.toolbox.io.File;
-import com.asofterspace.toolbox.io.SimpleFile;
-import com.asofterspace.toolbox.io.XmlMode;
 import com.asofterspace.toolbox.gui.Arrangement;
 import com.asofterspace.toolbox.gui.GuiUtils;
 import com.asofterspace.toolbox.gui.MainWindow;
 import com.asofterspace.toolbox.gui.ProgressDialog;
-import com.asofterspace.toolbox.Utils;
+import com.asofterspace.toolbox.io.Directory;
+import com.asofterspace.toolbox.io.File;
+import com.asofterspace.toolbox.io.SimpleFile;
+import com.asofterspace.toolbox.io.XmlMode;
 import com.asofterspace.toolbox.utils.Callback;
 import com.asofterspace.toolbox.utils.ProgressIndicator;
+import com.asofterspace.toolbox.Utils;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -411,17 +411,17 @@ public class GUI extends MainWindow {
 
 	private JPanel createMainPanel(JFrame parent) {
 
-	    JPanel mainPanel = new JPanel();
-	    mainPanel.setPreferredSize(new Dimension(800, 500));
+		JPanel mainPanel = new JPanel();
+		mainPanel.setPreferredSize(new Dimension(800, 500));
 		GridBagLayout mainPanelLayout = new GridBagLayout();
 		mainPanel.setLayout(mainPanelLayout);
 
-	    mainPanelRight = new JPanel();
+		mainPanelRight = new JPanel();
 		mainPanelRight.setLayout(new CardLayout());
 		mainPanelRight.setPreferredSize(new Dimension(8, 8));
 
-	    JPanel gapPanel = new JPanel();
-	    gapPanel.setPreferredSize(new Dimension(8, 8));
+		JPanel gapPanel = new JPanel();
+		gapPanel.setPreferredSize(new Dimension(8, 8));
 
 		String[] scriptList = new String[0];
 		scriptListComponent = new JList<String>(scriptList);
@@ -430,9 +430,9 @@ public class GUI extends MainWindow {
 		scriptListComponent.addMouseListener(new MouseListener() {
 
 			@Override
-		    public void mouseClicked(MouseEvent e) {
+			public void mouseClicked(MouseEvent e) {
 				showSelectedTab();
-		    }
+			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -453,7 +453,7 @@ public class GUI extends MainWindow {
 			}
 
 			private void showPopupAndSelectedTab(MouseEvent e) {
-			    if (e.isPopupTrigger()) {
+				if (e.isPopupTrigger()) {
 					scriptListComponent.setSelectedIndex(scriptListComponent.locationToIndex(e.getPoint()));
 					scriptListPopup.show(scriptListComponent, e.getX(), e.getY());
 				}
@@ -462,7 +462,7 @@ public class GUI extends MainWindow {
 			}
 		});
 
-        scriptListComponent.addKeyListener(new KeyListener() {
+		scriptListComponent.addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -491,11 +491,11 @@ public class GUI extends MainWindow {
 
 		mainPanel.add(gapPanel, new Arrangement(1, 0, 0.0, 0.0));
 
-	    mainPanel.add(mainPanelRight, new Arrangement(2, 0, 1.0, 1.0));
+		mainPanel.add(mainPanelRight, new Arrangement(2, 0, 1.0, 1.0));
 
 		parent.add(mainPanel, BorderLayout.CENTER);
 
-	    return mainPanel;
+		return mainPanel;
 	}
 
 	private void showSelectedTab() {
