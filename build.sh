@@ -2,7 +2,7 @@
 
 if [[ ! -d ../Toolbox-Java ]]; then
 	echo "It looks like you did not yet get the Toolbox-Java project - please do so (and put it as a folder next to the CDM Script Editor folder.)"
-	exit
+	exit 1
 fi
 
 cd src/com/asofterspace
@@ -52,5 +52,3 @@ cd src
 find . -name "*.java" > sourcefiles.list
 
 javac -deprecation -Xlint:all -encoding utf8 -d ../bin @sourcefiles.list
-
-cd ..
