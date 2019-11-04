@@ -19,9 +19,7 @@ import com.asofterspace.toolbox.gui.ProgressDialog;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.SimpleFile;
-import com.asofterspace.toolbox.io.XmlMode;
 import com.asofterspace.toolbox.utils.Callback;
-import com.asofterspace.toolbox.utils.ProgressIndicator;
 import com.asofterspace.toolbox.Utils;
 
 import java.awt.BorderLayout;
@@ -33,7 +31,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -75,6 +72,8 @@ public class GUI extends MainWindow {
 	private int currentFontSize = 15;
 
 	private ScriptTab currentlyShownTab;
+
+	private final static String REASONABLE_DEFAULT_CDM_PREFIX = "http://www.esa.int/egscc/";
 
 	private final static String CONFIG_KEY_LAST_DIRECTORY = "lastDirectory";
 	private final static String CONFIG_KEY_EDITOR_SCHEME = "editorScheme";
@@ -669,7 +668,8 @@ public class GUI extends MainWindow {
 						String versionPrefix;
 						if (i < 0) {
 							// this seems to be a reasonable default in case of a user-provided CDM version...
-							versionPrefix = CdmCtrl.REASONABLE_DEFAULT_CDM_PREFIX;
+							// TODO :: actually let the user also specify the prefix!
+							versionPrefix = REASONABLE_DEFAULT_CDM_PREFIX;
 						} else {
 							versionPrefix = versionPrefixesArr[i];
 						}
@@ -855,7 +855,8 @@ public class GUI extends MainWindow {
 				String versionPrefix;
 				if (i < 0) {
 					// this seems to be a reasonable default in case of a user-provided CDM version...
-					versionPrefix = CdmCtrl.REASONABLE_DEFAULT_CDM_PREFIX;
+					// TODO :: actually let the user also specify the prefix!
+					versionPrefix = REASONABLE_DEFAULT_CDM_PREFIX;
 				} else {
 					versionPrefix = versionPrefixesArr[i];
 				}

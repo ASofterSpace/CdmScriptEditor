@@ -29,6 +29,7 @@ other
 
 # temporary files
 *.tmp
+*~
 
 # sourcefile list
 src/sourcefiles.list
