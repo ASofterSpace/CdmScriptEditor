@@ -9,6 +9,7 @@ import com.asofterspace.toolbox.cdm.CdmFile;
 import com.asofterspace.toolbox.cdm.CdmScript;
 import com.asofterspace.toolbox.cdm.exceptions.AttemptingEmfException;
 import com.asofterspace.toolbox.cdm.exceptions.CdmLoadingException;
+import com.asofterspace.toolbox.cdm.exceptions.CdmSavingException;
 import com.asofterspace.toolbox.codeeditor.GroovyCode;
 import com.asofterspace.toolbox.coders.UuidEncoderDecoder;
 import com.asofterspace.toolbox.configuration.ConfigFile;
@@ -699,7 +700,7 @@ public class GUI extends MainWindow {
 								newCdmDialog.dispose();
 								reloadAllScriptTabs();
 							}
-						} catch (AttemptingEmfException | CdmLoadingException e2) {
+						} catch (AttemptingEmfException | CdmLoadingException | CdmSavingException e2) {
 							JOptionPane.showMessageDialog(mainFrame, e2.getMessage(), "CDM Loading Failed", JOptionPane.ERROR_MESSAGE);
 						}
 					}
